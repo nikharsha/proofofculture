@@ -1070,6 +1070,22 @@ body[data-theme="dark"] .draw-card--primary dd {
   color: var(--accent-green);
 }
 
+.wallet-check__epoch-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wallet-check__epoch-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-solid);
+  color: var(--ink);
+}
+
 .stats-panel__note {
   color: var(--muted);
   font-size: 0.9rem;

@@ -448,6 +448,36 @@ function getGalleryItemByToken(token) {
   return getGalleryItems().find((item) => Number(item.token) === Number(token)) || null;
 }
 
+function getGalleryItemsForEpoch(epochName) {
+  return getGalleryItems().filter((item) => String(item.epochName || "") === String(epochName || ""));
+}
+
+function buildFlowerEntriesForEpoch(epochName, mintedCount) {
+  const count = Number(mintedCount || 0);
+  if (count <= 0) return [];
+  return [{
+    epochName: String(epochName || ""),
+    mintedCount: count
+  }];
+}
+
+function mergeFlowerEntries(existing, incoming) {
+  const merged = new Map();
+  [...(existing || []), ...(incoming || [])].forEach((item) => {
+    const key = String(item.epochName || "");
+    if (!merged.has(key)) {
+      merged.set(key, { ...item });
+      return;
+    }
+    const previous = merged.get(key);
+    merged.set(key, {
+      ...previous,
+      mintedCount: Math.max(Number(previous.mintedCount || 0), Number(item.mintedCount || 0))
+    });
+  });
+  return Array.from(merged.values()).sort((a, b) => Number(a.token || 0) - Number(b.token || 0));
+}
+
 const winners = [
   { wallet: "0x7cf1...913b", epoch: "Epoch 01", edition: "#03 / 44" },
   { wallet: "0x29aa...e182", epoch: "Epoch 02", edition: "#07 / 16" },
@@ -1184,7 +1214,10 @@ function renderHeroDeck() {
   const heroEdition = document.getElementById("hero-epoch-edition");
   if (status === "Completed") {
     const trackedEligible = trackerData?.epochSummary?.[heroEpoch.epoch]?.eligible;
-    const editionSize = heroEpoch.type === "manual" ? heroEpoch.editionSize : ((trackedEligible && trackedEligible > 0) ? trackedEligible : heroEpoch.editionSize);
+    const isPilotEpoch = heroEpoch.type !== "manual" && Number(heroEpoch.epoch || 0) <= 6;
+    const editionSize = heroEpoch.type === "manual"
+      ? heroEpoch.editionSize
+      : (isPilotEpoch && trackedEligible && trackedEligible > 0 ? trackedEligible : heroEpoch.editionSize);
     const eligible = heroEpoch.type === "manual" ? heroEpoch.editionSize : ((trackedEligible && trackedEligible > 0) ? trackedEligible : heroEpoch.editionSize);
     const minted = heroEpoch.type === "manual" ? Number(heroEpoch.minted || 0) : (trackerData?.epochSummary?.[heroEpoch.epoch]?.minted ?? 0);
     if (heroEpoch.type !== "manual" && (!trackedEligible || trackedEligible === 0)) {
@@ -1978,11 +2011,13 @@ function summarizeTracker(rows) {
     const key = String(row.username || "").trim().toLowerCase();
     if (!key) return;
     const totalMinted = dayKeys.reduce((sum, dayNumber) => sum + getMintCellValue(row[`day${dayNumber}_airdrop`]), 0);
+    const flowers = dayKeys.flatMap((dayNumber) => buildFlowerEntriesForEpoch(String(dayNumber), getMintCellValue(row[`day${dayNumber}_airdrop`])));
     mintMap.set(key, {
       user: row.username,
       wallet: row.wallet || "",
       totalMints: totalMinted,
-      status: row.wallet ? "Mapped" : "Not mapped"
+      status: row.wallet ? "Mapped" : "Not mapped",
+      flowers
     });
   });
 
@@ -1993,13 +2028,16 @@ function summarizeTracker(rows) {
         user: recipient.user,
         wallet: recipient.wallet || "",
         totalMints: 0,
-        status: recipient.wallet ? "Mapped" : "Not mapped"
+        status: recipient.wallet ? "Mapped" : "Not mapped",
+        flowers: []
       };
+      const flowers = buildFlowerEntriesForEpoch(epoch.name || "", recipient.count || 0);
       mintMap.set(key, {
         user: existing.user || recipient.user,
         wallet: existing.wallet || recipient.wallet || "",
         totalMints: Number(existing.totalMints || 0) + Number(recipient.count || 0),
-        status: existing.wallet || recipient.wallet ? "Mapped" : "Not mapped"
+        status: existing.wallet || recipient.wallet ? "Mapped" : "Not mapped",
+        flowers: mergeFlowerEntries(existing.flowers, flowers)
       });
     });
   });
@@ -2017,7 +2055,8 @@ function summarizeTracker(rows) {
     user: item.user,
     wallet: item.wallet || "",
     status: item.status,
-    totalMints: String(item.totalMints)
+    totalMints: String(item.totalMints),
+    flowers: item.flowers || []
   }));
 
   return {
@@ -3165,6 +3204,16 @@ function setupWalletCheck() {
         <div class="wallet-check__row"><strong>Wallet</strong><span>${escapeHtml(match.wallet || "Unknown")}</span></div>
         <div class="wallet-check__row"><strong>Total Mints</strong><span>${escapeHtml(match.totalMints || "0")}</span></div>
         <div class="wallet-check__row"><strong>Status</strong><span class="wallet-check__status">${escapeHtml(match.status)}</span></div>
+        <div class="wallet-check__row">
+          <strong>Flowers airdropped from Epochs</strong>
+          ${match.flowers?.length ? `
+            <div class="wallet-check__epoch-list">
+              ${match.flowers.map((item) => `
+                <span class="wallet-check__epoch-pill">Epoch ${escapeHtml(item.epochName)}${Number(item.mintedCount || 0) > 1 ? ` · ${escapeHtml(String(item.mintedCount))}` : ""}</span>
+              `).join("")}
+            </div>
+          ` : `<span>No flowers found yet.</span>`}
+        </div>
       </div>
     `;
   };
