@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proof of Culture</title>
+  <meta
+    name="description"
+    content="Proof of Culture rewards presence, consistency, and culture through simple repeated actions, fixed epoch rules, capped supply, and public draws only when a roster overflows."
+  >
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light">
+  <div class="site-shell">
+    <header class="hero" id="top">
+      <div class="hero__bar">
+        <div>
+          <p class="eyebrow">Proof of Culture</p>
+          <p class="hero__micro">Same actions. Increasing commitment. Limited supply.</p>
+        </div>
+        <div class="hero__tools">
+          <button class="button" id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+        </div>
+      </div>
+
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <div class="hero-quote" aria-live="polite">
+            <p class="hero-quote__text" id="hero-quote-text">GMs are free.</p>
+          </div>
+          <h1>Show up.<br>Stay consistent.<br>Get lucky.</h1>
+          <p class="hero__lede">
+            Proof of Culture is a public participation system. It began as a way to bring back the gm culture of 2021. The pilot is live through Epoch 7, and the schedule then moves forward through linear and ludicrous participation pressure with fair draws only on overflow.
+          </p>
+          <div class="hero__actions">
+            <button class="button button--solid" type="button" data-switch-tab="current">Current epoch</button>
+            <button class="button" type="button" data-switch-tab="timeline">See the phase plan</button>
+          </div>
+        </div>
+
+        <aside class="epoch-card" id="hero-epoch-card" aria-label="Epoch quick view">
+          <div class="epoch-card__topline">
+            <p class="epoch-card__label">TL;DR</p>
+            <span class="epoch-card__light" id="hero-epoch-light" aria-hidden="true"></span>
+          </div>
+          <h2 id="hero-epoch-name">Epoch 7</h2>
+          <dl class="metric-list">
+            <div>
+              <dt>Status</dt>
+              <dd id="hero-epoch-status">Live</dd>
+            </div>
+            <div>
+              <dt>Window (tentative)</dt>
+              <dd id="hero-epoch-window">Mar 26, 2026, 1 PM UTC - Mar 27, 2026, 1 PM UTC</dd>
+            </div>
+            <div>
+              <dt>Current day</dt>
+              <dd id="hero-epoch-day">1 / 1</dd>
+            </div>
+            <div>
+              <dt>Phase</dt>
+              <dd id="hero-epoch-phase">Pilot</dd>
+            </div>
+            <div>
+              <dt>Eligibility</dt>
+              <dd id="hero-epoch-eligibility">QRT + Comment</dd>
+            </div>
+            <div>
+              <dt>Do this</dt>
+              <dd id="hero-epoch-action">QRT + Comment before the window closes.</dd>
+            </div>
+            <div>
+              <dt>Deadline</dt>
+              <dd id="hero-epoch-deadline">Mar 27, 2026, 1 PM UTC</dd>
+            </div>
+            <div>
+              <dt id="hero-epoch-edition-label">Edition size</dt>
+              <dd id="hero-epoch-edition">1 edition</dd>
+            </div>
+            <div>
+              <dt>Current Supply</dt>
+              <dd id="hero-epoch-supply">0 / 0 minted</dd>
+            </div>
+          </dl>
+          <p class="epoch-card__note" id="hero-epoch-note">
+            If you only read one card on the site, this is the one. It tells you the action, the deadline, and what counts right now.
+          </p>
+          <div class="epoch-card__nav">
+            <button class="button" id="epoch-prev" type="button" aria-label="Previous epoch">← Prev</button>
+            <button class="button button--solid" id="epoch-reset" type="button">Current</button>
+            <button class="button" id="epoch-next" type="button" aria-label="Next epoch">Next →</button>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main class="protocol">
+      <section class="section section--tabs">
+        <div class="section__intro section__intro--wide">
+          <p class="eyebrow">Protocol Interface</p>
+          <h2>Everything You Need To Know in One Place</h2>
+          <p class="section__text">
+            Move through the tabs for the big picture, how to participate, what is live now, how fairness works, and where the schedule is headed.
+          </p>
+        </div>
+
+        <div class="tabs tabs--protocol" role="tablist" aria-label="Protocol navigation">
+          <button class="tab is-active" id="protocol-tab-overview" type="button" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+          <button class="tab" id="protocol-tab-mechanics" type="button" data-tab="mechanics" role="tab" aria-selected="false">Runbook</button>
+          <button class="tab" id="protocol-tab-current" type="button" data-tab="current" role="tab" aria-selected="false">Current Epoch</button>
+          <button class="tab" id="protocol-tab-fairness" type="button" data-tab="fairness" role="tab" aria-selected="false">Fair Draw</button>
+          <button class="tab" id="protocol-tab-stats" type="button" data-tab="stats" role="tab" aria-selected="false">Stats</button>
+          <button class="tab" id="protocol-tab-timeline" type="button" data-tab="timeline" role="tab" aria-selected="false">Timeline</button>
+          <button class="tab" id="protocol-tab-mints" type="button" data-tab="mints" role="tab" aria-selected="false">Unclaimed</button>
+          <button class="tab" id="protocol-tab-gallery" type="button" data-tab="gallery" role="tab" aria-selected="false">Gallery</button>
+        </div>
+
+        <div class="tab-panels tab-panels--protocol">
+          <section class="tab-panel is-active" id="panel-overview" data-panel="overview" role="tabpanel" aria-labelledby="protocol-tab-overview">
+            <div class="manifesto-grid">
+              <article class="manifesto-card">
+                <p class="manifesto-card__label">Actions</p>
+                <h3>Comment, RT</h3>
+                <p>That is the whole participation layer. The system stays simple even as it becomes more demanding.</p>
+              </article>
+              <article class="manifesto-card">
+                <p class="manifesto-card__label">Difficulty</p>
+                <h3>Consistency over time</h3>
+                <p>Early phases ask for less. Later epochs require longer streaks, higher resilience, and more patience.</p>
+              </article>
+              <article class="manifesto-card">
+                <p class="manifesto-card__label">Chance</p>
+                <h3>Luck enters at the margins</h3>
+                <p>Overflow draws are the main luck layer. At the edges, low-signal accounts occasionally falling through X API collection can also affect who ends up in the final roster.</p>
+              </article>
+              <article class="manifesto-card">
+                <p class="manifesto-card__label">Cost</p>
+                <h3>FREE</h3>
+                <p>Everyone's welcome to say gm.</p>
+              </article>
+            </div>
+            <div class="summary-strip" id="summary-strip"></div>
+            <p class="section__text section__text--notice" id="overview-timing-note">
+              <strong>Timing Note:</strong> listed start and end times are best-effort targets. Because posting, compiling, wallet collection, and airdrops are still manual, real execution can drift by a few minutes or a few hours.
+            </p>
+            <p class="section__text section__text--notice" id="overview-general-note">
+              <strong>Creator’s Note:</strong> I wanted to make something that feels good to return to. A place where a simple gm can carry a little beauty, a little rhythm, and a reason to come back tomorrow. Lots of thought has gone into making this, but if something breaks midway, please be flexible to accept change. with <span class="note-heart" aria-hidden="true">♥</span> <a href="https://x.com/1xharsh" target="_blank" rel="noreferrer">1xHarsh</a>
+            </p>
+          </section>
+
+          <section class="tab-panel" id="panel-mechanics" data-panel="mechanics" role="tabpanel" aria-labelledby="protocol-tab-mechanics">
+            <div class="flow-grid">
+              <article class="flow-step"><span>01</span><h3>Start with the site first</h3><p>Start there. It shows the live window, the phase, and the exact eligibility rule.</p></article>
+              <article class="flow-step"><span>02</span><h3>Follow the epoch rule</h3><p>Follow the rule shown for that epoch. Right now that means QRT + Comment.</p></article>
+              <article class="flow-step"><span>03</span><h3>Repeat if needed</h3><p>If the epoch lasts multiple days, keep the same pattern going for the full run.</p></article>
+              <article class="flow-step"><span>04</span><h3>Share wallet when prompted</h3><p>If you have already shared a wallet in any earlier epoch, you do not need to do it again unless you want to update it. Your latest shared wallet is the one used for airdrops.</p></article>
+              <article class="flow-step"><span>05</span><h3>Draw or direct airdrop</h3><p>If the roster overflows, a draw decides it. If not, the final wallets receive the airdrop directly.</p></article>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-current" data-panel="current" role="tabpanel" aria-labelledby="protocol-tab-current">
+            <div class="draw-grid">
+              <article class="draw-card draw-card--primary">
+                <p class="draw-card__label">Current Epoch</p>
+                <h3 id="draw-title">Epoch 7</h3>
+                <dl class="metric-list" id="current-epoch-metrics"></dl>
+              </article>
+              <article class="draw-card">
+                <p class="draw-card__label">User Checklist</p>
+                <ul class="checklist" id="ops-checklist"></ul>
+              </article>
+            </div>
+            <div class="timeline-top">
+              <h3>What follows after this epoch.</h3>
+              <div class="timeline-table">
+                <div class="timeline-table__head" role="row">
+                  <span role="columnheader">Epoch</span>
+                  <span role="columnheader">Phase</span>
+                  <span role="columnheader">Window</span>
+                  <span role="columnheader">Days needed</span>
+                  <span role="columnheader">Edition size</span>
+                </div>
+                <div id="upcoming-epochs"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-fairness" data-panel="fairness" role="tabpanel" aria-labelledby="protocol-tab-fairness">
+            <div class="stats-grid" id="fairness-cards"></div>
+            <article class="draw-card">
+              <p class="draw-card__label">Latest Selection Stats</p>
+              <h3 id="fairness-live-heading">Latest draw records</h3>
+              <div class="timeline-table">
+                <div class="timeline-table__head" role="row">
+                  <span role="columnheader">Epoch</span>
+                  <span role="columnheader">Edition Size</span>
+                  <span role="columnheader">Eligible Count</span>
+                  <span role="columnheader">Draw Output</span>
+                  <span role="columnheader">Draw Date</span>
+                  <span role="columnheader">Draw Mode</span>
+                  <span role="columnheader">Winner List</span>
+                </div>
+                <div id="fairness-result-table"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="tab-panel" id="panel-stats" data-panel="stats" role="tabpanel" aria-labelledby="protocol-tab-stats">
+            <div class="tabs tabs--stats" role="tablist" aria-label="Stats navigation">
+              <button class="tab is-active" type="button" data-tab="stats-engagement" role="tab" aria-selected="true">Engagement</button>
+              <button class="tab" type="button" data-tab="stats-minting" role="tab" aria-selected="false">Minting</button>
+              <button class="tab" type="button" data-tab="stats-top" role="tab" aria-selected="false">Top Minters</button>
+              <button class="tab" type="button" data-tab="stats-wallet" role="tab" aria-selected="false">Wallet Check</button>
+            </div>
+            <div class="tab-panels">
+              <section class="tab-panel is-active" data-panel="stats-engagement" role="tabpanel">
+                <div id="engagement-chart"></div>
+                <div id="engagement-table"></div>
+              </section>
+              <section class="tab-panel" data-panel="stats-minting" role="tabpanel">
+                <div id="minting-chart"></div>
+                <div id="minting-table"></div>
+              </section>
+              <section class="tab-panel" data-panel="stats-top" role="tabpanel">
+                <div id="leaderboard"></div>
+              </section>
+              <section class="tab-panel" data-panel="stats-wallet" role="tabpanel">
+                <div class="wallet-check">
+                  <div class="hero__actions">
+                    <input id="wallet-check-input" type="text" placeholder="Search by user or wallet">
+                    <button class="button button--solid" id="wallet-check-button" type="button">Check</button>
+                  </div>
+                  <div id="wallet-check-result"></div>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-timeline" data-panel="timeline" role="tabpanel" aria-labelledby="protocol-tab-timeline">
+            <div class="stats-grid" id="formula-cards"></div>
+            <div class="timeline-top">
+              <article class="stat-card">
+                <p class="manifesto-card__label">Start</p>
+                <strong id="timeline-start"></strong>
+              </article>
+              <article class="stat-card">
+                <p class="manifesto-card__label">End</p>
+                <strong id="timeline-end"></strong>
+              </article>
+              <article class="stat-card">
+                <p class="manifesto-card__label">Duration</p>
+                <strong id="timeline-duration"></strong>
+              </article>
+              <article class="stat-card">
+                <p class="manifesto-card__label">Current arc</p>
+                <strong id="timeline-auto-supply"></strong>
+              </article>
+            </div>
+            <div class="progression-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Phase</span>
+                <span role="columnheader">Logic</span>
+                <span role="columnheader">Eligibility</span>
+                <span role="columnheader">Edition</span>
+              </div>
+              <div id="progression-body"></div>
+            </div>
+            <div class="timeline-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Rule</span>
+                <span role="columnheader">Formula</span>
+                <span role="columnheader">Meaning</span>
+                <span role="columnheader">Effect</span>
+                <span role="columnheader">Bound</span>
+              </div>
+              <div id="formula-table"></div>
+            </div>
+            <div class="section__intro section__intro--tight table-title">
+              <h3>Past and Current Epochs</h3>
+            </div>
+            <div class="timeline-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Epoch</span>
+                <span role="columnheader">Phase</span>
+                <span role="columnheader">Window</span>
+                <span role="columnheader">Edition / Status</span>
+                <span role="columnheader">State</span>
+              </div>
+              <div id="bootstrap-body"></div>
+            </div>
+            <div class="section__intro section__intro--tight table-title">
+              <h3>Complete Schedule</h3>
+            </div>
+            <div class="timeline-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Epoch</span>
+                <span role="columnheader">Window</span>
+                <span role="columnheader">Phase</span>
+                <span role="columnheader">Days needed</span>
+                <span role="columnheader">Edition / Minted</span>
+                <span role="columnheader">Cumulative</span>
+              </div>
+              <div id="timeline-body"></div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-mints" data-panel="mints" role="tabpanel" aria-labelledby="protocol-tab-mints">
+            <div class="stats-grid">
+              <article class="stat-card">
+                <p class="manifesto-card__label">Unclaimed pool</p>
+                <strong id="unclaimed-pool-count">0 slots</strong>
+              </article>
+              <article class="stat-card">
+                <p class="manifesto-card__label">Manual epoch editions</p>
+                <strong id="manual-epoch-editions">0 editions</strong>
+              </article>
+              <article class="stat-card">
+                <p class="manifesto-card__label">Manual epoch minted</p>
+                <strong id="manual-epoch-minted">0 minted</strong>
+              </article>
+            </div>
+            <div class="section__intro section__intro--tight table-title">
+              <h3>List of manual epochs executed</h3>
+            </div>
+            <div class="timeline-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Manual Epoch</span>
+                <span role="columnheader">Window</span>
+                <span role="columnheader">Status</span>
+                <span role="columnheader">Edition size</span>
+                <span role="columnheader">Minted</span>
+                <span role="columnheader">Unminted</span>
+              </div>
+              <div id="optional-table"></div>
+            </div>
+            <div class="section__intro section__intro--tight table-title">
+              <h3>List of unclaimed slots from prior epochs</h3>
+            </div>
+            <div class="timeline-table">
+              <div class="timeline-table__head" role="row">
+                <span role="columnheader">Source epoch</span>
+                <span role="columnheader">Eligible / edition</span>
+                <span role="columnheader">Minted</span>
+                <span role="columnheader">Unclaimed</span>
+                <span role="columnheader">Reason</span>
+              </div>
+              <div id="unclaimed-source-table"></div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-gallery" data-panel="gallery" role="tabpanel" aria-labelledby="protocol-tab-gallery">
+            <div class="section__intro section__intro--tight">
+              <p class="eyebrow">Gallery View</p>
+              <h2>A visual record of the gm culture.</h2>
+              <p class="section__text">
+                Browse the pieces in release order, trace each one back to its epoch, and jump straight to the OpenSea listing when you want the collector view.
+              </p>
+            </div>
+            <div class="gallery-filter">
+              <label for="gallery-epoch-filter">Filter by epoch</label>
+              <select id="gallery-epoch-filter">
+                <option value="all">All epochs</option>
+              </select>
+              <label for="gallery-edition-filter">Filter by edition size</label>
+              <select id="gallery-edition-filter">
+                <option value="all">All edition sizes</option>
+              </select>
+            </div>
+            <div class="gallery-grid" id="gallery-grid"></div>
+          </section>
+        </div>
+      </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Proof of Culture rewards presence, consistency, and culture. Not capital. Not speed. Not access.</p>
+      <a href="#top">Back to top</a>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
