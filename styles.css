@@ -130,6 +130,12 @@ a {
   margin-top: 28px;
 }
 
+.timeline-footnote {
+  margin-top: 34px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
 .note-heart {
   color: #111;
   text-shadow: 0 0 0.5px rgba(17, 17, 17, 0.85);

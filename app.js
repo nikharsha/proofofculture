@@ -1533,37 +1533,42 @@ function fillOptionalTable() {
     };
   });
 
+  const chartRowMap = new Map((trackerData?.chartRows || []).map((row) => [row.label, row]));
   const poolSourceRows = mergedEpochs.reduce((acc, item) => {
     if (getHeroStatus(item.key) !== "Completed") return acc;
+
+    const chartRow = chartRowMap.get(item.name || `Epoch ${item.epoch}`);
+    if (chartRow) {
+      const eligible = Number(chartRow.eligible || 0);
+      const editionSize = Number(chartRow.edition_size || 0);
+      const minted = Number(chartRow.minted || 0);
+      const unminted = Number(chartRow.wallet_not_shared || 0);
+
+      if (eligible === 0 || minted === 0 || unminted <= 0) return acc;
+
+      acc.push({
+        name: item.name || `Epoch ${item.epoch}`,
+        basis: `${editionSize}`,
+        minted,
+        unminted,
+        reason: "Closed epoch finished below edition size"
+      });
+      return acc;
+    }
+
     if (item.type === "manual") {
       const editionSize = Number(item.editionSize || 0);
       const minted = Number(item.minted || 0);
       const unminted = Math.max(0, editionSize - minted);
-      if (unminted > 0) {
+      if (editionSize > 0 && minted > 0 && unminted > 0) {
         acc.push({
           name: item.name || "Manual Epoch",
           basis: `${editionSize}`,
           minted,
           unminted,
-          reason: "Manual epoch closed under cap"
+          reason: "Closed epoch finished below edition size"
         });
       }
-      return acc;
-    }
-
-    const summary = trackerData?.epochSummary?.[item.epoch];
-    const eligible = Number(summary?.eligible ?? 0);
-    const minted = Number(summary?.minted ?? item.actualMinted ?? 0);
-    if (eligible === 0 || minted === 0) return acc;
-    const unminted = Math.max(0, eligible - minted);
-    if (unminted > 0) {
-      acc.push({
-        name: item.name || `Epoch ${item.epoch}`,
-        basis: `${eligible}`,
-        minted,
-        unminted,
-        reason: "Eligible users did not all convert to minted wallets"
-      });
     }
     return acc;
   }, []);
