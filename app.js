@@ -239,7 +239,7 @@ function syncAdminSettingsStatus(customMessage = "") {
     return;
   }
   if (adminSettingsFileHandle?.name) {
-    node.textContent = `Connected to ${adminSettingsFileHandle.name}. Admin changes now auto-save there.`;
+    node.textContent = `Connected to ${adminSettingsFileHandle.name}. The local site is previewing that file, and admin changes auto-save there.`;
     return;
   }
   node.textContent = "Using browser storage until a settings file is connected.";
@@ -3188,16 +3188,7 @@ function setupGalleryFilter() {
 
 async function init() {
   const localState = loadProtocolStateFromLocalStorage();
-  protocolStateCache = hasAdminUi() ? localState : getDefaultProtocolState();
-
-  const hostedState = await loadProtocolStateFromHostedJson();
-  if (hostedState && !hasAdminUi()) {
-    protocolStateCache = hostedState.protocolState;
-    applyMaterializedScheduleSnapshot(hostedState.materializedSchedule);
-  } else if (hostedState && !window.localStorage.getItem(protocolStateKey)) {
-    protocolStateCache = hostedState.protocolState;
-    applyMaterializedScheduleSnapshot(hostedState.materializedSchedule);
-  }
+  protocolStateCache = getDefaultProtocolState();
 
   try {
     const storedHandle = await loadAdminSettingsHandle();
@@ -3213,6 +3204,16 @@ async function init() {
     }
   } catch (_) {
     adminSettingsFileHandle = null;
+  }
+
+  if (!adminSettingsFileHandle) {
+    const hostedState = await loadProtocolStateFromHostedJson();
+    if (hostedState) {
+      protocolStateCache = hostedState.protocolState;
+      applyMaterializedScheduleSnapshot(hostedState.materializedSchedule);
+    } else if (hasAdminUi()) {
+      protocolStateCache = localState;
+    }
   }
 
   fillSummaryStrip();
