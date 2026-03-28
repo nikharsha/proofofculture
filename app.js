@@ -1989,7 +1989,7 @@ function summarizeTracker(rows) {
       qrt_comment: qrtComment,
       only_qrt: onlyQrt,
       only_comment: onlyComment,
-      total: eligible,
+      total: qrtComment + onlyQrt + onlyComment,
       eligible,
       edition_size: effectiveEditionSize,
       eligible_wallets: eligibleWallets,
