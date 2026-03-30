@@ -922,6 +922,10 @@ body[data-theme="dark"] .draw-card--primary dd {
   font: inherit;
 }
 
+#gallery-asset-status {
+  margin-top: 10px;
+}
+
 .gallery-card__image {
   aspect-ratio: 1 / 1.16;
   border: 1px solid var(--line);

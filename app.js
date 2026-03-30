@@ -6,6 +6,8 @@ const protocolStateKey = "proof-of-culture-protocol-state";
 const adminSettingsHandleDbName = "proof-of-culture-admin";
 const adminSettingsHandleStore = "handles";
 const adminSettingsHandleKey = "settings-file";
+const galleryAssetSourceHandleKey = "gallery-assets-source";
+const galleryAssetTargetHandleKey = "gallery-assets-target";
 const hostedAdminSettingsPath = "data/admin_settings_live.json";
 const trackerCsvPath = "data/proof_of_culture_tracker_master.csv";
 const editionPalette = [69, 42, 33, 25, 11, 5, 1];
@@ -49,6 +51,8 @@ const currentEpochOverride = {
 let trackerData = null;
 let protocolStateCache = getDefaultProtocolState();
 let adminSettingsFileHandle = null;
+let galleryAssetSourceDirHandle = null;
+let galleryAssetTargetDirHandle = null;
 let forceEpochPlanRebuild = false;
 const materializedSchedule = {
   dirty: true,
@@ -199,26 +203,34 @@ function openAdminSettingsDb() {
   });
 }
 
-async function saveAdminSettingsHandle(handle) {
+async function saveHandleToDb(key, handle) {
   if (!window.indexedDB) return;
   const db = await openAdminSettingsDb();
   await new Promise((resolve, reject) => {
     const tx = db.transaction(adminSettingsHandleStore, "readwrite");
-    tx.objectStore(adminSettingsHandleStore).put(handle, adminSettingsHandleKey);
+    tx.objectStore(adminSettingsHandleStore).put(handle, key);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
 }
 
-async function loadAdminSettingsHandle() {
+async function loadHandleFromDb(key) {
   if (!window.indexedDB) return null;
   const db = await openAdminSettingsDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(adminSettingsHandleStore, "readonly");
-    const request = tx.objectStore(adminSettingsHandleStore).get(adminSettingsHandleKey);
+    const request = tx.objectStore(adminSettingsHandleStore).get(key);
     request.onsuccess = () => resolve(request.result || null);
     request.onerror = () => reject(request.error);
   });
+}
+
+async function saveAdminSettingsHandle(handle) {
+  return saveHandleToDb(adminSettingsHandleKey, handle);
+}
+
+async function loadAdminSettingsHandle() {
+  return loadHandleFromDb(adminSettingsHandleKey);
 }
 
 async function readProtocolStateFromFileHandle(handle) {
@@ -411,7 +423,7 @@ function getMergedEpochs() {
 }
 
 const openseaBaseUrl = "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856";
-const knownWebAssets = [
+const defaultKnownWebAssets = [
   "web_assets/day1-bw.jpg",
   "web_assets/day1-r.jpg",
   "web_assets/day1-g.jpg",
@@ -429,9 +441,237 @@ const knownWebAssets = [
   "web_assets/dm gm 1.jpg",
   "web_assets/epoch7.jpg"
 ];
+let knownWebAssets = [...defaultKnownWebAssets];
+
+function getKnownWebAssets() {
+  return [...new Set(knownWebAssets)];
+}
+
+function isSupportedImageAsset(path) {
+  return /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(String(path || ""));
+}
+
+function normalizeWebAssetPath(input) {
+  const value = String(input || "").trim();
+  if (!value) return "";
+  const decoded = value.startsWith("http")
+    ? decodeURIComponent(new URL(value, window.location.origin).pathname)
+    : decodeURIComponent(value);
+  const cleaned = decoded
+    .replace(/^\.\//, "")
+    .replace(/^\//, "");
+  return cleaned.startsWith("web_assets/") ? cleaned : `web_assets/${cleaned.replace(/^web_assets\//, "")}`;
+}
+
+function humanizeAssetName(path) {
+  const fileName = String(path || "").split("/").pop() || "";
+  const withoutExtension = fileName.replace(/\.[^.]+$/, "");
+  return withoutExtension
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || "Untitled";
+}
+
+function getDraftGalleryMetadataFromAsset(path) {
+  const fileName = String(path || "").split("/").pop() || "";
+  const stem = fileName.replace(/\.[^.]+$/, "");
+  const lower = stem.toLowerCase().trim();
+  const epochMatch = lower.match(/^epoch\s*(\d+)(?:[^\d]+(\d+))?$/) || lower.match(/^epoch(\d+)(?:[^\d]+(\d+))?$/);
+  if (epochMatch) {
+    const epochNumber = epochMatch[1];
+    const variant = epochMatch[2] || "0";
+    return {
+      title: `GM ${epochNumber}.${variant}`,
+      epochName: epochNumber
+    };
+  }
+
+  const numberMatches = lower.match(/\d+/g) || [];
+  const specialNumber = numberMatches[0] || "1";
+  const specialVariant = numberMatches[1] || "0";
+  return {
+    title: `Special ${specialNumber}.${specialVariant}`,
+    epochName: `Special ${specialNumber}`
+  };
+}
+
+async function fetchWebAssetsFromDirectory() {
+  const response = await fetch("web_assets/", { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Could not read web_assets directory (${response.status})`);
+  }
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const assets = Array.from(doc.querySelectorAll("a"))
+    .map((link) => normalizeWebAssetPath(link.getAttribute("href") || link.textContent || ""))
+    .filter((path) => path.startsWith("web_assets/") && isSupportedImageAsset(path));
+  return [...new Set(assets)].sort((a, b) => a.localeCompare(b));
+}
+
+function canUseDirectoryPicker() {
+  return typeof window.showDirectoryPicker === "function";
+}
+
+async function ensureGalleryDirectoryHandles() {
+  if (!canUseDirectoryPicker()) {
+    throw new Error("Directory picker unsupported in this browser.");
+  }
+
+  if (!galleryAssetSourceDirHandle) {
+    galleryAssetSourceDirHandle = await loadHandleFromDb(galleryAssetSourceHandleKey);
+  }
+  if (!galleryAssetTargetDirHandle) {
+    galleryAssetTargetDirHandle = await loadHandleFromDb(galleryAssetTargetHandleKey);
+  }
+
+  let sourcePermission = galleryAssetSourceDirHandle
+    ? await galleryAssetSourceDirHandle.queryPermission({ mode: "read" })
+    : "prompt";
+  if (!galleryAssetSourceDirHandle || sourcePermission !== "granted") {
+    galleryAssetSourceDirHandle = await window.showDirectoryPicker({ mode: "read" });
+    await saveHandleToDb(galleryAssetSourceHandleKey, galleryAssetSourceDirHandle);
+    sourcePermission = await galleryAssetSourceDirHandle.requestPermission({ mode: "read" });
+  }
+
+  let targetPermission = galleryAssetTargetDirHandle
+    ? await galleryAssetTargetDirHandle.queryPermission({ mode: "readwrite" })
+    : "prompt";
+  if (!galleryAssetTargetDirHandle || targetPermission !== "granted") {
+    galleryAssetTargetDirHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+    await saveHandleToDb(galleryAssetTargetHandleKey, galleryAssetTargetDirHandle);
+    targetPermission = await galleryAssetTargetDirHandle.requestPermission({ mode: "readwrite" });
+  }
+
+  if (sourcePermission !== "granted" || targetPermission !== "granted") {
+    throw new Error("Directory permissions were not granted.");
+  }
+
+  return {
+    source: galleryAssetSourceDirHandle,
+    target: galleryAssetTargetDirHandle
+  };
+}
+
+async function resizeImageForWeb(file) {
+  const bitmap = await createImageBitmap(file);
+  const targetWidth = Math.min(bitmap.width, 2560);
+  const targetHeight = Math.max(1, Math.round((bitmap.height / bitmap.width) * targetWidth));
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext("2d", { alpha: false });
+  context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+  bitmap.close();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Could not encode resized image."));
+        return;
+      }
+      resolve(blob);
+    }, "image/jpeg", 0.85);
+  });
+}
+
+async function syncAssetsIntoWebAssets() {
+  const { source, target } = await ensureGalleryDirectoryHandles();
+  const processed = [];
+
+  for await (const [name, handle] of source.entries()) {
+    if (handle.kind !== "file" || !isSupportedImageAsset(name)) continue;
+    const normalizedTargetName = `${name.replace(/\.[^.]+$/, "")}.jpg`;
+    let targetExists = true;
+    try {
+      await target.getFileHandle(normalizedTargetName);
+    } catch (_) {
+      targetExists = false;
+    }
+    if (targetExists) continue;
+
+    const sourceFile = await handle.getFile();
+    const resizedBlob = await resizeImageForWeb(sourceFile);
+    const writableHandle = await target.getFileHandle(normalizedTargetName, { create: true });
+    const writable = await writableHandle.createWritable();
+    await writable.write(resizedBlob);
+    await writable.close();
+    processed.push(`web_assets/${normalizedTargetName}`);
+  }
+
+  return processed;
+}
+
+function buildDraftGalleryOverride(token, image) {
+  const derived = getDraftGalleryMetadataFromAsset(image);
+  return {
+    token,
+    title: derived.title || humanizeAssetName(image),
+    epochName: derived.epochName || "",
+    edition: "",
+    os: `${openseaBaseUrl}/${token}`,
+    image,
+    mark: `#${String(token).padStart(3, "0")}`
+  };
+}
+
+async function refreshGalleryAssetList() {
+  const statusNode = document.getElementById("gallery-asset-status");
+  if (statusNode) {
+    statusNode.textContent = "Refreshing web_assets…";
+  }
+
+  try {
+    let processedAssets = [];
+    if (hasAdminUi() && canUseDirectoryPicker()) {
+      try {
+        processedAssets = await syncAssetsIntoWebAssets();
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+    const scannedAssets = await fetchWebAssetsFromDirectory();
+    knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
+
+    const state = getProtocolState();
+    const existingItems = getGalleryItems();
+    const usedImages = new Set(existingItems.map((item) => item.image).filter(Boolean));
+    let nextToken = Math.max(0, ...existingItems.map((item) => Number(item.token) || 0)) + 1;
+    const draftOverrides = [];
+
+    getKnownWebAssets().forEach((assetPath) => {
+      if (usedImages.has(assetPath)) return;
+      draftOverrides.push(buildDraftGalleryOverride(nextToken, assetPath));
+      usedImages.add(assetPath);
+      nextToken += 1;
+    });
+
+    if (draftOverrides.length) {
+      setProtocolState({
+        ...state,
+        galleryOverrides: [...(state.galleryOverrides || []), ...draftOverrides]
+      });
+    }
+
+    if (statusNode) {
+      const resizedMessage = processedAssets.length
+        ? `Resized ${processedAssets.length} new ${processedAssets.length === 1 ? "image" : "images"} into web_assets. `
+        : "";
+      statusNode.textContent = draftOverrides.length
+        ? `${resizedMessage}Added ${draftOverrides.length} new draft ${draftOverrides.length === 1 ? "entry" : "entries"} for editing.`
+        : `${resizedMessage}No new gallery assets were found.`;
+    }
+    renderDelayState();
+  } catch (error) {
+    if (statusNode) {
+      statusNode.textContent = "Could not refresh assets automatically. Make sure the site is running from a local web server with directory listing enabled for web_assets.";
+    }
+    console.error(error);
+  }
+}
 
 function getSpecialEpochAsset() {
-  return knownWebAssets.find((path) => {
+  return getKnownWebAssets().find((path) => {
     const file = path.split("/").pop()?.toLowerCase() || "";
     return file && !file.startsWith("day") && !file.startsWith("epoch");
   }) || "";
@@ -464,8 +704,9 @@ const galleryBase = [
 }));
 
 function getGalleryItems() {
-  const overrideMap = new Map(getGalleryOverrides().map((item) => [String(item.token), item]));
-  return galleryBase.map((item) => {
+  const overrides = getGalleryOverrides();
+  const overrideMap = new Map(overrides.map((item) => [String(item.token), item]));
+  const mergedBase = galleryBase.map((item) => {
     const override = overrideMap.get(String(item.token));
     return override ? {
       ...item,
@@ -473,7 +714,19 @@ function getGalleryItems() {
       token: Number(override.token || item.token),
       edition: override.edition || item.edition
     } : item;
-  }).sort((a, b) => Number(a.token) - Number(b.token));
+  });
+  const extraOverrides = overrides
+    .filter((item) => !galleryBase.some((baseItem) => Number(baseItem.token) === Number(item.token)))
+    .map((item) => ({
+      status: "Issued",
+      mark: `#${String(item.token).padStart(3, "0")}`,
+      sales: item.os || `${openseaBaseUrl}/${item.token}`,
+      ...item,
+      token: Number(item.token || 0),
+      edition: item.edition || ""
+    }));
+
+  return [...mergedBase, ...extraOverrides].sort((a, b) => Number(a.token) - Number(b.token));
 }
 
 function getGalleryItemByToken(token) {
@@ -2493,9 +2746,9 @@ function renderDelayState() {
     const previousValue = galleryImageSelect.value || "";
     galleryImageSelect.innerHTML = `
       <option value="">Select mapped image</option>
-      ${knownWebAssets.map((path) => `<option value="${escapeHtml(path)}">${escapeHtml(path)}</option>`).join("")}
+      ${getKnownWebAssets().map((path) => `<option value="${escapeHtml(path)}">${escapeHtml(path)}</option>`).join("")}
     `;
-    if (knownWebAssets.includes(previousValue)) {
+    if (getKnownWebAssets().includes(previousValue)) {
       galleryImageSelect.value = previousValue;
     }
   }
@@ -2606,8 +2859,8 @@ function populateGalleryForm(token) {
   document.getElementById("gallery-edition").value = item.edition || "";
   document.getElementById("gallery-token-number").value = String(item.token || "");
   document.getElementById("gallery-os-link").value = item.os || "";
-  document.getElementById("gallery-image-select").value = knownWebAssets.includes(item.image) ? item.image : "";
-  document.getElementById("gallery-image-custom").value = knownWebAssets.includes(item.image) ? "" : (item.image || "");
+  document.getElementById("gallery-image-select").value = getKnownWebAssets().includes(item.image) ? item.image : "";
+  document.getElementById("gallery-image-custom").value = getKnownWebAssets().includes(item.image) ? "" : (item.image || "");
 }
 
 function clearGalleryForm() {
@@ -3422,6 +3675,10 @@ function setupDelayControls() {
 
   document.getElementById("gallery-clear").addEventListener("click", () => {
     clearGalleryForm();
+  });
+
+  document.getElementById("gallery-refresh-assets").addEventListener("click", async () => {
+    await refreshGalleryAssetList();
   });
 
   document.getElementById("gallery-apply").addEventListener("click", () => {
