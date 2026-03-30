@@ -24,10 +24,10 @@ const ludicrousPattern = [10, 18, 31, 12, 46, 14, 57, 21, 69, 11, 38, 16, 63, 24
 const actualEpochHistory = [
   { epoch: 1, phase: "Pilot", eligible: 44, minted: 34, walletNotShared: 10, start: new Date("2026-03-17T13:00:00Z"), end: new Date("2026-03-18T13:00:00Z"), daysNeeded: 1, eligibility: "QRT + Comment" },
   { epoch: 2, phase: "Pilot", eligible: 16, minted: 15, walletNotShared: 1, start: new Date("2026-03-18T13:00:00Z"), end: new Date("2026-03-19T13:00:00Z"), daysNeeded: 1, eligibility: "QRT + Comment" },
-  { epoch: 3, phase: "Pilot", eligible: 41, minted: 35, walletNotShared: 6, start: new Date("2026-03-19T13:00:00Z"), end: new Date("2026-03-20T13:00:00Z"), daysNeeded: 1, eligibility: "QRT + Comment" },
+  { epoch: 3, phase: "Pilot", eligible: 42, minted: 35, walletNotShared: 6, start: new Date("2026-03-19T13:00:00Z"), end: new Date("2026-03-20T13:00:00Z"), daysNeeded: 1, eligibility: "QRT + Comment" },
   { epoch: 4, phase: "Pilot", eligible: 61, minted: 45, walletNotShared: 16, start: new Date("2026-03-20T13:00:00Z"), end: new Date("2026-03-21T13:00:00Z"), daysNeeded: 1, eligibility: "QRT + Comment" },
   { epoch: 5, phase: "Pilot", eligible: 40, minted: 37, walletNotShared: 3, start: new Date("2026-03-21T13:00:00Z"), end: new Date("2026-03-23T13:00:00Z"), daysNeeded: 2, eligibility: "QRT + Comment" },
-  { epoch: 6, phase: "Pilot", eligible: 56, minted: 43, walletNotShared: 13, start: new Date("2026-03-23T13:00:00Z"), end: new Date("2026-03-26T13:00:00Z"), daysNeeded: 3, eligibility: "QRT + Comment" }
+  { epoch: 6, phase: "Pilot", eligible: 56, minted: 53, walletNotShared: 13, start: new Date("2026-03-23T13:00:00Z"), end: new Date("2026-03-26T13:00:00Z"), daysNeeded: 3, eligibility: "QRT + Comment" }
 ];
 
 const specialDrops = [
@@ -49,6 +49,7 @@ const currentEpochOverride = {
 let trackerData = null;
 let protocolStateCache = getDefaultProtocolState();
 let adminSettingsFileHandle = null;
+let forceEpochPlanRebuild = false;
 const materializedSchedule = {
   dirty: true,
   epochPlan: [],
@@ -94,7 +95,7 @@ function applyMaterializedScheduleSnapshot(snapshot) {
   materializedSchedule.epochPlan = (snapshot.epochPlan || []).map(reviveScheduleEntry);
   materializedSchedule.shiftedEpochs = (snapshot.shiftedEpochs || []).map(reviveScheduleEntry);
   materializedSchedule.mergedEpochs = (snapshot.mergedEpochs || []).map(reviveScheduleEntry);
-  materializedSchedule.dirty = false;
+  materializedSchedule.dirty = true;
 }
 
 function parsePersistedPayload(parsed) {
@@ -116,6 +117,7 @@ function getDefaultProtocolState() {
     timelineAdjustments: [],
     manualEpochs: [],
     eligibilityOverrides: [],
+    tweetRecords: [],
     engagementOverrides: [],
     drawRecords: [],
     galleryOverrides: [],
@@ -151,6 +153,26 @@ function downloadJsonFile(filename, data) {
   anchor.click();
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadFile(filename, content, mimeType = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function csvEscape(value) {
+  const text = String(value ?? "");
+  if (/[",\n]/.test(text)) {
+    return `"${text.replace(/"/g, "\"\"")}"`;
+  }
+  return text;
 }
 
 function loadProtocolStateFromLocalStorage() {
@@ -255,6 +277,16 @@ function getManualEpochs() {
 
 function getLiveEntryKey() {
   return getProtocolState().liveEntryKey || `epoch-${getCurrentEpochNumber()}`;
+}
+
+function getTweetRecords() {
+  return (getProtocolState().tweetRecords || [])
+    .map((item) => ({ ...item, dayNumber: Number(item.dayNumber || 0) }))
+    .sort((a, b) => {
+      const keyCompare = String(a.targetKey || "").localeCompare(String(b.targetKey || ""));
+      if (keyCompare !== 0) return keyCompare;
+      return Number(a.dayNumber || 0) - Number(b.dayNumber || 0);
+    });
 }
 
 function getEffectiveLiveEntryKey() {
@@ -561,7 +593,8 @@ const heroQuotes = [
   "Consistency is louder than hype.",
   "This started with a gm and stayed for the people.",
   "Return to sender: 2021 gm energy.",
-  "Culture is a habit you practice together."
+  "Culture is a habit you practice together.",
+  "It is the time you have wasted for your rose that makes your rose so important. - Antoine de Saint-Exupery"
 ];
 
 const formulaRows = [
@@ -939,7 +972,7 @@ function buildEpochPlan() {
       phase: item.phase,
       daysNeeded: item.daysNeeded,
       eligibility: item.eligibility,
-      editionSize: item.minted,
+      editionSize: item.eligible,
       actualMinted: item.minted,
       start: item.start,
       end: item.end,
@@ -960,13 +993,35 @@ function buildEpochPlan() {
     return { ...item, cumulativePlanned: cumulative };
   });
 
+  const storedFutureEpochs = !forceEpochPlanRebuild && materializedSchedule.epochPlan.length
+    ? materializedSchedule.epochPlan
+        .filter((item) => Number(item.epoch || 0) >= 8)
+        .map((item) => ({ ...item }))
+    : [];
   const futureStart = new Date(currentEpochOverride.end);
   const futureSupplyTarget = (getRefactorMode() === "maxSupply" || getRefactorMode() === "both")
     ? Math.max(0, getConfiguredMaxSupply() - cumulative)
     : null;
-  const futureEpochs = buildFuturePlan(8, futureStart, futureSupplyTarget, getConfiguredTargetEnd(), cumulative);
+  const futureEpochs = storedFutureEpochs.length
+    ? storedFutureEpochs
+    : buildFuturePlan(8, futureStart, futureSupplyTarget, getConfiguredTargetEnd(), cumulative);
 
-  return [...normalizedFixed, ...futureEpochs];
+  const normalizedFuture = futureEpochs.map((item) => {
+    if (item.epoch === 12) return { ...item, editionSize: 15 };
+    if (item.epoch === 15) return { ...item, editionSize: 5 };
+    return item;
+  });
+
+  let runningFutureCumulative = cumulative;
+  const recalcFuture = normalizedFuture.map((item) => {
+    runningFutureCumulative += item.editionSize;
+    return {
+      ...item,
+      cumulativePlanned: runningFutureCumulative
+    };
+  });
+
+  return [...normalizedFixed, ...recalcFuture];
 }
 
 function getEpochPlan() {
@@ -1072,6 +1127,7 @@ function recomputeMaterializedSchedule() {
   materializedSchedule.mergedEpochs = [...standardEpochs, ...manualEpochs]
     .sort((a, b) => a.start - b.start || a.end - b.end || a.name.localeCompare(b.name));
   materializedSchedule.dirty = false;
+  forceEpochPlanRebuild = false;
 }
 
 function getSlotBank() {
@@ -1099,6 +1155,28 @@ function getEpochDayProgress(epoch) {
   }
   const elapsed = Math.floor((now - epoch.start.getTime()) / (24 * 60 * 60 * 1000)) + 1;
   return `${Math.max(1, Math.min(totalDays, elapsed))} / ${totalDays}`;
+}
+
+function getEpochCurrentDayNumber(epoch) {
+  const totalDays = Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)));
+  const now = Date.now();
+  if (now < epoch.start.getTime()) return 0;
+  if (now >= epoch.end.getTime()) return totalDays;
+  const elapsed = Math.floor((now - epoch.start.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+  return Math.max(1, Math.min(totalDays, elapsed));
+}
+
+function getTweetRowsForEpoch(epochKey) {
+  return getTweetRecords()
+    .filter((item) => item.targetKey === epochKey)
+    .sort((a, b) => {
+      const kindA = a.kind === "wallet" ? 1 : 0;
+      const kindB = b.kind === "wallet" ? 1 : 0;
+      if (kindA !== kindB) return kindA - kindB;
+      const dayDiff = Number(a.dayNumber || 0) - Number(b.dayNumber || 0);
+      if (dayDiff !== 0) return dayDiff;
+      return Number(a.variant || 1) - Number(b.variant || 1);
+    });
 }
 
 function getSuggestedLiveEpochNumber() {
@@ -1194,6 +1272,7 @@ function renderHeroDeck() {
 
   const card = document.getElementById("hero-epoch-card");
   const status = getHeroStatus(heroEpoch.key);
+  const heroTweetRows = getTweetRowsForEpoch(heroEpoch.key);
   card.classList.remove("is-completed", "is-live", "is-up-next", "is-future");
   card.classList.add(status === "Completed" ? "is-completed" : status === "Live" ? "is-live" : status === "Up Next" ? "is-up-next" : "is-future");
   card.classList.remove("is-flipping-left", "is-flipping-right");
@@ -1201,9 +1280,26 @@ function renderHeroDeck() {
   card.classList.add(heroFlipDirection === "left" ? "is-flipping-left" : "is-flipping-right");
 
   document.getElementById("hero-epoch-name").textContent = heroEpoch.name || `Epoch ${heroEpoch.epoch}`;
+  const heroDayLabel = document.getElementById("hero-epoch-day-label");
+  if (heroDayLabel) {
+    heroDayLabel.innerHTML = status === "Live" && heroTweetRows.length
+      ? `Current day<span class="metric-note">(click day number to go to the tweet)</span>`
+      : "Current day";
+  }
   document.getElementById("hero-epoch-status").textContent = status;
   document.getElementById("hero-epoch-window").textContent = `${formatDateTimeUTC(heroEpoch.start)} - ${formatDateTimeUTC(heroEpoch.end)}`;
-  document.getElementById("hero-epoch-day").textContent = getEpochDayProgress(heroEpoch);
+  const heroDayNode = document.getElementById("hero-epoch-day");
+  const totalDays = Math.max(1, Number(heroEpoch.daysNeeded || diffDaysInclusive(heroEpoch.start, heroEpoch.end)));
+  const currentDay = getEpochCurrentDayNumber(heroEpoch);
+  const matchingDayTweet = heroTweetRows.find((item) => item.kind !== "wallet" && Number(item.dayNumber || 0) === currentDay);
+  const totalDaysNode = status === "Live" && heroTweetRows.length
+    ? `<a class="metric-link" href="#current-epoch-tweets" data-switch-tab="current" data-switch-target="current-epoch-tweets">${totalDays}</a>`
+    : String(totalDays);
+  if (matchingDayTweet && currentDay > 0) {
+    heroDayNode.innerHTML = `<a class="metric-link" href="${escapeHtml(matchingDayTweet.link)}" target="_blank" rel="noreferrer">${currentDay}</a> / ${totalDaysNode}`;
+  } else {
+    heroDayNode.innerHTML = `${currentDay} / ${totalDaysNode}`;
+  }
   document.getElementById("hero-epoch-phase").textContent = heroEpoch.phase;
   document.getElementById("hero-epoch-eligibility").textContent = heroEpoch.eligibility;
   document.getElementById("hero-epoch-action").textContent = getHeroAction(heroEpoch);
@@ -1339,7 +1435,7 @@ function fillCurrentEpoch() {
   const metrics = document.getElementById("current-epoch-metrics");
 
   metrics.innerHTML = `
-    <div><dt>Window (tentative)</dt><dd>${formatDateTimeUTC(current.start)} - ${formatDateTimeUTC(current.end)}</dd></div>
+    <div><dt>Window <span class="metric-note-inline">(tentative)</span></dt><dd>${formatDateTimeUTC(current.start)} - ${formatDateTimeUTC(current.end)}</dd></div>
     <div><dt>Phase</dt><dd>${current.phase}</dd></div>
     <div><dt>Eligibility</dt><dd>${current.eligibility}</dd></div>
     <div><dt>Current day / days needed</dt><dd>${getEpochDayProgress(current)}</dd></div>
@@ -1374,6 +1470,23 @@ function fillCurrentEpoch() {
       <span role="cell">${item.editionSize}</span>
     </div>
   `).join("");
+
+  const tweetsContainer = document.getElementById("current-epoch-tweets");
+  if (tweetsContainer) {
+    const tweetRows = getTweetRowsForEpoch(current.key);
+    if (!tweetRows.length) {
+      tweetsContainer.innerHTML = `<div class="chart-empty">No tweets added for this epoch yet.</div>`;
+    } else {
+      tweetsContainer.innerHTML = tweetRows.map((item) => `
+        <div class="timeline-table__row" role="row">
+          <span role="cell">${item.kind === "wallet"
+            ? `Wallet collection${Number(item.variant || 1) > 1 ? ` ${escapeHtml(String(item.variant))}` : ""}`
+            : `Day ${escapeHtml(String(item.dayNumber || 0))}${Number(item.variant || 1) > 1 ? `.${escapeHtml(String(item.variant))}` : ""}`}</span>
+          <span role="cell"><a href="${escapeHtml(item.link)}" target="_blank" rel="noreferrer">${escapeHtml(item.link)}</a></span>
+        </div>
+      `).join("");
+    }
+  }
 }
 
 function fillProgression() {
@@ -1455,7 +1568,7 @@ function fillTimeline() {
         <span role="cell">${formatDate(item.start)} - ${formatDate(item.end)}</span>
         <span role="cell">${item.phase}</span>
         <span role="cell">${item.daysNeeded}</span>
-        <span role="cell">${getHeroStatus(item.key) === "Completed" ? `${item.type === "manual" ? Number(item.minted || 0) : (trackerData?.epochSummary?.[item.epoch]?.minted ?? item.actualMinted ?? 0)} minted` : `${item.editionSize} ${item.editionSize === 1 ? "edition" : "editions"}`}</span>
+        <span role="cell">${item.editionSize} ${item.editionSize === 1 ? "edition" : "editions"}</span>
         <span role="cell">${runningCumulative}</span>
       </div>
     `;
@@ -2256,20 +2369,31 @@ function setupThemeToggle() {
 }
 
 function setupTabShortcuts() {
-  const buttons = Array.from(document.querySelectorAll("[data-switch-tab]"));
-  buttons.forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      const target = button.dataset.switchTab;
-      const subtab = button.dataset.switchSubtab;
-      const tab = activateTab(target);
-      if (tab) {
-        if (subtab) {
-          window.setTimeout(() => activateTab(subtab), 20);
-        }
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-switch-tab]");
+    if (!button) return;
+    event.preventDefault();
+    const target = button.dataset.switchTab;
+    const subtab = button.dataset.switchSubtab;
+    const targetId = button.dataset.switchTarget;
+    const tab = activateTab(target);
+    if (tab) {
+      if (subtab) {
+        window.setTimeout(() => activateTab(subtab), 20);
+      }
+      if (targetId) {
+        window.setTimeout(() => {
+          const node = document.getElementById(targetId);
+          if (node) {
+            node.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            document.querySelector(".section--tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 40);
+      } else {
         document.querySelector(".section--tabs").scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    });
+    }
   });
 }
 
@@ -2338,6 +2462,21 @@ function renderDelayState() {
       engagementEpochSelect.value = activeKey;
     }
   }
+  const tweetEpochSelect = document.getElementById("tweet-epoch-select");
+  if (tweetEpochSelect) {
+    const epochs = getMergedEpochs();
+    const activeKey = getEffectiveLiveEntryKey();
+    const previousValue = tweetEpochSelect.value;
+    tweetEpochSelect.innerHTML = epochs.map((epoch) => (
+      `<option value="${epoch.key}">${epoch.name || `Epoch ${epoch.epoch}`}</option>`
+    )).join("");
+    if (!previousValue || !epochs.some((item) => item.key === previousValue)) {
+      tweetEpochSelect.value = activeKey;
+    } else {
+      tweetEpochSelect.value = previousValue;
+    }
+    renderTweetDayEditor(tweetEpochSelect.value);
+  }
   const galleryTokenSelect = document.getElementById("gallery-token-select");
   if (galleryTokenSelect) {
     const galleryItems = getGalleryItems();
@@ -2363,6 +2502,7 @@ function renderDelayState() {
   renderManualEpochList();
   renderEngagementOverrideList();
   renderEligibilityOverrideList();
+  renderTweetRecordList();
   renderDrawRecordList();
   renderTimelineAdjustmentList();
   renderGalleryOverrideList();
@@ -2431,6 +2571,17 @@ function clearEngagementOverrideForm() {
   const button = document.getElementById("engagement-override-apply");
   button.dataset.editingId = "";
   button.textContent = "Save Engagement Stats";
+}
+
+function clearTweetRecordForm() {
+  const tweetEpochSelect = document.getElementById("tweet-epoch-select");
+  if (tweetEpochSelect) {
+    tweetEpochSelect.value = getEffectiveLiveEntryKey();
+  }
+  renderTweetDayEditor(tweetEpochSelect?.value || getEffectiveLiveEntryKey());
+  const button = document.getElementById("tweet-record-apply");
+  button.dataset.editingId = "";
+  button.textContent = "Save Tweet Links";
 }
 
 function clearDrawRecordForm() {
@@ -2596,6 +2747,113 @@ function renderEligibilityOverrideList() {
       renderDelayState();
     });
   });
+}
+
+function renderTweetRecordList() {
+  const container = document.getElementById("tweet-record-list");
+  if (!container) return;
+  container.innerHTML = "";
+}
+
+function renderTweetDayEditor(targetKey) {
+  const container = document.getElementById("tweet-day-editor");
+  if (!container) return;
+  const epoch = getMergedEpochs().find((item) => item.key === targetKey);
+  if (!epoch) {
+    container.innerHTML = `<div class="chart-empty">Select an epoch to load its day-by-day tweet inputs.</div>`;
+    return;
+  }
+  const totalDays = Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)));
+  const recordsByDay = new Map();
+  const walletRecords = [];
+  getTweetRowsForEpoch(targetKey).forEach((item) => {
+    if (item.kind === "wallet") {
+      walletRecords.push(item.link || "");
+      return;
+    }
+    const key = Number(item.dayNumber || 0);
+    const next = recordsByDay.get(key) || [];
+    next.push(item.link || "");
+    recordsByDay.set(key, next);
+  });
+  const dayRows = Array.from({ length: totalDays }, (_, index) => {
+    const dayNumber = index + 1;
+    return `
+      <div class="admin-tweet-editor__row">
+        <label for="tweet-link-day-${dayNumber}">Day ${dayNumber}</label>
+        <textarea id="tweet-link-day-${dayNumber}" data-day-number="${dayNumber}" placeholder="One tweet link per line for Day ${dayNumber}">${escapeHtml((recordsByDay.get(dayNumber) || []).join("\n"))}</textarea>
+        <div class="admin-tweet-editor__actions">
+          <button class="button" type="button" data-tweet-focus="${dayNumber}">Edit</button>
+          <button class="button" type="button" data-tweet-clear="${dayNumber}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  const walletRow = `
+    <div class="admin-tweet-editor__row">
+      <label for="tweet-link-wallet">Wallet collection</label>
+      <textarea id="tweet-link-wallet" data-kind="wallet" placeholder="One wallet collection tweet link per line">${escapeHtml(walletRecords.join("\n"))}</textarea>
+      <div class="admin-tweet-editor__actions">
+        <button class="button" type="button" data-tweet-focus="wallet">Edit</button>
+        <button class="button" type="button" data-tweet-clear="wallet">Delete</button>
+      </div>
+    </div>
+  `;
+  container.innerHTML = `${dayRows}${walletRow}`;
+
+  container.querySelectorAll("[data-tweet-focus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.tweetFocus;
+      const input = key === "wallet"
+        ? container.querySelector("textarea[data-kind=\"wallet\"]")
+        : container.querySelector(`textarea[data-day-number="${key}"]`);
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+  });
+
+  container.querySelectorAll("[data-tweet-clear]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.tweetClear;
+      const input = key === "wallet"
+        ? container.querySelector("textarea[data-kind=\"wallet\"]")
+        : container.querySelector(`textarea[data-day-number="${key}"]`);
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+    });
+  });
+}
+
+function buildTweetExportDayLabel(epoch, record, recordsForEpoch) {
+  const epochLabel = String(epoch?.epoch ?? epoch?.name ?? "").replace(/^Epoch\s+/i, "");
+  if (record.kind === "wallet") {
+    const walletRecords = recordsForEpoch.filter((item) => item.kind === "wallet");
+    return walletRecords.length > 1
+      ? `${epochLabel}.w.${record.variant || 1}`
+      : `${epochLabel}.w`;
+  }
+  const sameDayRecords = recordsForEpoch.filter((item) => item.kind !== "wallet" && Number(item.dayNumber || 0) === Number(record.dayNumber || 0));
+  return sameDayRecords.length > 1
+    ? `${epochLabel}.${record.dayNumber}.${record.variant || 1}`
+    : `${epochLabel}.${record.dayNumber}`;
+}
+
+function downloadSelectedTweetCsv() {
+  const targetKey = document.getElementById("tweet-epoch-select")?.value;
+  if (!targetKey) return;
+  const epoch = getMergedEpochs().find((item) => item.key === targetKey);
+  const rows = getTweetRowsForEpoch(targetKey);
+  const csvRows = [["day", "link"]];
+  rows.forEach((record) => {
+    csvRows.push([buildTweetExportDayLabel(epoch, record, rows), record.link || ""]);
+  });
+  const csv = csvRows.map((row) => row.map(csvEscape).join(",")).join("\n");
+  const epochLabel = String(epoch?.epoch ?? "epoch");
+  downloadFile(`epoch_${epochLabel}_tweets.csv`, csv, "text/csv;charset=utf-8");
 }
 
 function renderEngagementOverrideList() {
@@ -2966,6 +3224,7 @@ function setupDelayControls() {
     const mode = document.getElementById("refactor-mode").value || "maxSupply";
     const projectDays = Number(document.getElementById("refactor-project-days").value || getConfiguredProjectDays());
     const maxSupply = Number(document.getElementById("refactor-max-supply").value || getConfiguredMaxSupply());
+    forceEpochPlanRebuild = true;
     setProtocolState({
       ...state,
       refactorMode: mode,
@@ -3054,6 +3313,51 @@ function setupDelayControls() {
 
   document.getElementById("engagement-override-clear").addEventListener("click", () => {
     clearEngagementOverrideForm();
+  });
+
+  document.getElementById("tweet-load-days").addEventListener("click", () => {
+    renderTweetDayEditor(document.getElementById("tweet-epoch-select").value || getEffectiveLiveEntryKey());
+  });
+
+  document.getElementById("tweet-record-apply").addEventListener("click", () => {
+    const state = getProtocolState();
+    const targetKey = document.getElementById("tweet-epoch-select").value;
+    if (!targetKey) return;
+    const inputs = Array.from(document.querySelectorAll("#tweet-day-editor textarea[data-day-number], #tweet-day-editor textarea[data-kind=\"wallet\"]"));
+    if (!inputs.length) return;
+    const nextRecords = (state.tweetRecords || []).filter((item) => item.targetKey !== targetKey);
+    inputs.forEach((input) => {
+      const kind = input.dataset.kind === "wallet" ? "wallet" : "day";
+      const dayNumber = kind === "wallet" ? 0 : Math.max(1, Number(input.dataset.dayNumber || 0));
+      const lines = input.value
+        .split(/\r?\n/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+      lines.forEach((link, index) => {
+        const variant = index + 1;
+        nextRecords.push({
+          id: `tweet-${targetKey}-${kind}-${dayNumber}-${variant}`,
+          targetKey,
+          kind,
+          dayNumber,
+          variant,
+          link
+        });
+      });
+    });
+    setProtocolState({
+      ...state,
+      tweetRecords: nextRecords
+    });
+    renderDelayState();
+  });
+
+  document.getElementById("tweet-record-download").addEventListener("click", () => {
+    downloadSelectedTweetCsv();
+  });
+
+  document.getElementById("tweet-record-clear").addEventListener("click", () => {
+    clearTweetRecordForm();
   });
 
   document.getElementById("eligibility-override-apply").addEventListener("click", () => {

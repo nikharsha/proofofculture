@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-03-28T06:37:43.627Z",
+  "exportedAt": "2026-03-30T06:52:10.896Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -40,6 +40,24 @@
         "customText": ""
       }
     ],
+    "tweetRecords": [
+      {
+        "id": "tweet-epoch-8-day-1-1",
+        "targetKey": "epoch-8",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2037881622952067341"
+      },
+      {
+        "id": "tweet-epoch-8-day-2-1",
+        "targetKey": "epoch-8",
+        "kind": "day",
+        "dayNumber": 2,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2038251429736112509"
+      }
+    ],
     "engagementOverrides": [
       {
         "id": "engagement-1774669876127",
@@ -73,66 +91,66 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 34,
+        "editionSize": 44,
         "actualMinted": 34,
         "start": "2026-03-17T13:00:00.000Z",
         "end": "2026-03-18T13:00:00.000Z",
-        "cumulativePlanned": 34
+        "cumulativePlanned": 44
       },
       {
         "epoch": 2,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 15,
+        "editionSize": 16,
         "actualMinted": 15,
         "start": "2026-03-18T13:00:00.000Z",
         "end": "2026-03-19T13:00:00.000Z",
-        "cumulativePlanned": 49
+        "cumulativePlanned": 60
       },
       {
         "epoch": 3,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 35,
+        "editionSize": 42,
         "actualMinted": 35,
         "start": "2026-03-19T13:00:00.000Z",
         "end": "2026-03-20T13:00:00.000Z",
-        "cumulativePlanned": 84
+        "cumulativePlanned": 102
       },
       {
         "epoch": 4,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 45,
+        "editionSize": 61,
         "actualMinted": 45,
         "start": "2026-03-20T13:00:00.000Z",
         "end": "2026-03-21T13:00:00.000Z",
-        "cumulativePlanned": 129
+        "cumulativePlanned": 163
       },
       {
         "epoch": 5,
         "phase": "Pilot",
         "daysNeeded": 2,
         "eligibility": "QRT + Comment",
-        "editionSize": 37,
+        "editionSize": 40,
         "actualMinted": 37,
         "start": "2026-03-21T13:00:00.000Z",
         "end": "2026-03-23T13:00:00.000Z",
-        "cumulativePlanned": 166
+        "cumulativePlanned": 203
       },
       {
         "epoch": 6,
         "phase": "Pilot",
         "daysNeeded": 3,
         "eligibility": "QRT + Comment",
-        "editionSize": 43,
-        "actualMinted": 43,
+        "editionSize": 56,
+        "actualMinted": 53,
         "start": "2026-03-23T13:00:00.000Z",
         "end": "2026-03-26T13:00:00.000Z",
-        "cumulativePlanned": 209
+        "cumulativePlanned": 259
       },
       {
         "epoch": 7,
@@ -142,7 +160,7 @@
         "editionSize": 1,
         "start": "2026-03-26T13:00:00.000Z",
         "end": "2026-03-27T13:00:00.000Z",
-        "cumulativePlanned": 211,
+        "cumulativePlanned": 261,
         "actualMinted": null
       },
       {
@@ -154,7 +172,7 @@
         "actualMinted": null,
         "start": "2026-03-27T13:00:00.000Z",
         "end": "2026-03-31T13:00:00.000Z",
-        "cumulativePlanned": 280
+        "cumulativePlanned": 330
       },
       {
         "epoch": 9,
@@ -165,7 +183,7 @@
         "actualMinted": null,
         "start": "2026-03-31T13:00:00.000Z",
         "end": "2026-04-05T13:00:00.000Z",
-        "cumulativePlanned": 305
+        "cumulativePlanned": 355
       },
       {
         "epoch": 10,
@@ -176,7 +194,7 @@
         "actualMinted": null,
         "start": "2026-04-05T13:00:00.000Z",
         "end": "2026-04-11T13:00:00.000Z",
-        "cumulativePlanned": 374
+        "cumulativePlanned": 424
       },
       {
         "epoch": 11,
@@ -187,18 +205,18 @@
         "actualMinted": null,
         "start": "2026-04-11T13:00:00.000Z",
         "end": "2026-04-18T13:00:00.000Z",
-        "cumulativePlanned": 416
+        "cumulativePlanned": 466
       },
       {
         "epoch": 12,
         "phase": "Linear",
         "daysNeeded": 8,
         "eligibility": "Comment or QRT",
-        "editionSize": 69,
+        "editionSize": 15,
         "actualMinted": null,
         "start": "2026-04-18T13:00:00.000Z",
         "end": "2026-04-26T13:00:00.000Z",
-        "cumulativePlanned": 485
+        "cumulativePlanned": 481
       },
       {
         "epoch": 13,
@@ -209,7 +227,7 @@
         "actualMinted": null,
         "start": "2026-04-26T13:00:00.000Z",
         "end": "2026-05-05T13:00:00.000Z",
-        "cumulativePlanned": 510
+        "cumulativePlanned": 506
       },
       {
         "epoch": 14,
@@ -220,14 +238,14 @@
         "actualMinted": null,
         "start": "2026-05-05T13:00:00.000Z",
         "end": "2026-05-15T13:00:00.000Z",
-        "cumulativePlanned": 579
+        "cumulativePlanned": 575
       },
       {
         "epoch": 15,
         "phase": "Linear",
         "daysNeeded": 11,
         "eligibility": "QRT + Comment",
-        "editionSize": 1,
+        "editionSize": 5,
         "actualMinted": null,
         "start": "2026-05-15T13:00:00.000Z",
         "end": "2026-05-26T13:00:00.000Z",
@@ -372,66 +390,66 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 34,
+        "editionSize": 44,
         "actualMinted": 34,
         "start": "2026-03-17T13:00:00.000Z",
         "end": "2026-03-18T13:00:00.000Z",
-        "cumulativePlanned": 34
+        "cumulativePlanned": 44
       },
       {
         "epoch": 2,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 15,
+        "editionSize": 16,
         "actualMinted": 15,
         "start": "2026-03-18T13:00:00.000Z",
         "end": "2026-03-19T13:00:00.000Z",
-        "cumulativePlanned": 49
+        "cumulativePlanned": 60
       },
       {
         "epoch": 3,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 35,
+        "editionSize": 42,
         "actualMinted": 35,
         "start": "2026-03-19T13:00:00.000Z",
         "end": "2026-03-20T13:00:00.000Z",
-        "cumulativePlanned": 84
+        "cumulativePlanned": 102
       },
       {
         "epoch": 4,
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 45,
+        "editionSize": 61,
         "actualMinted": 45,
         "start": "2026-03-20T13:00:00.000Z",
         "end": "2026-03-21T13:00:00.000Z",
-        "cumulativePlanned": 129
+        "cumulativePlanned": 163
       },
       {
         "epoch": 5,
         "phase": "Pilot",
         "daysNeeded": 2,
         "eligibility": "QRT + Comment",
-        "editionSize": 37,
+        "editionSize": 40,
         "actualMinted": 37,
         "start": "2026-03-21T13:00:00.000Z",
         "end": "2026-03-23T13:00:00.000Z",
-        "cumulativePlanned": 166
+        "cumulativePlanned": 203
       },
       {
         "epoch": 6,
         "phase": "Pilot",
         "daysNeeded": 3,
         "eligibility": "QRT + Comment",
-        "editionSize": 43,
-        "actualMinted": 43,
+        "editionSize": 56,
+        "actualMinted": 53,
         "start": "2026-03-23T13:00:00.000Z",
         "end": "2026-03-26T13:00:00.000Z",
-        "cumulativePlanned": 209
+        "cumulativePlanned": 259
       },
       {
         "epoch": 7,
@@ -441,7 +459,7 @@
         "editionSize": 1,
         "start": "2026-03-26T13:00:00.000Z",
         "end": "2026-03-27T13:00:00.000Z",
-        "cumulativePlanned": 211,
+        "cumulativePlanned": 261,
         "actualMinted": null
       },
       {
@@ -453,7 +471,7 @@
         "actualMinted": null,
         "start": "2026-03-28T13:00:00.000Z",
         "end": "2026-04-01T13:00:00.000Z",
-        "cumulativePlanned": 280
+        "cumulativePlanned": 330
       },
       {
         "epoch": 9,
@@ -464,7 +482,7 @@
         "actualMinted": null,
         "start": "2026-04-01T13:00:00.000Z",
         "end": "2026-04-06T13:00:00.000Z",
-        "cumulativePlanned": 305
+        "cumulativePlanned": 355
       },
       {
         "epoch": 10,
@@ -475,7 +493,7 @@
         "actualMinted": null,
         "start": "2026-04-06T13:00:00.000Z",
         "end": "2026-04-12T13:00:00.000Z",
-        "cumulativePlanned": 374
+        "cumulativePlanned": 424
       },
       {
         "epoch": 11,
@@ -486,18 +504,18 @@
         "actualMinted": null,
         "start": "2026-04-12T13:00:00.000Z",
         "end": "2026-04-19T13:00:00.000Z",
-        "cumulativePlanned": 416
+        "cumulativePlanned": 466
       },
       {
         "epoch": 12,
         "phase": "Linear",
         "daysNeeded": 8,
         "eligibility": "Comment or QRT",
-        "editionSize": 69,
+        "editionSize": 15,
         "actualMinted": null,
         "start": "2026-04-19T13:00:00.000Z",
         "end": "2026-04-27T13:00:00.000Z",
-        "cumulativePlanned": 485
+        "cumulativePlanned": 481
       },
       {
         "epoch": 13,
@@ -508,7 +526,7 @@
         "actualMinted": null,
         "start": "2026-04-27T13:00:00.000Z",
         "end": "2026-05-06T13:00:00.000Z",
-        "cumulativePlanned": 510
+        "cumulativePlanned": 506
       },
       {
         "epoch": 14,
@@ -519,14 +537,14 @@
         "actualMinted": null,
         "start": "2026-05-06T13:00:00.000Z",
         "end": "2026-05-16T13:00:00.000Z",
-        "cumulativePlanned": 579
+        "cumulativePlanned": 575
       },
       {
         "epoch": 15,
         "phase": "Linear",
         "daysNeeded": 11,
         "eligibility": "QRT + Comment",
-        "editionSize": 1,
+        "editionSize": 5,
         "actualMinted": null,
         "start": "2026-05-16T13:00:00.000Z",
         "end": "2026-05-27T13:00:00.000Z",
@@ -671,11 +689,11 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 34,
+        "editionSize": 44,
         "actualMinted": 34,
         "start": "2026-03-17T13:00:00.000Z",
         "end": "2026-03-18T13:00:00.000Z",
-        "cumulativePlanned": 34,
+        "cumulativePlanned": 44,
         "key": "epoch-1",
         "name": "Epoch 1",
         "minted": 34,
@@ -687,11 +705,11 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 15,
+        "editionSize": 16,
         "actualMinted": 15,
         "start": "2026-03-18T13:00:00.000Z",
         "end": "2026-03-19T13:00:00.000Z",
-        "cumulativePlanned": 49,
+        "cumulativePlanned": 60,
         "key": "epoch-2",
         "name": "Epoch 2",
         "minted": 15,
@@ -703,11 +721,11 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 35,
+        "editionSize": 42,
         "actualMinted": 35,
         "start": "2026-03-19T13:00:00.000Z",
         "end": "2026-03-20T13:00:00.000Z",
-        "cumulativePlanned": 84,
+        "cumulativePlanned": 102,
         "key": "epoch-3",
         "name": "Epoch 3",
         "minted": 35,
@@ -719,11 +737,11 @@
         "phase": "Pilot",
         "daysNeeded": 1,
         "eligibility": "QRT + Comment",
-        "editionSize": 45,
+        "editionSize": 61,
         "actualMinted": 45,
         "start": "2026-03-20T13:00:00.000Z",
         "end": "2026-03-21T13:00:00.000Z",
-        "cumulativePlanned": 129,
+        "cumulativePlanned": 163,
         "key": "epoch-4",
         "name": "Epoch 4",
         "minted": 45,
@@ -735,11 +753,11 @@
         "phase": "Pilot",
         "daysNeeded": 2,
         "eligibility": "QRT + Comment",
-        "editionSize": 37,
+        "editionSize": 40,
         "actualMinted": 37,
         "start": "2026-03-21T13:00:00.000Z",
         "end": "2026-03-23T13:00:00.000Z",
-        "cumulativePlanned": 166,
+        "cumulativePlanned": 203,
         "key": "epoch-5",
         "name": "Epoch 5",
         "minted": 37,
@@ -751,11 +769,11 @@
         "phase": "Pilot",
         "daysNeeded": 3,
         "eligibility": "QRT + Comment",
-        "editionSize": 43,
-        "actualMinted": 43,
+        "editionSize": 56,
+        "actualMinted": 53,
         "start": "2026-03-23T13:00:00.000Z",
         "end": "2026-03-26T13:00:00.000Z",
-        "cumulativePlanned": 209,
+        "cumulativePlanned": 259,
         "key": "epoch-6",
         "name": "Epoch 6",
         "minted": 53,
@@ -785,7 +803,7 @@
         "editionSize": 1,
         "start": "2026-03-26T13:00:00.000Z",
         "end": "2026-03-27T13:00:00.000Z",
-        "cumulativePlanned": 211,
+        "cumulativePlanned": 261,
         "actualMinted": null,
         "key": "epoch-7",
         "name": "Epoch 7",
@@ -802,7 +820,7 @@
         "actualMinted": null,
         "start": "2026-03-28T13:00:00.000Z",
         "end": "2026-04-01T13:00:00.000Z",
-        "cumulativePlanned": 280,
+        "cumulativePlanned": 330,
         "key": "epoch-8",
         "name": "Epoch 8",
         "minted": 0,
@@ -818,7 +836,7 @@
         "actualMinted": null,
         "start": "2026-04-01T13:00:00.000Z",
         "end": "2026-04-06T13:00:00.000Z",
-        "cumulativePlanned": 305,
+        "cumulativePlanned": 355,
         "key": "epoch-9",
         "name": "Epoch 9",
         "minted": 0,
@@ -834,7 +852,7 @@
         "actualMinted": null,
         "start": "2026-04-06T13:00:00.000Z",
         "end": "2026-04-12T13:00:00.000Z",
-        "cumulativePlanned": 374,
+        "cumulativePlanned": 424,
         "key": "epoch-10",
         "name": "Epoch 10",
         "minted": 0,
@@ -850,7 +868,7 @@
         "actualMinted": null,
         "start": "2026-04-12T13:00:00.000Z",
         "end": "2026-04-19T13:00:00.000Z",
-        "cumulativePlanned": 416,
+        "cumulativePlanned": 466,
         "key": "epoch-11",
         "name": "Epoch 11",
         "minted": 0,
@@ -862,11 +880,11 @@
         "phase": "Linear",
         "daysNeeded": 8,
         "eligibility": "Comment or QRT",
-        "editionSize": 69,
+        "editionSize": 15,
         "actualMinted": null,
         "start": "2026-04-19T13:00:00.000Z",
         "end": "2026-04-27T13:00:00.000Z",
-        "cumulativePlanned": 485,
+        "cumulativePlanned": 481,
         "key": "epoch-12",
         "name": "Epoch 12",
         "minted": 0,
@@ -882,7 +900,7 @@
         "actualMinted": null,
         "start": "2026-04-27T13:00:00.000Z",
         "end": "2026-05-06T13:00:00.000Z",
-        "cumulativePlanned": 510,
+        "cumulativePlanned": 506,
         "key": "epoch-13",
         "name": "Epoch 13",
         "minted": 0,
@@ -898,7 +916,7 @@
         "actualMinted": null,
         "start": "2026-05-06T13:00:00.000Z",
         "end": "2026-05-16T13:00:00.000Z",
-        "cumulativePlanned": 579,
+        "cumulativePlanned": 575,
         "key": "epoch-14",
         "name": "Epoch 14",
         "minted": 0,
@@ -910,7 +928,7 @@
         "phase": "Linear",
         "daysNeeded": 11,
         "eligibility": "QRT + Comment",
-        "editionSize": 1,
+        "editionSize": 5,
         "actualMinted": null,
         "start": "2026-05-16T13:00:00.000Z",
         "end": "2026-05-27T13:00:00.000Z",
