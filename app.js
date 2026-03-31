@@ -53,6 +53,7 @@ let protocolStateCache = getDefaultProtocolState();
 let adminSettingsFileHandle = null;
 let galleryAssetSourceDirHandle = null;
 let galleryAssetTargetDirHandle = null;
+let galleryAssetLastRefreshSummary = "";
 let forceEpochPlanRebuild = false;
 const materializedSchedule = {
   dirty: true,
@@ -581,12 +582,15 @@ async function syncAssetsIntoWebAssets() {
 
   for await (const [name, handle] of source.entries()) {
     if (handle.kind !== "file" || !isSupportedImageAsset(name)) continue;
-    const normalizedTargetName = `${name.replace(/\.[^.]+$/, "")}.jpg`;
-    let targetExists = true;
-    try {
-      await target.getFileHandle(normalizedTargetName);
-    } catch (_) {
-      targetExists = false;
+    const baseName = name.replace(/\.[^.]+$/, "");
+    const normalizedTargetName = `${baseName}.jpg`;
+    let targetExists = false;
+    for (const candidateName of [`${baseName}.jpg`, `${baseName}.jpeg`, `${baseName}.png`]) {
+      try {
+        await target.getFileHandle(candidateName);
+        targetExists = true;
+        break;
+      } catch (_) {}
     }
     if (targetExists) continue;
 
@@ -600,6 +604,23 @@ async function syncAssetsIntoWebAssets() {
   }
 
   return processed;
+}
+
+function syncGalleryAssetStatus(message = "") {
+  const node = document.getElementById("gallery-asset-status");
+  if (!node) return;
+
+  if (message) {
+    node.textContent = message;
+    return;
+  }
+
+  const sourceName = galleryAssetSourceDirHandle?.name || "not connected";
+  const targetName = galleryAssetTargetDirHandle?.name || "not connected";
+  const baseMessage = `Source assets folder: ${sourceName}. Target web_assets folder: ${targetName}.`;
+  node.textContent = galleryAssetLastRefreshSummary
+    ? `${baseMessage} ${galleryAssetLastRefreshSummary}`
+    : `${baseMessage} You can also manually copy processed files into web_assets and then refresh to draft them into the gallery.`;
 }
 
 function buildDraftGalleryOverride(token, image) {
@@ -616,10 +637,7 @@ function buildDraftGalleryOverride(token, image) {
 }
 
 async function refreshGalleryAssetList() {
-  const statusNode = document.getElementById("gallery-asset-status");
-  if (statusNode) {
-    statusNode.textContent = "Refreshing web_assets…";
-  }
+  syncGalleryAssetStatus("Refreshing assets and gallery list…");
 
   try {
     let processedAssets = [];
@@ -653,19 +671,17 @@ async function refreshGalleryAssetList() {
       });
     }
 
-    if (statusNode) {
-      const resizedMessage = processedAssets.length
-        ? `Resized ${processedAssets.length} new ${processedAssets.length === 1 ? "image" : "images"} into web_assets. `
-        : "";
-      statusNode.textContent = draftOverrides.length
-        ? `${resizedMessage}Added ${draftOverrides.length} new draft ${draftOverrides.length === 1 ? "entry" : "entries"} for editing.`
-        : `${resizedMessage}No new gallery assets were found.`;
-    }
+    const resizedMessage = processedAssets.length
+      ? `Resized ${processedAssets.length} new ${processedAssets.length === 1 ? "image" : "images"} into web_assets.`
+      : "No new source images needed resizing.";
+    const draftMessage = draftOverrides.length
+      ? `Added ${draftOverrides.length} new draft ${draftOverrides.length === 1 ? "entry" : "entries"} for editing.`
+      : "No new gallery draft entries were needed.";
+    galleryAssetLastRefreshSummary = `${resizedMessage} ${draftMessage}`;
     renderDelayState();
   } catch (error) {
-    if (statusNode) {
-      statusNode.textContent = "Could not refresh assets automatically. Make sure the site is running from a local web server with directory listing enabled for web_assets.";
-    }
+    galleryAssetLastRefreshSummary = "Could not refresh assets automatically. Make sure the site is running from a local web server with directory listing enabled for web_assets.";
+    syncGalleryAssetStatus();
     console.error(error);
   }
 }
@@ -2763,6 +2779,7 @@ function renderDelayState() {
   if (galleryTokenSelect && galleryApplyButton && !galleryApplyButton.dataset.editingId) {
     populateGalleryForm(galleryTokenSelect.value);
   }
+  syncGalleryAssetStatus();
   syncHeroDeckIndex(getMergedEpochs()[heroDeckIndex]?.key);
   fillSummaryStrip();
   fillProgression();
