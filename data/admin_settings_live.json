@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-01T13:27:27.230Z",
+  "exportedAt": "2026-04-01T14:50:21.763Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -42,6 +42,14 @@
     ],
     "tweetRecords": [
       {
+        "id": "tweet-epoch-9-day-1-1",
+        "targetKey": "epoch-9",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2039332955848589313?s=20"
+      },
+      {
         "id": "tweet-epoch-8-day-1-1",
         "targetKey": "epoch-8",
         "kind": "day",
@@ -74,12 +82,12 @@
         "link": "https://x.com/1xharsh/status/2038975097734611362"
       },
       {
-        "id": "tweet-epoch-9-day-1-1",
-        "targetKey": "epoch-9",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-8-wallet-0-1",
+        "targetKey": "epoch-8",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2039332955848589313?s=20"
+        "link": "https://x.com/1xharsh/status/2039354512851567085"
       }
     ],
     "engagementOverrides": [
@@ -89,6 +97,13 @@
         "qrtComment": 27,
         "onlyQrt": 10,
         "onlyComment": 72
+      },
+      {
+        "id": "engagement-1775054013259",
+        "targetKey": "epoch-8",
+        "qrtComment": 54,
+        "onlyQrt": 18,
+        "onlyComment": 91
       }
     ],
     "drawRecords": [
