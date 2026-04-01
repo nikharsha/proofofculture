@@ -318,6 +318,18 @@ function getEffectiveLiveEntryKey() {
   return getLiveEntryKey();
 }
 
+function getEpochMintedCount(epoch) {
+  if (!epoch) return 0;
+  if (epoch.type === "manual") return Number(epoch.minted || 0);
+  return Number(trackerData?.epochSummary?.[epoch.epoch]?.minted ?? epoch.minted ?? epoch.actualMinted ?? 0);
+}
+
+function isEpochInWalletCollection(epoch) {
+  if (!epoch || epoch.type === "manual") return false;
+  if (Date.now() < epoch.end.getTime()) return false;
+  return getEpochMintedCount(epoch) === 0;
+}
+
 function getConfiguredProjectDays() {
   return Math.max(1, Number(getProtocolState().projectDays || defaultProjectDays));
 }
@@ -1415,6 +1427,9 @@ function getTotalMintedSoFar() {
 
 function getEpochDayProgress(epoch) {
   const totalDays = Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)));
+  if (isEpochInWalletCollection(epoch)) {
+    return `${totalDays} / ${totalDays}`;
+  }
   const now = Date.now();
   if (now < epoch.start.getTime()) {
     return `0 / ${totalDays}`;
@@ -1490,8 +1505,16 @@ function getHeroStatus(entryKey) {
   const activeKey = getEffectiveLiveEntryKey();
   const activeIndex = Math.max(0, merged.findIndex((item) => item.key === activeKey));
   const entryIndex = merged.findIndex((item) => item.key === entryKey);
-  if (entryIndex < activeIndex) return "Completed";
-  if (entryIndex === activeIndex) return getProtocolState().paused ? "Paused" : "Live";
+  if (entryIndex < activeIndex) {
+    const entry = merged[entryIndex];
+    if (isEpochInWalletCollection(entry)) return "Wallet Collection";
+    return "Completed";
+  }
+  if (entryIndex === activeIndex) {
+    const activeEpoch = merged[activeIndex];
+    if (isEpochInWalletCollection(activeEpoch)) return "Wallet Collection";
+    return getProtocolState().paused ? "Paused" : "Live";
+  }
   if (entryIndex === activeIndex + 1) return "Up Next";
   return "Future";
 }
@@ -1500,6 +1523,9 @@ function getHeroAction(epoch) {
   const status = getHeroStatus(epoch.key);
   if (status === "Paused") {
     return "This epoch is paused. Wait for the schedule update before engaging.";
+  }
+  if (status === "Wallet Collection") {
+    return "The gm window is closed. If you are tagged, share your wallet before wallet collection closes.";
   }
   if (status === "Completed") {
     return "Closed. Check stats, winners, and issued supply.";
@@ -1520,6 +1546,9 @@ function getHeroNote(epoch) {
   const status = getHeroStatus(epoch.key);
   if (status === "Paused") {
     return "The live epoch is paused right now. Check back after the schedule is updated or the pause is lifted.";
+  }
+  if (status === "Wallet Collection") {
+    return "This epoch is in wallet collection now. The next stage is compiling the wallet roster and preparing the airdrop.";
   }
   if (status === "Completed") {
     return "This epoch has already closed. Use the rest of the site if you want the fuller context or stats.";
@@ -1561,10 +1590,16 @@ function renderHeroDeck() {
   const totalDays = Math.max(1, Number(heroEpoch.daysNeeded || diffDaysInclusive(heroEpoch.start, heroEpoch.end)));
   const currentDay = getEpochCurrentDayNumber(heroEpoch);
   const matchingDayTweet = heroTweetRows.find((item) => item.kind !== "wallet" && Number(item.dayNumber || 0) === currentDay);
+  const walletTweet = heroTweetRows.find((item) => item.kind === "wallet");
   const totalDaysNode = status === "Live" && heroTweetRows.length
     ? `<a class="metric-link" href="#current-epoch-tweets" data-switch-tab="current" data-switch-target="current-epoch-tweets">${totalDays}</a>`
     : String(totalDays);
-  if (matchingDayTweet && currentDay > 0) {
+  if (status === "Wallet Collection") {
+    const walletText = walletTweet
+      ? `<a class="metric-link" href="${escapeHtml(walletTweet.link)}" target="_blank" rel="noreferrer">(Share your Wallet)</a>`
+      : `<span class="metric-note">(Share your Wallet)</span>`;
+    heroDayNode.innerHTML = `${totalDays} / ${totalDays} ${walletText}`;
+  } else if (matchingDayTweet && currentDay > 0) {
     heroDayNode.innerHTML = `<a class="metric-link" href="${escapeHtml(matchingDayTweet.link)}" target="_blank" rel="noreferrer">${currentDay}</a> / ${totalDaysNode}`;
   } else {
     heroDayNode.innerHTML = `${currentDay} / ${totalDaysNode}`;
@@ -1699,15 +1734,21 @@ function fillFairnessCards() {
 function fillCurrentEpoch() {
   const epochs = getMergedEpochs();
   const current = getActiveEpochConfig();
+  const currentStatus = getHeroStatus(current.key);
   const activeIndex = Math.max(0, epochs.findIndex((item) => item.key === current.key));
   const nextFive = epochs.slice(activeIndex + 1, activeIndex + 6);
   const metrics = document.getElementById("current-epoch-metrics");
+  const currentTweetRows = getTweetRowsForEpoch(current.key);
+  const walletTweet = currentTweetRows.find((item) => item.kind === "wallet");
+  const currentDayDisplay = currentStatus === "Wallet Collection"
+    ? `${getEpochDayProgress(current)} ${walletTweet ? `<a class="metric-link" href="${escapeHtml(walletTweet.link)}" target="_blank" rel="noreferrer">(Share your Wallet)</a>` : `<span class="metric-note">(Share your Wallet)</span>`}`
+    : getEpochDayProgress(current);
 
   metrics.innerHTML = `
     <div><dt>Window <span class="metric-note-inline">(tentative)</span></dt><dd>${formatDateTimeUTC(current.start)} - ${formatDateTimeUTC(current.end)}</dd></div>
     <div><dt>Phase</dt><dd>${current.phase}</dd></div>
     <div><dt>Eligibility</dt><dd>${current.eligibility}</dd></div>
-    <div><dt>Current day / days needed</dt><dd>${getEpochDayProgress(current)}</dd></div>
+    <div><dt>Current day / days needed</dt><dd>${currentDayDisplay}</dd></div>
     <div><dt>Draw mechanism</dt><dd>${getProtocolState().onChainDraws ? "On-chain / verifiable" : "Manual for now"}</dd></div>
     <div><dt>Edition size</dt><dd>${current.editionSize}</dd></div>
   `;
@@ -1718,15 +1759,26 @@ function fillCurrentEpoch() {
     fairnessHeading.textContent = "Latest draw records";
   }
 
-  const checklist = [
-    `Engage before ${accentNowrap(formatDateTimeUTC(current.end))}.`,
-    `Required action: ${accent(current.eligibility)}.`,
-    `After close, watch for the wallet prompt. If tagged and not already mapped, reply before ${accentNowrap(formatDateTimeUTC(current.end))}.`,
-    current.editionSize === 1
-      ? `If more than ${accent("1 user")} qualifies, admin will run a ${accent(getProtocolState().onChainDraws ? "verifiable on-chain" : "manual")} lucky draw.`
-      : `If more than ${accent(String(current.editionSize))} users qualify, a lucky draw decides the final roster.`,
-    `Eligible users with wallets submitted in time receive airdrops after ${accentNowrap(formatDateTimeUTC(current.end))}.`
-  ];
+  const checklist = currentStatus === "Wallet Collection"
+    ? [
+        walletTweet
+          ? `Posting is closed. Use ${accent("Share your Wallet")} to open the wallet collection tweet.`
+          : `Posting is closed. Watch for the wallet collection tweet.`,
+        `If you are tagged and not already mapped, reply before ${accentNowrap(formatDateTimeUTC(current.end))}.`,
+        current.editionSize === 1
+          ? `If more than ${accent("1 user")} qualifies, admin will run a ${accent(getProtocolState().onChainDraws ? "verifiable on-chain" : "manual")} lucky draw.`
+          : `If more than ${accent(String(current.editionSize))} users qualify, a lucky draw decides the final roster.`,
+        `Eligible users with wallets submitted in time receive airdrops after ${accentNowrap(formatDateTimeUTC(current.end))}.`
+      ]
+    : [
+        `Engage before ${accentNowrap(formatDateTimeUTC(current.end))}.`,
+        `Required action: ${accent(current.eligibility)}.`,
+        `After close, watch for the wallet prompt. If tagged and not already mapped, reply before ${accentNowrap(formatDateTimeUTC(current.end))}.`,
+        current.editionSize === 1
+          ? `If more than ${accent("1 user")} qualifies, admin will run a ${accent(getProtocolState().onChainDraws ? "verifiable on-chain" : "manual")} lucky draw.`
+          : `If more than ${accent(String(current.editionSize))} users qualify, a lucky draw decides the final roster.`,
+        `Eligible users with wallets submitted in time receive airdrops after ${accentNowrap(formatDateTimeUTC(current.end))}.`
+      ];
 
   document.getElementById("ops-checklist").innerHTML = checklist.map((item) => `<li>${item}</li>`).join("");
 
@@ -1742,11 +1794,10 @@ function fillCurrentEpoch() {
 
   const tweetsContainer = document.getElementById("current-epoch-tweets");
   if (tweetsContainer) {
-    const tweetRows = getTweetRowsForEpoch(current.key);
-    if (!tweetRows.length) {
+    if (!currentTweetRows.length) {
       tweetsContainer.innerHTML = `<div class="chart-empty">No tweets added for this epoch yet.</div>`;
     } else {
-      tweetsContainer.innerHTML = tweetRows.map((item) => `
+      tweetsContainer.innerHTML = currentTweetRows.map((item) => `
         <div class="timeline-table__row" role="row">
           <span role="cell">${item.kind === "wallet"
             ? `Wallet collection${Number(item.variant || 1) > 1 ? ` ${escapeHtml(String(item.variant))}` : ""}`
@@ -2737,7 +2788,7 @@ function renderDelayState() {
     const activeKey = getEffectiveLiveEntryKey();
     const previousValue = tweetEpochSelect.value;
     tweetEpochSelect.innerHTML = epochs.map((epoch) => (
-      `<option value="${epoch.key}">${epoch.name || `Epoch ${epoch.epoch}`}</option>`
+      `<option value="${epoch.key}">${epoch.name || `Epoch ${epoch.epoch}`} · ${getHeroStatus(epoch.key)}</option>`
     )).join("");
     if (!previousValue || !epochs.some((item) => item.key === previousValue)) {
       tweetEpochSelect.value = activeKey;
@@ -2745,6 +2796,27 @@ function renderDelayState() {
       tweetEpochSelect.value = previousValue;
     }
     renderTweetDayEditor(tweetEpochSelect.value);
+  }
+  const walletPendingActions = document.getElementById("tweet-wallet-pending-actions");
+  if (walletPendingActions) {
+    const walletPendingEpochs = getMergedEpochs().filter((epoch) => getHeroStatus(epoch.key) === "Wallet Collection");
+    if (!walletPendingEpochs.length) {
+      walletPendingActions.innerHTML = "";
+    } else {
+      walletPendingActions.innerHTML = walletPendingEpochs.map((epoch) => `
+        <button class="button" type="button" data-wallet-pending-epoch="${escapeHtml(epoch.key)}">${escapeHtml(epoch.name || `Epoch ${epoch.epoch}`)} wallet drop</button>
+      `).join("");
+      walletPendingActions.querySelectorAll("[data-wallet-pending-epoch]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const targetKey = button.dataset.walletPendingEpoch || "";
+          const select = document.getElementById("tweet-epoch-select");
+          if (select) {
+            select.value = targetKey;
+          }
+          renderTweetDayEditor(targetKey);
+        });
+      });
+    }
   }
   const galleryTokenSelect = document.getElementById("gallery-token-select");
   if (galleryTokenSelect) {
