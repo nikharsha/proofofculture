@@ -855,6 +855,7 @@ const fairnessCards = [
 ];
 
 const heroQuotes = [
+  "GM is Life.",
   "GMs are free.",
   "Flowers for every gm.",
   "Because what are we without culture?",
@@ -1700,6 +1701,9 @@ function accentNowrap(text) {
 }
 
 function accentLink(text, tab) {
+  if (tab === "stats-wallet") {
+    return `<a class="current-accent current-accent--link" href="#panel-wallet" data-switch-tab="wallet">${escapeHtml(text)}</a>`;
+  }
   return `<a class="current-accent current-accent--link" href="#panel-stats" data-switch-tab="stats" data-switch-subtab="${escapeHtml(tab)}">${escapeHtml(text)}</a>`;
 }
 

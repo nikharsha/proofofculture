@@ -113,6 +113,7 @@
           <button class="tab" id="protocol-tab-current" type="button" data-tab="current" role="tab" aria-selected="false">Current Epoch</button>
           <button class="tab" id="protocol-tab-fairness" type="button" data-tab="fairness" role="tab" aria-selected="false">Fair Draw</button>
           <button class="tab" id="protocol-tab-stats" type="button" data-tab="stats" role="tab" aria-selected="false">Stats</button>
+          <button class="tab" id="protocol-tab-wallet" type="button" data-tab="wallet" role="tab" aria-selected="false">Wallet Check</button>
           <button class="tab" id="protocol-tab-timeline" type="button" data-tab="timeline" role="tab" aria-selected="false">Timeline</button>
           <button class="tab" id="protocol-tab-mints" type="button" data-tab="mints" role="tab" aria-selected="false">Unclaimed</button>
           <button class="tab" id="protocol-tab-gallery" type="button" data-tab="gallery" role="tab" aria-selected="false">Gallery</button>
@@ -223,7 +224,6 @@
               <button class="tab is-active" type="button" data-tab="stats-engagement" role="tab" aria-selected="true">Engagement</button>
               <button class="tab" type="button" data-tab="stats-minting" role="tab" aria-selected="false">Minting</button>
               <button class="tab" type="button" data-tab="stats-top" role="tab" aria-selected="false">Top Minters</button>
-              <button class="tab" type="button" data-tab="stats-wallet" role="tab" aria-selected="false">Wallet Check</button>
             </div>
             <div class="tab-panels">
               <section class="tab-panel is-active" data-panel="stats-engagement" role="tabpanel">
@@ -237,15 +237,16 @@
               <section class="tab-panel" data-panel="stats-top" role="tabpanel">
                 <div id="leaderboard"></div>
               </section>
-              <section class="tab-panel" data-panel="stats-wallet" role="tabpanel">
-                <div class="wallet-check">
-                  <div class="hero__actions">
-                    <input id="wallet-check-input" type="text" placeholder="Search by user or wallet">
-                    <button class="button button--solid" id="wallet-check-button" type="button">Check</button>
-                  </div>
-                  <div id="wallet-check-result"></div>
-                </div>
-              </section>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="panel-wallet" data-panel="wallet" role="tabpanel" aria-labelledby="protocol-tab-wallet">
+            <div class="wallet-check">
+              <div class="hero__actions">
+                <input id="wallet-check-input" type="text" placeholder="Search by user or wallet">
+                <button class="button button--solid" id="wallet-check-button" type="button">Check</button>
+              </div>
+              <div id="wallet-check-result"></div>
             </div>
           </section>
 
