@@ -1850,14 +1850,17 @@ function fillProgression() {
 
 function fillPilotTable() {
   const container = document.getElementById("bootstrap-body");
-  container.innerHTML = getMergedEpochs().filter((item) => item.phase === "Pilot" || item.type === "manual").map((item) => {
+  container.innerHTML = getMergedEpochs().filter((item) => {
+    const status = getHeroStatus(item.key);
+    return ["Completed", "Wallet Collection", "Live", "Paused"].includes(status);
+  }).map((item) => {
     const heroStatus = getHeroStatus(item.key);
     const summary = trackerData?.epochSummary?.[item.epoch];
     const minted = item.type === "manual" ? Number(item.minted || 0) : (summary?.minted ?? item.actualMinted ?? 0);
     const walletNotShared = item.type === "manual" ? 0 : (summary?.walletNotShared ?? 0);
     const eligibleWallets = item.type === "manual" ? 0 : (summary?.eligibleWallets ?? 0);
-    const status = heroStatus === "Completed" && item.type !== "manual"
-      ? (eligibleWallets === 0 ? "Compile pending" : minted === 0 ? "Airdrop pending" : "Completed")
+    const status = (heroStatus === "Completed" || heroStatus === "Wallet Collection") && item.type !== "manual"
+      ? (eligibleWallets === 0 ? "Compile pending" : minted === 0 ? "Wallet Collection" : "Completed")
       : heroStatus;
     const edition = heroStatus === "Completed"
       ? `${minted} minted${walletNotShared ? ` / ${walletNotShared} wallet not shared` : ""}`
