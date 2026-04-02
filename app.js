@@ -2015,7 +2015,9 @@ function fillOptionalTable() {
       const eligible = Number(chartRow.eligible || 0);
       const editionSize = Number(chartRow.edition_size || 0);
       const minted = Number(chartRow.minted || 0);
-      const unminted = Number(chartRow.wallet_not_shared || 0);
+      const unminted = item.epoch >= 8
+        ? Math.max(0, editionSize - minted)
+        : Number(chartRow.wallet_not_shared || 0);
 
       if (eligible === 0 || minted === 0 || unminted <= 0) return acc;
 
@@ -2394,11 +2396,13 @@ function summarizeTracker(rows) {
     let comment = 0;
     let minted = 0;
     let eligibleWallets = 0;
+    let engagedEntries = 0;
 
     rows.forEach((row) => {
       const engagement = (row[engagementKey] || "").trim().toUpperCase();
       const hasWallet = Boolean((row.wallet || "").trim());
       const mintedValue = hasWallet ? getMintCellValue(row[airdropKey]) : 0;
+      if (engagement) engagedEntries += 1;
       if (engagement === "QRT") qrt += 1;
       if (engagement === "RT") rt += 1;
       if (engagement === "COMMENT") comment += 1;
@@ -2412,15 +2416,8 @@ function summarizeTracker(rows) {
     const onlyComment = override ? Number(override.onlyComment || 0) : comment;
     const editionSize = Number(epochConfig?.editionSize || 0);
     const pilotMode = dayNumber <= 6;
-    const rawEligible = qrt + rt + comment;
-    const eligible = pilotMode
-      ? rawEligible
-      : getEffectiveEligibleCount(epochConfig?.eligibility || "", {
-          qrtComment: Number(override?.qrtComment || 0),
-          onlyQrt: Number(override?.onlyQrt || 0),
-          onlyComment: Number(override?.onlyComment || 0),
-          onlyRt: 0
-        });
+    const rawEligible = engagedEntries;
+    const eligible = rawEligible;
     const effectiveEditionSize = pilotMode ? rawEligible : editionSize;
     const isPreviousEpoch = dayNumber < getCurrentEpochNumber();
     return {
@@ -2434,8 +2431,9 @@ function summarizeTracker(rows) {
       edition_size: effectiveEditionSize,
       eligible_wallets: eligibleWallets,
       minted,
-      wallet_not_shared: Math.max(0, effectiveEditionSize - minted),
-      success_pct: `${effectiveEditionSize ? Math.round((minted / effectiveEditionSize) * 100) : 0}%`
+      unfilled: Math.max(0, effectiveEditionSize - eligible),
+      wallet_not_shared: Math.max(0, eligible - minted),
+      success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`
     };
   });
 
@@ -2443,6 +2441,7 @@ function summarizeTracker(rows) {
     eligible: row.eligible,
     eligibleWallets: row.eligible_wallets,
     minted: row.minted,
+    unfilled: row.unfilled,
     walletNotShared: row.wallet_not_shared
   }]));
 
@@ -2527,6 +2526,7 @@ function buildChronologicalChartRows(dayRows) {
       if (item.type === "manual") {
         const minted = Number(item.minted || 0);
         const eligible = Number(item.editionSize || 0);
+        const editionSize = Number(item.editionSize || 0);
         const isCompleted = getHeroStatus(item.key) === "Completed";
         const override = engagementOverrideMap.get(item.key);
         const qrtComment = override ? Number(override.qrtComment || 0) : 0;
@@ -2539,15 +2539,11 @@ function buildChronologicalChartRows(dayRows) {
           only_qrt: onlyQrt,
           only_comment: onlyComment,
           total: qrtComment + onlyQrt + onlyComment,
-          eligible: getEffectiveEligibleCount(item.eligibility || "", {
-            qrtComment,
-            onlyQrt,
-            onlyComment,
-            onlyRt: 0
-          }),
-          edition_size: eligible,
+          eligible,
+          edition_size: editionSize,
           eligible_wallets: eligible,
           minted,
+          unfilled: Math.max(0, editionSize - eligible),
           wallet_not_shared: Math.max(0, eligible - minted),
           success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`,
           sortTime: item.start.getTime(),
@@ -2599,7 +2595,8 @@ async function fillStatsVisuals() {
       minMax: 70,
       series: [
         { key: "minted", label: "Minted", color: "#57de24", textColor: "#111" },
-        { key: "wallet_not_shared", label: "Wallet Not Shared", color: "#ff5f4d", textColor: "#111" }
+        { key: "wallet_not_shared", label: "Wallet Not Shared", color: "#ff5f4d", textColor: "#111" },
+        { key: "unfilled", label: "Unfilled", color: "#d3cfbf", textColor: "#111" }
       ]
     });
 
@@ -2609,6 +2606,7 @@ async function fillStatsVisuals() {
       { key: "edition_size", label: "Edition Size" },
       { key: "minted", label: "Minted" },
       { key: "wallet_not_shared", label: "Wallet Not Shared" },
+      { key: "unfilled", label: "Unfilled" },
       { key: "success_pct", label: "Success%" }
     ], trackerData.chartRows);
 
