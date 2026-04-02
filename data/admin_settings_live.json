@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-02T16:41:17.607Z",
+  "exportedAt": "2026-04-02T19:42:38.839Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -126,7 +126,26 @@
         "winnerList": "eitzisart"
       }
     ],
-    "galleryOverrides": [],
+    "galleryOverrides": [
+      {
+        "token": 17,
+        "title": "GM 8.1",
+        "epochName": "8",
+        "edition": "37",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/17",
+        "image": "web_assets/epoch8.1.jpg",
+        "mark": "#017"
+      },
+      {
+        "token": 18,
+        "title": "GM 8.2",
+        "epochName": "8",
+        "edition": "18",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/18",
+        "image": "web_assets/epoch8.2.jpg",
+        "mark": "#018"
+      }
+    ],
     "projectDays": 365,
     "maxSupply": 1111,
     "refactorMode": "both"
@@ -855,7 +874,7 @@
         "key": "epoch-7",
         "name": "Epoch 7",
         "minted": 1,
-        "eligible": 27,
+        "eligible": 1,
         "type": "standard"
       },
       {
@@ -870,8 +889,8 @@
         "cumulativePlanned": 330,
         "key": "epoch-8",
         "name": "Epoch 8",
-        "minted": 0,
-        "eligible": 163,
+        "minted": 55,
+        "eligible": 58,
         "type": "standard"
       },
       {
