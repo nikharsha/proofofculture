@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-06T13:40:35.179Z",
+  "exportedAt": "2026-04-06T20:01:51.746Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -82,6 +82,14 @@
         "link": "https://x.com/1xharsh/status/2039354512851567085"
       },
       {
+        "id": "tweet-epoch-10-day-1-1",
+        "targetKey": "epoch-10",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2041148418501042284?s=20"
+      },
+      {
         "id": "tweet-epoch-9-day-1-1",
         "targetKey": "epoch-9",
         "kind": "day",
@@ -122,12 +130,12 @@
         "link": "https://x.com/1xharsh/status/2040787540345512245?s=20"
       },
       {
-        "id": "tweet-epoch-10-day-1-1",
-        "targetKey": "epoch-10",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-9-wallet-0-1",
+        "targetKey": "epoch-9",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2041148418501042284?s=20"
+        "link": "https://x.com/1xharsh/status/2041237922226360756?s=20"
       }
     ],
     "engagementOverrides": [
@@ -144,11 +152,18 @@
         "qrtComment": 54,
         "onlyQrt": 18,
         "onlyComment": 91
+      },
+      {
+        "id": "engagement-1775505319997",
+        "targetKey": "epoch-9",
+        "qrtComment": 53,
+        "onlyQrt": 25,
+        "onlyComment": 128
       }
     ],
     "drawRecords": [
       {
-        "id": "draw-1774665429465",
+        "id": "draw-epoch-7",
         "epoch": "7",
         "editionSize": 1,
         "eligibleCount": 27,
@@ -156,6 +171,16 @@
         "drawDate": "2026-03-27T17:30:00.000Z",
         "drawMode": "Manual",
         "winnerList": "eitzisart"
+      },
+      {
+        "id": "draw-epoch-9",
+        "epoch": "9",
+        "editionSize": 25,
+        "eligibleCount": 66,
+        "drawOutput": "25",
+        "drawDate": "2026-04-06T19:30:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "_sigmaX_ suparno67 badgerdnft bundit_1 Chumwizards dan_fraser_ dondiiieeee eitzisart evvi2222 fun_tokens JohnPaulBraden kruuul livesawave matriona_fails MichaelBuda2 mrc_arte newlightvisuals ol1y_art Punk8868 Qoheleth3000 rain41 VSTRVL_FFF woodificouldart xptoplayici Zina_Caramelo"
       }
     ],
     "galleryOverrides": [
@@ -176,6 +201,15 @@
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/18",
         "image": "web_assets/epoch8.2.jpg",
         "mark": "#018"
+      },
+      {
+        "token": 19,
+        "title": "GM 9.0",
+        "epochName": "9",
+        "edition": "",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/19",
+        "image": "web_assets/epoch9.jpg",
+        "mark": "#019"
       }
     ],
     "projectDays": 365,

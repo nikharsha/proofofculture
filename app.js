@@ -1464,6 +1464,52 @@ function getTweetRowsForEpoch(epochKey) {
     });
 }
 
+function getTweetEditorTargets() {
+  const merged = getMergedEpochs();
+  const mergedByKey = new Map(merged.map((epoch) => [epoch.key, epoch]));
+  const tweetTargets = [];
+
+  merged.forEach((epoch) => {
+    tweetTargets.push({
+      key: epoch.key,
+      label: epoch.name || `Epoch ${epoch.epoch}`,
+      status: getHeroStatus(epoch.key),
+      sortValue: Number(epoch.epoch || 0),
+      totalDays: Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)))
+    });
+  });
+
+  const seenKeys = new Set(tweetTargets.map((item) => item.key));
+  const groupedRecords = new Map();
+  getTweetRecords().forEach((record) => {
+    if (!groupedRecords.has(record.targetKey)) {
+      groupedRecords.set(record.targetKey, []);
+    }
+    groupedRecords.get(record.targetKey).push(record);
+  });
+
+  groupedRecords.forEach((records, key) => {
+    if (seenKeys.has(key)) return;
+    const epochMatch = String(key).match(/^epoch-(\d+)$/i);
+    const epochNumber = epochMatch ? Number(epochMatch[1]) : Number.POSITIVE_INFINITY;
+    const maxDay = records.reduce((max, item) => (
+      item.kind === "wallet" ? max : Math.max(max, Number(item.dayNumber || 0))
+    ), 0);
+    tweetTargets.push({
+      key,
+      label: epochMatch ? `Epoch ${epochNumber}` : key,
+      status: "Completed",
+      sortValue: epochNumber,
+      totalDays: Math.max(1, maxDay || 1)
+    });
+  });
+
+  return tweetTargets.sort((a, b) => {
+    if (a.sortValue !== b.sortValue) return a.sortValue - b.sortValue;
+    return a.label.localeCompare(b.label);
+  });
+}
+
 function getSuggestedLiveEpochNumber() {
   if (trackerData?.epochSummary) {
     const suggested = Object.entries(trackerData.epochSummary)
@@ -2789,14 +2835,16 @@ function renderDelayState() {
   }
   const tweetEpochSelect = document.getElementById("tweet-epoch-select");
   if (tweetEpochSelect) {
-    const epochs = getMergedEpochs();
+    const epochs = getTweetEditorTargets();
     const activeKey = getEffectiveLiveEntryKey();
     const previousValue = tweetEpochSelect.value;
     tweetEpochSelect.innerHTML = epochs.map((epoch) => (
-      `<option value="${epoch.key}">${epoch.name || `Epoch ${epoch.epoch}`} · ${getHeroStatus(epoch.key)}</option>`
+      `<option value="${epoch.key}">${epoch.label} · ${epoch.status}</option>`
     )).join("");
     if (!previousValue || !epochs.some((item) => item.key === previousValue)) {
-      tweetEpochSelect.value = activeKey;
+      tweetEpochSelect.value = epochs.some((item) => item.key === activeKey)
+        ? activeKey
+        : (epochs[0]?.key || "");
     } else {
       tweetEpochSelect.value = previousValue;
     }
@@ -2849,6 +2897,7 @@ function renderDelayState() {
   renderEngagementOverrideList();
   renderEligibilityOverrideList();
   renderTweetRecordList();
+  populateDrawRecordEpochSelect();
   renderDrawRecordList();
   renderTimelineAdjustmentList();
   renderGalleryOverrideList();
@@ -2932,8 +2981,8 @@ function clearTweetRecordForm() {
 }
 
 function clearDrawRecordForm() {
-  document.getElementById("draw-record-epoch").value = "";
-  document.getElementById("draw-record-edition-size").value = "";
+  populateDrawRecordEpochSelect();
+  syncDrawRecordEditionSize();
   document.getElementById("draw-record-eligible-count").value = "";
   document.getElementById("draw-record-output").value = "";
   document.getElementById("draw-record-date").value = "";
@@ -2941,7 +2990,79 @@ function clearDrawRecordForm() {
   document.getElementById("draw-record-winners").value = "";
   const button = document.getElementById("draw-record-apply");
   button.dataset.editingId = "";
+  button.dataset.editingEpoch = "";
+  button.dataset.mode = "create";
   button.textContent = "Add Draw Record";
+}
+
+function getDrawRecordEpochOptions() {
+  const merged = getMergedEpochs();
+  const endedEpochs = merged.filter((item) => item.end.getTime() <= Date.now());
+  const latestEnded = endedEpochs.length
+    ? endedEpochs.reduce((latest, item) => (item.end > latest.end ? item : latest), endedEpochs[0])
+    : null;
+  return merged
+    .filter((item) => getHeroStatus(item.key) === "Completed" || (latestEnded && item.key === latestEnded.key))
+    .sort((a, b) => a.end - b.end)
+    .map((item) => ({
+      key: item.key,
+      value: item.type === "manual" ? String(item.name || item.key) : String(item.epoch),
+      label: item.name || `Epoch ${item.epoch}`
+    }));
+}
+
+function getDrawRecordEpochEntry(selectedValue = "") {
+  return getDrawRecordEpochOptions().find((item) => item.value === selectedValue) || null;
+}
+
+function populateDrawRecordEpochSelect(selectedValue = "") {
+  const select = document.getElementById("draw-record-epoch");
+  if (!select) return;
+  const options = getDrawRecordEpochOptions();
+  const preferredValue = selectedValue || select.value || options[options.length - 1]?.value || "";
+  select.innerHTML = options.length
+    ? options.map((item) => `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`).join("")
+    : `<option value="">No completed epochs yet</option>`;
+  if (!options.length) {
+    select.value = "";
+    return;
+  }
+  select.value = options.some((item) => item.value === preferredValue)
+    ? preferredValue
+    : options[options.length - 1].value;
+}
+
+function syncDrawRecordEditionSize() {
+  const select = document.getElementById("draw-record-epoch");
+  const editionInput = document.getElementById("draw-record-edition-size");
+  if (!select || !editionInput) return;
+  const option = getDrawRecordEpochEntry(select.value);
+  if (!option) return;
+  const epoch = getMergedEpochs().find((item) => item.key === option.key);
+  if (!epoch) return;
+  editionInput.value = String(Number(epoch.editionSize || 0));
+}
+
+function setDrawRecordEditMode(record) {
+  populateDrawRecordEpochSelect(record?.epoch || "");
+  const applyButton = document.getElementById("draw-record-apply");
+  applyButton.dataset.editingId = record?.id || "";
+  applyButton.dataset.editingEpoch = record?.epoch || "";
+  applyButton.dataset.mode = record?.id ? "edit" : "create";
+  applyButton.textContent = record?.id ? "Update Draw Record" : "Add Draw Record";
+}
+
+function ensureDrawRecordCreateModeIfEpochChanged() {
+  const applyButton = document.getElementById("draw-record-apply");
+  if (!applyButton || applyButton.dataset.mode !== "edit") return;
+  const currentEpoch = document.getElementById("draw-record-epoch")?.value.trim() || "";
+  const editingEpoch = applyButton.dataset.editingEpoch || "";
+  if (currentEpoch !== editingEpoch) {
+    applyButton.dataset.editingId = "";
+    applyButton.dataset.editingEpoch = "";
+    applyButton.dataset.mode = "create";
+    applyButton.textContent = "Add Draw Record";
+  }
 }
 
 function populateGalleryForm(token) {
@@ -3106,11 +3227,14 @@ function renderTweetDayEditor(targetKey) {
   const container = document.getElementById("tweet-day-editor");
   if (!container) return;
   const epoch = getMergedEpochs().find((item) => item.key === targetKey);
-  if (!epoch) {
+  const fallbackTarget = getTweetEditorTargets().find((item) => item.key === targetKey);
+  if (!epoch && !fallbackTarget) {
     container.innerHTML = `<div class="chart-empty">Select an epoch to load its day-by-day tweet inputs.</div>`;
     return;
   }
-  const totalDays = Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)));
+  const totalDays = epoch
+    ? Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)))
+    : Math.max(1, Number(fallbackTarget?.totalDays || 1));
   const recordsByDay = new Map();
   const walletRecords = [];
   getTweetRowsForEpoch(targetKey).forEach((item) => {
@@ -3300,9 +3424,7 @@ function renderDrawRecordList() {
         : "";
       document.getElementById("draw-record-mode").value = record.drawMode || "Manual";
       document.getElementById("draw-record-winners").value = record.winnerList || "";
-      const applyButton = document.getElementById("draw-record-apply");
-      applyButton.dataset.editingId = record.id;
-      applyButton.textContent = "Update Draw Record";
+      setDrawRecordEditMode(record);
     });
   });
 
@@ -3666,6 +3788,10 @@ function setupDelayControls() {
     renderTweetDayEditor(document.getElementById("tweet-epoch-select").value || getEffectiveLiveEntryKey());
   });
 
+  document.getElementById("tweet-epoch-select").addEventListener("change", (event) => {
+    renderTweetDayEditor(event.target.value || getEffectiveLiveEntryKey());
+  });
+
   document.getElementById("tweet-record-apply").addEventListener("click", () => {
     const state = getProtocolState();
     const targetKey = document.getElementById("tweet-epoch-select").value;
@@ -3734,7 +3860,8 @@ function setupDelayControls() {
   document.getElementById("draw-record-apply").addEventListener("click", () => {
     const state = getProtocolState();
     const applyButton = document.getElementById("draw-record-apply");
-    const editingId = applyButton.dataset.editingId || "";
+    const isEditing = Boolean(applyButton.dataset.editingId) && applyButton.dataset.mode === "edit";
+    const editingId = isEditing ? (applyButton.dataset.editingId || "") : "";
     const dateValue = document.getElementById("draw-record-date").value;
     const nextRecord = {
       id: editingId || `draw-${Date.now()}`,
@@ -3758,6 +3885,15 @@ function setupDelayControls() {
 
   document.getElementById("draw-record-clear").addEventListener("click", () => {
     clearDrawRecordForm();
+  });
+
+  document.getElementById("draw-record-epoch").addEventListener("change", () => {
+    syncDrawRecordEditionSize();
+    ensureDrawRecordCreateModeIfEpochChanged();
+  });
+
+  document.getElementById("draw-record-epoch").addEventListener("input", () => {
+    ensureDrawRecordCreateModeIfEpochChanged();
   });
 
   document.getElementById("gallery-token-select").addEventListener("change", (event) => {
