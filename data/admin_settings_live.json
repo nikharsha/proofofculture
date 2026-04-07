@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-07T13:58:09.381Z",
+  "exportedAt": "2026-04-07T19:40:36.811Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -214,7 +214,7 @@
         "token": 19,
         "title": "GM 9.0",
         "epochName": "9",
-        "edition": "",
+        "edition": "25",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/19",
         "image": "web_assets/epoch9.jpg",
         "mark": "#019"
