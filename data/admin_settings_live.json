@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-06T20:01:51.746Z",
+  "exportedAt": "2026-04-07T13:58:09.381Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -82,14 +82,6 @@
         "link": "https://x.com/1xharsh/status/2039354512851567085"
       },
       {
-        "id": "tweet-epoch-10-day-1-1",
-        "targetKey": "epoch-10",
-        "kind": "day",
-        "dayNumber": 1,
-        "variant": 1,
-        "link": "https://x.com/1xharsh/status/2041148418501042284?s=20"
-      },
-      {
         "id": "tweet-epoch-9-day-1-1",
         "targetKey": "epoch-9",
         "kind": "day",
@@ -136,6 +128,22 @@
         "dayNumber": 0,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2041237922226360756?s=20"
+      },
+      {
+        "id": "tweet-epoch-10-day-1-1",
+        "targetKey": "epoch-10",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2041148418501042284?s=20"
+      },
+      {
+        "id": "tweet-epoch-10-day-2-1",
+        "targetKey": "epoch-10",
+        "kind": "day",
+        "dayNumber": 2,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2041510302978818433?s=20"
       }
     ],
     "engagementOverrides": [
@@ -971,8 +979,8 @@
         "cumulativePlanned": 355,
         "key": "epoch-9",
         "name": "Epoch 9",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 25,
+        "eligible": 25,
         "type": "standard"
       },
       {
