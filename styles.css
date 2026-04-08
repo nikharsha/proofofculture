@@ -902,11 +902,21 @@ body[data-theme="dark"] .draw-card--primary dd {
 }
 
 .gallery-filter {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.gallery-filter__row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 18px;
+}
+
+.gallery-filter__row--stacked {
+  display: grid;
+  gap: 10px;
 }
 
 .gallery-filter label {
@@ -920,6 +930,75 @@ body[data-theme="dark"] .draw-card--primary dd {
   border-radius: 14px;
   padding: 10px 14px;
   font: inherit;
+}
+
+.multi-select {
+  position: relative;
+  width: min(100%, 420px);
+}
+
+.multi-select__button {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: var(--panel-solid);
+  color: var(--ink);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.multi-select__button::after {
+  content: "▾";
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.multi-select__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  border: 1px solid var(--line-strong);
+  background: var(--panel-solid);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+}
+
+.multi-select__menu[hidden] {
+  display: none;
+}
+
+.multi-select__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.multi-select__options {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.multi-select__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.multi-select__option input {
+  margin: 0;
 }
 
 #gallery-asset-status {
@@ -975,6 +1054,29 @@ body[data-theme="dark"] .draw-card--primary dd {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.gallery-card__partners {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.gallery-card__partners a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
+.gallery-card__partners a:hover {
+  color: var(--text);
+}
+
+#gallery-partner-artists {
+  min-height: 4.5rem;
+  max-height: 8rem;
+  overflow-y: auto;
+  resize: vertical;
 }
 
 .gallery-card__meta {
@@ -1081,6 +1183,46 @@ body[data-theme="dark"] .draw-card--primary dd {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.ops-status-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.ops-status-light {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  margin-top: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.ops-status-light.is-done {
+  background: var(--green-light, #6adf6a);
+}
+
+.ops-status-light.is-pending {
+  background: #d85b5b;
+}
+
+.ops-status-body strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ops-status-body p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.ops-status-tag {
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .wallet-check input,

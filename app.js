@@ -8,6 +8,7 @@ const adminSettingsHandleStore = "handles";
 const adminSettingsHandleKey = "settings-file";
 const galleryAssetSourceHandleKey = "gallery-assets-source";
 const galleryAssetTargetHandleKey = "gallery-assets-target";
+const scraperEpochsHandleKey = "scraper-epochs-source";
 const hostedAdminSettingsPath = "data/admin_settings_live.json";
 const trackerCsvPath = "data/proof_of_culture_tracker_master.csv";
 const editionPalette = [69, 42, 33, 25, 11, 5, 1];
@@ -53,6 +54,7 @@ let protocolStateCache = getDefaultProtocolState();
 let adminSettingsFileHandle = null;
 let galleryAssetSourceDirHandle = null;
 let galleryAssetTargetDirHandle = null;
+let scraperEpochsDirHandle = null;
 let galleryAssetLastRefreshSummary = "";
 let forceEpochPlanRebuild = false;
 const materializedSchedule = {
@@ -125,6 +127,7 @@ function getDefaultProtocolState() {
     tweetRecords: [],
     engagementOverrides: [],
     drawRecords: [],
+    opsChecklist: {},
     galleryOverrides: [],
     projectDays: defaultProjectDays,
     maxSupply: defaultMaxSupply,
@@ -234,6 +237,14 @@ async function loadAdminSettingsHandle() {
   return loadHandleFromDb(adminSettingsHandleKey);
 }
 
+async function saveScraperEpochsHandle(handle) {
+  return saveHandleToDb(scraperEpochsHandleKey, handle);
+}
+
+async function loadScraperEpochsHandle() {
+  return loadHandleFromDb(scraperEpochsHandleKey);
+}
+
 async function readProtocolStateFromFileHandle(handle) {
   const file = await handle.getFile();
   const raw = await file.text();
@@ -278,6 +289,20 @@ function syncAdminSettingsStatus(customMessage = "") {
     return;
   }
   node.textContent = "Using browser storage until a settings file is connected.";
+}
+
+function syncScraperEpochsStatus(customMessage = "") {
+  const node = document.getElementById("ops-scraper-status");
+  if (!node) return;
+  if (customMessage) {
+    node.textContent = customMessage;
+    return;
+  }
+  if (scraperEpochsDirHandle?.name) {
+    node.textContent = `Connected to ${scraperEpochsDirHandle.name}. Status checks can now inspect scraped epoch outputs automatically.`;
+    return;
+  }
+  node.textContent = "Scraper epochs folder not connected yet.";
 }
 
 function getManualEpochs() {
@@ -352,6 +377,25 @@ function getTimelineAdjustments() {
 
 function getEngagementOverrides() {
   return (getProtocolState().engagementOverrides || []).map((item) => ({ ...item }));
+}
+
+function getOpsChecklistState(targetKey) {
+  return { ...((getProtocolState().opsChecklist || {})[targetKey] || {}) };
+}
+
+function setOpsChecklistStep(targetKey, stepId, done) {
+  const state = getProtocolState();
+  const nextChecklist = {
+    ...(state.opsChecklist || {}),
+    [targetKey]: {
+      ...((state.opsChecklist || {})[targetKey] || {}),
+      [stepId]: Boolean(done)
+    }
+  };
+  setProtocolState({
+    ...state,
+    opsChecklist: nextChecklist
+  });
 }
 
 function getEffectiveMaxSupply() {
@@ -755,6 +799,42 @@ function getGalleryItems() {
     }));
 
   return [...mergedBase, ...extraOverrides].sort((a, b) => Number(a.token) - Number(b.token));
+}
+
+function normalizePartnerHandle(handle = "") {
+  return String(handle || "").trim().replace(/^@+/, "");
+}
+
+function parsePartnerArtists(raw = "") {
+  return String(raw || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [displayPart, handlePart] = line.split("|");
+      const displayName = String(displayPart || "").trim();
+      const handle = normalizePartnerHandle(handlePart || displayName);
+      return {
+        displayName,
+        handle
+      };
+    })
+    .filter((item) => item.displayName && item.handle);
+}
+
+function serializePartnerArtists(partners = []) {
+  return (partners || [])
+    .map((item) => {
+      const displayName = String(item?.displayName || "").trim();
+      const handle = normalizePartnerHandle(item?.handle || "");
+      return displayName && handle ? `${displayName} | @${handle}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function getPartnerArtistFilterValues(item) {
+  return (item.partnerArtists || []).map((partner) => `${partner.displayName}|${partner.handle}`);
 }
 
 function getGalleryItemByToken(token) {
@@ -2031,6 +2111,300 @@ function fillFairnessResult() {
   `).join("");
 }
 
+function getOpsStatusEpochTargets() {
+  return getMergedEpochs()
+    .filter((item) => item.start.getTime() <= Date.now() || getHeroStatus(item.key) === "Wallet Collection" || getHeroStatus(item.key) === "Completed")
+    .sort((a, b) => b.end - a.end);
+}
+
+function getDefaultOpsStatusEpochKey() {
+  const targets = getOpsStatusEpochTargets();
+  const walletPending = targets.find((item) => getHeroStatus(item.key) === "Wallet Collection");
+  if (walletPending) return walletPending.key;
+  return targets[0]?.key || getEffectiveLiveEntryKey();
+}
+
+async function getScraperEpochData(epochNumber) {
+  if (!scraperEpochsDirHandle) return null;
+  try {
+    const permission = await scraperEpochsDirHandle.queryPermission({ mode: "read" });
+    if (permission !== "granted") return null;
+    const epochDir = await scraperEpochsDirHandle.getDirectoryHandle(`epoch_${epochNumber}`);
+    const fileNames = [];
+    for await (const [name, handle] of epochDir.entries()) {
+      if (handle.kind === "file") fileNames.push(name);
+    }
+    const dayFiles = new Set();
+    fileNames.forEach((name) => {
+      const match = name.match(new RegExp(`^day_${epochNumber}\\.(\\d+)\\.csv$`, "i"));
+      if (match) dayFiles.add(Number(match[1]));
+    });
+    let eligibleRows = [];
+    try {
+      const eligibleHandle = await epochDir.getFileHandle(`eligible_users_${epochNumber}.csv`);
+      const eligibleText = await (await eligibleHandle.getFile()).text();
+      eligibleRows = parseCsv(eligibleText);
+    } catch (_) {}
+    const hasLuckyEligible = fileNames.includes(`lucky_eligible_${epochNumber}.csv`);
+    let luckyEligibleRows = [];
+    if (hasLuckyEligible) {
+      try {
+        const luckyHandle = await epochDir.getFileHandle(`lucky_eligible_${epochNumber}.csv`);
+        const luckyText = await (await luckyHandle.getFile()).text();
+        luckyEligibleRows = parseCsv(luckyText);
+      } catch (_) {}
+    }
+    const walletSourceRows = luckyEligibleRows.length ? luckyEligibleRows : eligibleRows;
+    const walletFilled = walletSourceRows.some((row) => String(row.wallet || "").trim());
+    return {
+      dayFiles,
+      hasEligibleUsers: fileNames.includes(`eligible_users_${epochNumber}.csv`),
+      eligibleCount: eligibleRows.length,
+      walletFilled,
+      hasLuckyEligible,
+      walletSource: luckyEligibleRows.length ? "lucky" : "eligible"
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+async function doSettingsFilesMatch() {
+  try {
+    const [localResponse, cfResponse] = await Promise.all([
+      fetch("data/admin_settings_live.json", { cache: "no-store" }),
+      fetch("cloudflare-public/data/admin_settings_live.json", { cache: "no-store" })
+    ]);
+    if (!localResponse.ok || !cfResponse.ok) return false;
+    const [localJson, cfJson] = await Promise.all([localResponse.json(), cfResponse.json()]);
+    return JSON.stringify(localJson) === JSON.stringify(cfJson);
+  } catch (_) {
+    return false;
+  }
+}
+
+async function getOpsStatusItems(targetKey) {
+  const epoch = getMergedEpochs().find((item) => item.key === targetKey);
+  if (!epoch) return [];
+  const status = getHeroStatus(epoch.key);
+  const tweetRows = getTweetRowsForEpoch(epoch.key);
+  const dayTweetNumbers = new Set(tweetRows.filter((item) => item.kind !== "wallet").map((item) => Number(item.dayNumber || 0)).filter(Boolean));
+  const walletTweets = tweetRows.filter((item) => item.kind === "wallet");
+  const totalDays = Math.max(1, Number(epoch.daysNeeded || diffDaysInclusive(epoch.start, epoch.end)));
+  const now = Date.now();
+  const requiredTweetDays = epoch.end.getTime() <= now
+    ? totalDays
+    : Math.min(totalDays, Math.max(1, getEpochCurrentDayNumber(epoch)));
+  const manualState = getOpsChecklistState(targetKey);
+  const trackerEpoch = trackerData?.epochSummary?.[epoch.epoch] || null;
+  const mintedCount = Number(trackerEpoch?.minted ?? getEpochMintedCount(epoch) ?? 0);
+  const engagementOverride = getEngagementOverrides().find((item) => item.targetKey === targetKey);
+  const epochNumber = Number(epoch.epoch || 0);
+  const scraperData = epochNumber ? await getScraperEpochData(epochNumber) : null;
+  const eligibleExceedsEdition = scraperData ? scraperData.eligibleCount > Number(epoch.editionSize || 0) : false;
+  const drawRecord = getDrawRecords().find((item) => String(item.epoch || "").trim() === String(epoch.type === "manual" ? (epoch.name || epoch.key) : epoch.epoch).trim());
+  const galleryEpochNames = [String(epoch.name || ""), String(epoch.epoch || "")].filter(Boolean);
+  const galleryItemsForEpoch = getGalleryItems().filter((item) => galleryEpochNames.includes(String(item.epochName || "")));
+  const hasGalleryImage = galleryItemsForEpoch.some((item) => String(item.image || "").trim());
+  const hasGalleryDetails = galleryItemsForEpoch.some((item) => String(item.image || "").trim() && String(item.edition || "").trim());
+  const cloudflareSyncDone = await doSettingsFilesMatch();
+  const trackerHeaders = trackerData?.headers || [];
+  const hasTrackerColumns = trackerHeaders.includes(`day${epochNumber}_engagement`) && trackerHeaders.includes(`day${epochNumber}_airdrop`);
+  const trackerUpdated = hasTrackerColumns && ((Number(trackerEpoch?.eligible || 0) > 0) || (Number(trackerEpoch?.minted || 0) > 0));
+  const compileComplete = Boolean(scraperData?.hasEligibleUsers) || trackerUpdated;
+  const walletPlugComplete = Boolean(scraperData?.walletFilled) || mintedCount > 0;
+  const drawNeeded = scraperData?.hasEligibleUsers ? eligibleExceedsEdition : Boolean(drawRecord);
+  const fairDrawComplete = drawNeeded ? (Boolean(scraperData?.hasLuckyEligible) || Boolean(drawRecord) || mintedCount > 0) : compileComplete;
+
+  return [
+    {
+      id: "settings_connected",
+      label: "Settings file connected",
+      detail: adminSettingsFileHandle?.name === "admin_settings_live.json"
+        ? "admin_settings_live.json is connected and acting as your working source of truth."
+        : "Connect data/admin_settings_live.json in Admin > Live Control before continuing.",
+      done: adminSettingsFileHandle?.name === "admin_settings_live.json",
+      kind: "auto"
+    },
+    {
+      id: "tweet_links_updated",
+      label: "Daily tweet links entered",
+      detail: `${dayTweetNumbers.size} of ${requiredTweetDays} required day link slots are filled for this epoch view.`,
+      done: requiredTweetDays > 0 && dayTweetNumbers.size >= requiredTweetDays,
+      kind: "auto"
+    },
+    {
+      id: "scrape_batch",
+      label: "Day-level scrape pulls present",
+      detail: scraperData
+        ? `${scraperData.dayFiles.size} of ${requiredTweetDays} expected day CSV files found in scraper/epochs/epoch_${epochNumber}.`
+        : "Connect the scraper epochs folder to auto-check day CSV files.",
+      done: Boolean(scraperData) && requiredTweetDays > 0 && Array.from({ length: requiredTweetDays }, (_, index) => index + 1).every((day) => scraperData.dayFiles.has(day)),
+      kind: "auto"
+    },
+    {
+      id: "compile_eligibility",
+      label: "Final scrape + compile complete",
+      detail: scraperData?.hasEligibleUsers
+        ? `eligible_users_${epochNumber}.csv is present in the scraper output folder.`
+        : (trackerUpdated
+          ? `Tracker data for this epoch is already populated, so compile is treated as complete.`
+          : `Waiting for eligible_users_${epochNumber}.csv in scraper/epochs/epoch_${epochNumber}.`),
+      done: compileComplete,
+      kind: "auto"
+    },
+    {
+      id: "wallet_tweet",
+      label: "Wallet collection link added",
+      detail: walletTweets.length
+        ? `${walletTweets.length} wallet collection link${walletTweets.length === 1 ? "" : "s"} saved.`
+        : "Add the wallet collection tweet link once eligibility is determined.",
+      done: walletTweets.length > 0,
+      kind: "auto"
+    },
+    {
+      id: "wallet_plug",
+      label: "Wallet plug run complete",
+      detail: scraperData?.hasEligibleUsers
+        ? (scraperData.walletFilled
+          ? `${scraperData.walletSource === "lucky" ? "lucky_eligible" : "eligible_users"} CSV has at least one wallet filled in.`
+          : (mintedCount > 0
+            ? "Tracker CSV already shows airdrop entries for this epoch, so wallet plug is treated as complete."
+            : `${scraperData.walletSource === "lucky" ? "lucky_eligible" : "eligible_users"} CSV exists, but no wallet values are filled in yet.`))
+        : (mintedCount > 0
+          ? "Tracker CSV already shows airdrop entries for this epoch, so wallet plug is treated as complete."
+          : "Waiting for eligible_users CSV before wallet plug status can be confirmed."),
+      done: walletPlugComplete,
+      kind: "auto"
+    },
+    {
+      id: "fair_draw_complete",
+      label: "Fair draw complete (if needed)",
+      detail: !compileComplete
+        ? "Waiting for compile output before deciding whether a draw is needed."
+        : !drawNeeded
+          ? "Not needed. Eligible count does not exceed the edition size."
+          : (scraperData?.hasLuckyEligible
+            ? `lucky_eligible_${epochNumber}.csv is present.`
+            : (drawRecord
+              ? "A draw record is already logged for this epoch."
+              : (mintedCount > 0
+                ? "Tracker CSV already shows airdrop entries for this epoch, so the draw is treated as complete."
+                : `Eligible count exceeds edition size, so lucky_eligible_${epochNumber}.csv is still pending.`))),
+      done: fairDrawComplete,
+      kind: "auto"
+    },
+    ...((compileComplete && drawNeeded) ? [{
+      id: "draw_logged",
+      label: "Draw result logged in Admin",
+      detail: drawRecord
+        ? `Draw record is logged for epoch ${escapeHtml(String(drawRecord.epoch || ""))}.`
+        : "Eligible count exceeds the edition size, so log the result in Admin > Draw Records.",
+      done: Boolean(drawRecord),
+      kind: "auto"
+    }] : []),
+    {
+      id: "tracker_updater",
+      label: "Master tracker updated",
+      detail: trackerUpdated
+        ? `Tracker CSV has day${epochNumber}_engagement/day${epochNumber}_airdrop data for this epoch.`
+        : `Waiting for tracker data to show day${epochNumber}_engagement and day${epochNumber}_airdrop entries.`,
+      done: trackerUpdated,
+      kind: "auto"
+    },
+    {
+      id: "gallery_sync",
+      label: "Gallery assets synced",
+      detail: hasGalleryImage
+        ? `${galleryItemsForEpoch.length} gallery image ${galleryItemsForEpoch.length === 1 ? "entry is" : "entries are"} present for this epoch.`
+        : "No gallery image for this epoch is visible to the site yet.",
+      done: hasGalleryImage,
+      kind: "auto"
+    },
+    {
+      id: "gallery_details",
+      label: "Gallery item details updated",
+      detail: hasGalleryDetails
+        ? "Gallery item edition size is configured for this epoch."
+        : "Add edition size and any other gallery details for the new pieces.",
+      done: hasGalleryDetails,
+      kind: "auto"
+    },
+    {
+      id: "airdrop_complete",
+      label: "Airdrop marked complete",
+      detail: mintedCount > 0
+        ? `${mintedCount} mint${mintedCount === 1 ? "" : "s"} already reflected in the tracker CSV for this epoch.`
+        : "Run mark_airdrop_complete.js after the airdrop begins.",
+      done: mintedCount > 0,
+      kind: "auto"
+    },
+    {
+      id: "csv_copied",
+      label: "Updated tracker CSV copied into site data",
+      detail: trackerEpoch
+        ? "The local site is already reading tracker data for this epoch."
+        : "Copy the updated proof_of_culture_tracker_master.csv into New project/data.",
+      done: Boolean(trackerEpoch),
+      kind: "auto"
+    },
+    {
+      id: "engagement_admin",
+      label: "Engagement stats updated in Admin",
+      detail: engagementOverride
+        ? "An engagement override is saved for this epoch."
+        : "Save the current epoch engagement breakdown in Admin > Engagement.",
+      done: Boolean(engagementOverride),
+      kind: "auto"
+    },
+    {
+      id: "cloudflare_sync",
+      label: "Cloudflare sync script run",
+      detail: cloudflareSyncDone
+        ? "Local data/admin_settings_live.json matches the Cloudflare public settings copy."
+        : "Cloudflare public settings still differ from the local settings JSON.",
+      done: cloudflareSyncDone,
+      kind: "auto"
+    }
+  ];
+}
+
+async function renderOpsStatusList() {
+  const select = document.getElementById("ops-status-epoch-select");
+  const container = document.getElementById("ops-status-list");
+  if (!select || !container) return;
+  const targetKey = select.value || getDefaultOpsStatusEpochKey();
+  container.innerHTML = `<div class="chart-empty">Checking workflow status…</div>`;
+  const items = await getOpsStatusItems(targetKey);
+  if (!items.length) {
+    container.innerHTML = `<div class="chart-empty">No epoch workflow status available yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = items.map((item, index) => `
+    <article class="admin-manual-item ops-status-item">
+      <span class="ops-status-light ${item.done ? "is-done" : "is-pending"}" aria-hidden="true"></span>
+      <div class="ops-status-body">
+        <strong>${index}. ${escapeHtml(item.label)}</strong>
+        <p>${escapeHtml(item.detail)}</p>
+      </div>
+      ${item.kind === "manual" ? `
+        <div class="hero__actions">
+          <span class="ops-status-tag">${item.done ? "Done" : "Pending"}</span>
+          <button class="button" type="button" data-ops-step="${escapeHtml(item.id)}" data-ops-next="${item.done ? "false" : "true"}">${item.done ? "Mark pending" : "Mark done"}</button>
+        </div>
+      ` : `<span class="ops-status-tag">${item.done ? "Auto done" : "Auto pending"}</span>`}
+    </article>
+  `).join("");
+
+  container.querySelectorAll("[data-ops-step]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setOpsChecklistStep(targetKey, button.dataset.opsStep || "", button.dataset.opsNext === "true");
+      renderDelayState();
+    });
+  });
+}
+
 function fillOptionalTable() {
   const container = document.getElementById("optional-table");
   const sourceContainer = document.getElementById("unclaimed-source-table");
@@ -2137,11 +2511,22 @@ function fillGallery() {
   const container = document.getElementById("gallery-grid");
   const epochFilter = document.getElementById("gallery-epoch-filter");
   const editionFilter = document.getElementById("gallery-edition-filter");
+  const partnerFilter = document.getElementById("gallery-partner-filter");
+  const partnerButton = document.getElementById("gallery-partner-filter-button");
+  const partnerMenu = document.getElementById("gallery-partner-filter-menu");
+  const partnerOptionsNode = document.getElementById("gallery-partner-filter-options");
   const galleryItems = getGalleryItems();
   const selectedEpoch = epochFilter?.value || "all";
   const selectedEdition = editionFilter?.value || "all";
+  const selectedPartners = partnerFilter?.dataset.selected
+    ? partnerFilter.dataset.selected.split("||").filter(Boolean)
+    : [];
   const epochOptions = ["all", ...new Set(galleryItems.map((item) => item.epochName))];
   const editionOptions = ["all", ...new Set(galleryItems.map((item) => item.edition))];
+  const partnerOptions = Array.from(new Map(
+    galleryItems
+      .flatMap((item) => (item.partnerArtists || []).map((partner) => [`${partner.displayName}|${partner.handle}`, partner]))
+  ).values());
   if (epochFilter && (
     epochFilter.options.length !== epochOptions.length ||
     Array.from(epochFilter.options).some((option, index) => option.value !== epochOptions[index])
@@ -2162,11 +2547,36 @@ function fillGallery() {
     `).join("");
     editionFilter.value = editionOptions.includes(previousValue) ? previousValue : "all";
   }
+  if (partnerFilter && partnerButton && partnerMenu && partnerOptionsNode) {
+    const previousValues = new Set(selectedPartners);
+    partnerOptionsNode.innerHTML = partnerOptions.length
+      ? partnerOptions.map((partner) => {
+        const value = `${partner.displayName}|${partner.handle}`;
+        const checked = previousValues.has(value) ? "checked" : "";
+        return `
+          <label class="multi-select__option">
+            <input type="checkbox" value="${escapeHtml(value)}" ${checked}>
+            <span>${escapeHtml(partner.displayName)}</span>
+          </label>
+        `;
+      }).join("")
+      : `<div class="chart-empty">No partner artists available yet.</div>`;
+    partnerFilter.dataset.selected = Array.from(previousValues).join("||");
+    if (!previousValues.size) {
+      partnerButton.textContent = "All partner artists";
+    } else if (previousValues.size === 1) {
+      partnerButton.textContent = partnerOptions.find((partner) => `${partner.displayName}|${partner.handle}` === Array.from(previousValues)[0])?.displayName || "1 partner artist";
+    } else {
+      partnerButton.textContent = `${previousValues.size} partner artists`;
+    }
+  }
 
   const items = galleryItems.filter((item) => {
     const epochMatch = selectedEpoch === "all" || item.epochName === selectedEpoch;
     const editionMatch = selectedEdition === "all" || item.edition === selectedEdition;
-    return epochMatch && editionMatch;
+    const partnerValues = getPartnerArtistFilterValues(item);
+    const partnerMatch = !selectedPartners.length || selectedPartners.some((value) => partnerValues.includes(value));
+    return epochMatch && editionMatch && partnerMatch;
   });
 
   if (!items.length) {
@@ -2185,6 +2595,9 @@ function fillGallery() {
         <p>Epoch: ${item.epochName}</p>
         <span class="gallery-card__edition">${item.edition}</span>
       </div>
+      ${item.partnerArtists?.length ? `
+        <p class="gallery-card__partners">Partner Artist${item.partnerArtists.length > 1 ? "s" : ""}: ${item.partnerArtists.map((partner) => `<a href="https://x.com/${encodeURIComponent(partner.handle)}" target="_blank" rel="noreferrer">${escapeHtml(partner.displayName)}</a>`).join(", ")}</p>
+      ` : ""}
       <div class="gallery-card__links">
         <a href="${item.os}" target="_blank" rel="noreferrer">OS listing</a>
       </div>
@@ -2543,6 +2956,7 @@ function summarizeTracker(rows) {
   }));
 
   return {
+    headers,
     dayRows,
     chartRows: buildChronologicalChartRows(dayRows),
     topMinters,
@@ -2831,6 +3245,20 @@ function renderDelayState() {
       engagementEpochSelect.value = activeKey;
     }
   }
+  const opsStatusEpochSelect = document.getElementById("ops-status-epoch-select");
+  if (opsStatusEpochSelect) {
+    const targets = getOpsStatusEpochTargets();
+    const previousValue = opsStatusEpochSelect.value;
+    const defaultValue = getDefaultOpsStatusEpochKey();
+    opsStatusEpochSelect.innerHTML = targets.map((epoch) => (
+      `<option value="${epoch.key}">${epoch.name || `Epoch ${epoch.epoch}`} · ${getHeroStatus(epoch.key)}</option>`
+    )).join("");
+    if (!previousValue || !targets.some((item) => item.key === previousValue)) {
+      opsStatusEpochSelect.value = targets.some((item) => item.key === defaultValue) ? defaultValue : (targets[0]?.key || "");
+    } else {
+      opsStatusEpochSelect.value = previousValue;
+    }
+  }
   const tweetEpochSelect = document.getElementById("tweet-epoch-select");
   if (tweetEpochSelect) {
     const epochs = getTweetEditorTargets();
@@ -2895,6 +3323,7 @@ function renderDelayState() {
   renderEngagementOverrideList();
   renderEligibilityOverrideList();
   renderTweetRecordList();
+  renderOpsStatusList();
   populateDrawRecordEpochSelect();
   renderDrawRecordList();
   renderTimelineAdjustmentList();
@@ -3074,6 +3503,7 @@ function populateGalleryForm(token) {
   document.getElementById("gallery-os-link").value = item.os || "";
   document.getElementById("gallery-image-select").value = getKnownWebAssets().includes(item.image) ? item.image : "";
   document.getElementById("gallery-image-custom").value = getKnownWebAssets().includes(item.image) ? "" : (item.image || "");
+  document.getElementById("gallery-partner-artists").value = serializePartnerArtists(item.partnerArtists || []);
 }
 
 function clearGalleryForm() {
@@ -3511,6 +3941,11 @@ function renderGalleryOverrideList() {
         <span>Epoch ${escapeHtml(item.effective.epochName || item.epochName || "")}</span>
         <span>${escapeHtml(item.effective.image || item.image || "No image")}</span>
       </div>
+      ${(item.effective.partnerArtists || item.partnerArtists || []).length ? `
+        <div class="admin-manual-item__meta">
+          <span>Partners: ${escapeHtml((item.effective.partnerArtists || item.partnerArtists || []).map((partner) => partner.displayName).join(", "))}</span>
+        </div>
+      ` : ""}
       <div class="hero__actions">
         <button class="button" type="button" data-gallery-edit="${escapeHtml(String(item.token))}">Edit</button>
         <button class="button" type="button" data-gallery-delete="${escapeHtml(String(item.token))}">Delete</button>
@@ -3790,6 +4225,30 @@ function setupDelayControls() {
     renderTweetDayEditor(event.target.value || getEffectiveLiveEntryKey());
   });
 
+  document.getElementById("ops-status-epoch-select").addEventListener("change", () => {
+    renderOpsStatusList();
+  });
+
+  document.getElementById("ops-scraper-connect").addEventListener("click", async () => {
+    if (!canUseDirectoryPicker()) {
+      syncScraperEpochsStatus("Your browser does not support connecting a local scraper folder here.");
+      return;
+    }
+    try {
+      scraperEpochsDirHandle = await window.showDirectoryPicker({ mode: "read" });
+      const permission = await scraperEpochsDirHandle.requestPermission({ mode: "read" });
+      if (permission !== "granted") {
+        syncScraperEpochsStatus("Read permission for the scraper epochs folder was not granted.");
+        return;
+      }
+      await saveScraperEpochsHandle(scraperEpochsDirHandle);
+      syncScraperEpochsStatus();
+      renderOpsStatusList();
+    } catch (_) {
+      syncScraperEpochsStatus("Scraper epochs folder was not connected.");
+    }
+  });
+
   document.getElementById("tweet-record-apply").addEventListener("click", () => {
     const state = getProtocolState();
     const targetKey = document.getElementById("tweet-epoch-select").value;
@@ -3926,6 +4385,7 @@ function setupDelayControls() {
       edition: document.getElementById("gallery-edition").value.trim() || baseItem?.edition || "",
       os: document.getElementById("gallery-os-link").value.trim() || `${openseaBaseUrl}/${token}`,
       image: image || baseItem?.image || "",
+      partnerArtists: parsePartnerArtists(document.getElementById("gallery-partner-artists").value),
       mark: `#${String(token).padStart(3, "0")}`
     };
 
@@ -4022,11 +4482,72 @@ function setupGalleryFilter() {
       fillGallery();
     });
   });
+  const partnerFilter = document.getElementById("gallery-partner-filter");
+  const partnerButton = document.getElementById("gallery-partner-filter-button");
+  const partnerMenu = document.getElementById("gallery-partner-filter-menu");
+  const partnerOptionsNode = document.getElementById("gallery-partner-filter-options");
+  const selectAllButton = document.getElementById("gallery-partner-select-all");
+  const clearButton = document.getElementById("gallery-partner-clear");
+  if (partnerFilter && partnerButton && partnerMenu && partnerOptionsNode) {
+    partnerButton.addEventListener("click", () => {
+      const nextHidden = !partnerMenu.hidden;
+      partnerMenu.hidden = nextHidden;
+      partnerButton.setAttribute("aria-expanded", String(!nextHidden));
+    });
+
+    partnerOptionsNode.addEventListener("change", () => {
+      const values = Array.from(partnerOptionsNode.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+      partnerFilter.dataset.selected = values.join("||");
+      fillGallery();
+      partnerMenu.hidden = false;
+      partnerButton.setAttribute("aria-expanded", "true");
+    });
+
+    selectAllButton?.addEventListener("click", () => {
+      partnerOptionsNode.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+      });
+      const values = Array.from(partnerOptionsNode.querySelectorAll('input[type="checkbox"]')).map((input) => input.value);
+      partnerFilter.dataset.selected = values.join("||");
+      fillGallery();
+      partnerMenu.hidden = false;
+      partnerButton.setAttribute("aria-expanded", "true");
+    });
+
+    clearButton?.addEventListener("click", () => {
+      partnerOptionsNode.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+      partnerFilter.dataset.selected = "";
+      fillGallery();
+      partnerMenu.hidden = false;
+      partnerButton.setAttribute("aria-expanded", "true");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!partnerFilter.contains(event.target)) {
+        partnerMenu.hidden = true;
+        partnerButton.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
 }
 
 async function init() {
   const localState = loadProtocolStateFromLocalStorage();
   protocolStateCache = getDefaultProtocolState();
+
+  try {
+    const storedScraperHandle = await loadScraperEpochsHandle();
+    if (storedScraperHandle) {
+      const scraperPermission = await storedScraperHandle.queryPermission({ mode: "read" });
+      if (scraperPermission === "granted") {
+        scraperEpochsDirHandle = storedScraperHandle;
+      }
+    }
+  } catch (_) {
+    scraperEpochsDirHandle = null;
+  }
 
   try {
     const storedHandle = await loadAdminSettingsHandle();
@@ -4077,6 +4598,7 @@ async function init() {
   setupWalletCheck();
   setupGalleryFilter();
   syncAdminSettingsStatus();
+  syncScraperEpochsStatus();
   activatePanelFromHash(window.location.hash);
   window.addEventListener("hashchange", () => {
     activatePanelFromHash(window.location.hash);

@@ -374,14 +374,31 @@
               </p>
             </div>
             <div class="gallery-filter">
-              <label for="gallery-epoch-filter">Filter by epoch</label>
-              <select id="gallery-epoch-filter">
-                <option value="all">All epochs</option>
-              </select>
-              <label for="gallery-edition-filter">Filter by edition size</label>
-              <select id="gallery-edition-filter">
-                <option value="all">All edition sizes</option>
-              </select>
+              <div class="gallery-filter__row">
+                <label for="gallery-epoch-filter">Filter by epoch</label>
+                <select id="gallery-epoch-filter">
+                  <option value="all">All epochs</option>
+                </select>
+                <label for="gallery-edition-filter">Filter by edition size</label>
+                <select id="gallery-edition-filter">
+                  <option value="all">All edition sizes</option>
+                </select>
+              </div>
+              <div class="gallery-filter__row gallery-filter__row--stacked">
+                <label for="gallery-partner-filter-button">Filter by partner artist(s)</label>
+                <div class="multi-select" id="gallery-partner-filter">
+                  <button class="multi-select__button" id="gallery-partner-filter-button" type="button" aria-expanded="false">
+                    All partner artists
+                  </button>
+                  <div class="multi-select__menu" id="gallery-partner-filter-menu" hidden>
+                    <div class="multi-select__actions">
+                      <button class="button" id="gallery-partner-select-all" type="button">Select all</button>
+                      <button class="button" id="gallery-partner-clear" type="button">Clear</button>
+                    </div>
+                    <div class="multi-select__options" id="gallery-partner-filter-options"></div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="gallery-grid" id="gallery-grid"></div>
           </section>

@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-07T19:40:36.811Z",
+  "exportedAt": "2026-04-08T13:22:38.103Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -144,6 +144,14 @@
         "dayNumber": 2,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2041510302978818433?s=20"
+      },
+      {
+        "id": "tweet-epoch-10-day-3-1",
+        "targetKey": "epoch-10",
+        "kind": "day",
+        "dayNumber": 3,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2041868915840819638?s=20"
       }
     ],
     "engagementOverrides": [
@@ -191,6 +199,7 @@
         "winnerList": "_sigmaX_ suparno67 badgerdnft bundit_1 Chumwizards dan_fraser_ dondiiieeee eitzisart evvi2222 fun_tokens JohnPaulBraden kruuul livesawave matriona_fails MichaelBuda2 mrc_arte newlightvisuals ol1y_art Punk8868 Qoheleth3000 rain41 VSTRVL_FFF woodificouldart xptoplayici Zina_Caramelo"
       }
     ],
+    "opsChecklist": {},
     "galleryOverrides": [
       {
         "token": 17,
@@ -217,6 +226,7 @@
         "edition": "25",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/19",
         "image": "web_assets/epoch9.jpg",
+        "partnerArtists": [],
         "mark": "#019"
       }
     ],
