@@ -801,6 +801,17 @@ function getGalleryItems() {
   return [...mergedBase, ...extraOverrides].sort((a, b) => Number(a.token) - Number(b.token));
 }
 
+function getGalleryEditionCount(item) {
+  const raw = String(item?.edition || "").trim();
+  if (!raw) return 0;
+  const fractionMatch = raw.match(/^(\d+)\s*\/\s*(\d+)$/);
+  if (fractionMatch) {
+    return Number(fractionMatch[2] || fractionMatch[1] || 0);
+  }
+  const numberMatch = raw.match(/(\d+)/);
+  return numberMatch ? Number(numberMatch[1]) : 0;
+}
+
 function normalizePartnerHandle(handle = "") {
   return String(handle || "").trim().replace(/^@+/, "");
 }
@@ -2511,6 +2522,7 @@ function fillGallery() {
   const container = document.getElementById("gallery-grid");
   const epochFilter = document.getElementById("gallery-epoch-filter");
   const editionFilter = document.getElementById("gallery-edition-filter");
+  const sortFilter = document.getElementById("gallery-sort-filter");
   const partnerFilter = document.getElementById("gallery-partner-filter");
   const partnerButton = document.getElementById("gallery-partner-filter-button");
   const partnerMenu = document.getElementById("gallery-partner-filter-menu");
@@ -2518,6 +2530,7 @@ function fillGallery() {
   const galleryItems = getGalleryItems();
   const selectedEpoch = epochFilter?.value || "all";
   const selectedEdition = editionFilter?.value || "all";
+  const selectedSort = sortFilter?.value || "oldest";
   const selectedPartners = partnerFilter?.dataset.selected
     ? partnerFilter.dataset.selected.split("||").filter(Boolean)
     : [];
@@ -2577,6 +2590,13 @@ function fillGallery() {
     const partnerValues = getPartnerArtistFilterValues(item);
     const partnerMatch = !selectedPartners.length || selectedPartners.some((value) => partnerValues.includes(value));
     return epochMatch && editionMatch && partnerMatch;
+  }).sort((a, b) => {
+    const tokenDiff = Number(a.token || 0) - Number(b.token || 0);
+    const editionDiff = getGalleryEditionCount(a) - getGalleryEditionCount(b);
+    if (selectedSort === "newest") return -tokenDiff;
+    if (selectedSort === "edition-asc") return editionDiff || tokenDiff;
+    if (selectedSort === "edition-desc") return -editionDiff || tokenDiff;
+    return tokenDiff;
   });
 
   if (!items.length) {
@@ -4477,7 +4497,8 @@ function setupWalletCheck() {
 function setupGalleryFilter() {
   const epochFilter = document.getElementById("gallery-epoch-filter");
   const editionFilter = document.getElementById("gallery-edition-filter");
-  [epochFilter, editionFilter].filter(Boolean).forEach((filter) => {
+  const sortFilter = document.getElementById("gallery-sort-filter");
+  [epochFilter, editionFilter, sortFilter].filter(Boolean).forEach((filter) => {
     filter.addEventListener("change", () => {
       fillGallery();
     });

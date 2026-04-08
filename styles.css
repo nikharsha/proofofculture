@@ -907,16 +907,36 @@ body[data-theme="dark"] .draw-card--primary dd {
   margin-top: 18px;
 }
 
-.gallery-filter__row {
+.gallery-filter__bar {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 24px;
 }
 
-.gallery-filter__row--stacked {
+.gallery-filter__group {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.gallery-filter__group--left {
+  flex: 1 1 720px;
+}
+
+.gallery-filter__group--right {
+  flex: 0 0 auto;
+}
+
+.gallery-filter__item {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+}
+
+.gallery-filter__item--partner {
+  min-width: min(100%, 420px);
 }
 
 .gallery-filter label {
@@ -1553,6 +1573,15 @@ body[data-theme="dark"] .draw-card--primary dd {
   .admin-override__grid,
   .epoch-card__nav {
     grid-template-columns: 1fr;
+  }
+
+  .gallery-filter__bar,
+  .gallery-filter__group {
+    width: 100%;
+  }
+
+  .gallery-filter__group--right {
+    justify-content: flex-start;
   }
 
   .progression-table__head span,
