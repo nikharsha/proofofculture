@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-12T19:26:23.366Z",
+  "exportedAt": "2026-04-12T19:53:54.332Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -215,6 +215,13 @@
         "qrtComment": 53,
         "onlyQrt": 25,
         "onlyComment": 128
+      },
+      {
+        "id": "engagement-1776022477132",
+        "targetKey": "epoch-10",
+        "qrtComment": 61,
+        "onlyQrt": 21,
+        "onlyComment": 149
       }
     ],
     "drawRecords": [
@@ -237,6 +244,16 @@
         "drawDate": "2026-04-06T19:30:00.000Z",
         "drawMode": "Manual",
         "winnerList": "_sigmaX_ suparno67 badgerdnft bundit_1 Chumwizards dan_fraser_ dondiiieeee eitzisart evvi2222 fun_tokens JohnPaulBraden kruuul livesawave matriona_fails MichaelBuda2 mrc_arte newlightvisuals ol1y_art Punk8868 Qoheleth3000 rain41 VSTRVL_FFF woodificouldart xptoplayici Zina_Caramelo"
+      },
+      {
+        "id": "draw-1776023634300",
+        "epoch": "10",
+        "editionSize": 69,
+        "eligibleCount": 74,
+        "drawOutput": "69",
+        "drawDate": "2026-04-12T18:00:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "_shibbywibby 0x8BitArt 0xdeepsea 0xLapom 0xWhysoserious absurdeity Aloungkot BenCRWarrior BoredJosei Chumwizards convobrianhere dan_fraser_ DankyHashpantz datblutoast deltasauce dondiiieeee eitzisart evcal7 evvi2222 fairyseibot Foodie_Boy15 frankie_high fun_tokens glassspy Gpebbles grubnot hansefar73 happylolohappy0 illiquidpixel imShonari inceptionally ivanga0016 JohnPaulBraden kruuul KubtiTheCreator LaurentNft64534 Lavistaly liapsart livesawave m1ntdr1ms matriona_fails MichaelBuda2 Moflightx moonzoey_zuu mrc_arte MysterioNFT mysteriovision NadeemSult77488 newlightvisuals Nft_Boy82 ol1y_art Phocus_10 Qoheleth3000 rain41 RhythmKing rocketgirlART SecretariYat the_Mess TheArtRunway tinoch VSTRVL_FFF WaveSurfer38185 WildeLobstar woodificouldart x3n1n xptoplayici Zina_Caramelo zumbah ZunairaUsman84"
       }
     ],
     "opsChecklist": {},
@@ -1046,7 +1063,7 @@
         "key": "epoch-10",
         "name": "Epoch 10",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 69,
         "type": "standard"
       },
       {

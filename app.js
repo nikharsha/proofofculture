@@ -2703,6 +2703,13 @@ function getMintCellValue(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function classifyEngagementValue(value) {
+  const normalized = String(value || "").trim().toUpperCase().replace(/\s+/g, " ");
+  if (!normalized) return null;
+  if (normalized.includes("QRT")) return "only_qrt";
+  return "only_comment";
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -2870,27 +2877,28 @@ function summarizeTracker(rows) {
     const engagementKey = `day${dayNumber}_engagement`;
     const airdropKey = `day${dayNumber}_airdrop`;
     const epochConfig = epochMap.get(dayNumber);
+    let qrtCommentCount = 0;
     let qrt = 0;
-    let rt = 0;
     let comment = 0;
     let minted = 0;
     let eligibleWallets = 0;
     let engagedEntries = 0;
 
     rows.forEach((row) => {
-      const engagement = (row[engagementKey] || "").trim().toUpperCase();
+      const engagement = (row[engagementKey] || "").trim();
+      const engagementBucket = classifyEngagementValue(engagement);
       const hasWallet = Boolean((row.wallet || "").trim());
       const mintedValue = hasWallet ? getMintCellValue(row[airdropKey]) : 0;
       if (engagement) engagedEntries += 1;
-      if (engagement === "QRT") qrt += 1;
-      if (engagement === "RT") rt += 1;
-      if (engagement === "COMMENT") comment += 1;
+      if (engagementBucket === "qrt_comment") qrtCommentCount += 1;
+      if (engagementBucket === "only_qrt") qrt += 1;
+      if (engagementBucket === "only_comment") comment += 1;
       if (engagement && hasWallet) eligibleWallets += 1;
       minted += mintedValue;
     });
 
     const override = engagementOverrideMap.get(`epoch-${dayNumber}`);
-    const qrtComment = override ? Number(override.qrtComment || 0) : 0;
+    const qrtComment = override ? Number(override.qrtComment || 0) : qrtCommentCount;
     const onlyQrt = override ? Number(override.onlyQrt || 0) : qrt;
     const onlyComment = override ? Number(override.onlyComment || 0) : comment;
     const editionSize = Number(epochConfig?.editionSize || 0);
