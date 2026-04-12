@@ -1733,7 +1733,9 @@ function renderHeroDeck() {
     ? `<a class="metric-link" href="#current-epoch-tweets" data-switch-tab="current" data-switch-target="current-epoch-tweets">${totalDays}</a>`
     : String(totalDays);
   if (status === "Wallet Collection") {
-    const walletText = `<span class="metric-note">(Share your Wallet)</span>`;
+    const walletText = walletTweet
+      ? `<a class="metric-link" href="${escapeHtml(walletTweet.link)}" target="_blank" rel="noreferrer">(Share your Wallet)</a>`
+      : `<span class="metric-note">(Share your Wallet)</span>`;
     heroDayNode.innerHTML = `${totalDays} / ${totalDays} ${walletText}`;
   } else if (status === "Live" && matchingDayTweet && currentDay > 0) {
     heroDayNode.innerHTML = `<a class="metric-link" href="${escapeHtml(matchingDayTweet.link)}" target="_blank" rel="noreferrer">${currentDay}</a> / ${totalDaysNode}`;
