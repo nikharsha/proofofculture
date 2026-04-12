@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-12T13:36:51.550Z",
+  "exportedAt": "2026-04-12T19:23:10.869Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -130,6 +130,14 @@
         "link": "https://x.com/1xharsh/status/2041237922226360756?s=20"
       },
       {
+        "id": "tweet-epoch-11-day-1-1",
+        "targetKey": "epoch-11",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2043321990480822769?s=20"
+      },
+      {
         "id": "tweet-epoch-10-day-1-1",
         "targetKey": "epoch-10",
         "kind": "day",
@@ -178,12 +186,12 @@
         "link": "https://x.com/1xharsh/status/2042959350810185867?s=20"
       },
       {
-        "id": "tweet-epoch-11-day-1-1",
-        "targetKey": "epoch-11",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-10-wallet-0-1",
+        "targetKey": "epoch-10",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2043321990480822769?s=20"
+        "link": "https://x.com/1xharsh/status/2043409470223765653?s=20"
       }
     ],
     "engagementOverrides": [
