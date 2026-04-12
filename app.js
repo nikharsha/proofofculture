@@ -2882,6 +2882,7 @@ function summarizeTracker(rows) {
     let comment = 0;
     let minted = 0;
     let eligibleWallets = 0;
+    let walletNotShared = 0;
     let engagedEntries = 0;
 
     rows.forEach((row) => {
@@ -2894,6 +2895,7 @@ function summarizeTracker(rows) {
       if (engagementBucket === "only_qrt") qrt += 1;
       if (engagementBucket === "only_comment") comment += 1;
       if (engagement && hasWallet) eligibleWallets += 1;
+      if (engagement && !hasWallet) walletNotShared += 1;
       minted += mintedValue;
     });
 
@@ -2919,7 +2921,8 @@ function summarizeTracker(rows) {
       eligible_wallets: eligibleWallets,
       minted,
       unfilled: Math.max(0, effectiveEditionSize - eligible),
-      wallet_not_shared: Math.max(0, eligible - minted),
+      wallet_not_shared: dayNumber >= 10 ? walletNotShared : Math.max(0, eligible - minted),
+      unminted: dayNumber >= 10 ? Math.max(0, eligibleWallets - minted) : 0,
       success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`
     };
   });
@@ -3033,6 +3036,7 @@ function buildChronologicalChartRows(dayRows) {
           minted,
           unfilled: Math.max(0, editionSize - eligible),
           wallet_not_shared: Math.max(0, eligible - minted),
+          unminted: 0,
           success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`,
           sortTime: item.start.getTime(),
           isCompleted
@@ -3083,6 +3087,7 @@ async function fillStatsVisuals() {
       minMax: 70,
       series: [
         { key: "minted", label: "Minted", color: "#57de24", textColor: "#111" },
+        { key: "unminted", label: "Unminted", color: "#4a97e8" },
         { key: "wallet_not_shared", label: "Wallet Not Shared", color: "#ff5f4d", textColor: "#111" },
         { key: "unfilled", label: "Unfilled", color: "#d3cfbf", textColor: "#111" }
       ]
