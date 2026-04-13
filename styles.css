@@ -1122,6 +1122,185 @@ body[data-theme="dark"] .draw-card--primary dd {
   border-bottom: 1px solid currentColor;
 }
 
+.gallery-subtabs {
+  display: grid;
+  gap: 18px;
+}
+
+.quote-composer {
+  display: grid;
+  gap: 18px;
+}
+
+.quote-composer__controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.4fr) auto minmax(140px, 0.55fr) minmax(135px, 0.4fr) auto auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.quote-composer__controls label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.quote-composer__controls select,
+.quote-composer__controls input[type="range"] {
+  border: 1px solid var(--line-strong);
+  background: var(--panel-solid);
+  color: var(--ink);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font: inherit;
+}
+
+.quote-composer__controls .button {
+  min-width: 150px;
+  height: 52px;
+}
+
+.quote-composer__controls input[type="range"] {
+  width: 100%;
+  min-width: 140px;
+  padding-inline: 0;
+}
+
+.quote-composer__rotate-control {
+  width: 112px;
+}
+
+.quote-composer__dial-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.quote-composer__dial {
+  --rotate-deg: 0deg;
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, var(--panel-solid) 0 48%, transparent 49%),
+    conic-gradient(var(--accent-green) 0deg, var(--accent-green) 360deg);
+  cursor: grab;
+}
+
+.quote-composer__dial:active {
+  cursor: grabbing;
+}
+
+.quote-composer__dial-hand {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  width: 3px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(var(--rotate-deg));
+  transform-origin: 50% 17px;
+}
+
+.quote-composer__dial-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translate(-50%, -50%);
+}
+
+.quote-composer__dial-row output {
+  min-width: 42px;
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.quote-composer__rotate-range {
+  position: absolute;
+  width: 1px !important;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.quote-composer__stage {
+  position: relative;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--panel-solid);
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+.quote-composer__stage img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.quote-composer__text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: 72%;
+  padding: 0.22em 0.38em;
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.12;
+  cursor: grab;
+  user-select: none;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  touch-action: none;
+  z-index: 2;
+}
+
+.quote-composer__text.is-active {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 4px;
+}
+
+.quote-composer__text--quote {
+  z-index: 2;
+}
+
+.quote-composer__text--gm {
+  max-width: 40%;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.quote-composer__text--site {
+  max-width: 65%;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  z-index: 4;
+}
+
+.quote-composer__text:active {
+  cursor: grabbing;
+}
+
 .stat-card strong,
 .market-card strong {
   display: block;
@@ -1582,6 +1761,10 @@ body[data-theme="dark"] .draw-card--primary dd {
 
   .gallery-filter__group--right {
     justify-content: flex-start;
+  }
+
+  .quote-composer__controls {
+    grid-template-columns: 1fr;
   }
 
   .progression-table__head span,

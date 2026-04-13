@@ -373,51 +373,106 @@
                 Browse the pieces in release order, trace each one back to its epoch, and jump straight to the OpenSea listing when you want the collector view.
               </p>
             </div>
-            <div class="gallery-filter">
-              <div class="gallery-filter__bar">
-                <div class="gallery-filter__group gallery-filter__group--left">
-                  <div class="gallery-filter__item">
-                    <label for="gallery-epoch-filter">Filter by epoch</label>
-                    <select id="gallery-epoch-filter">
-                      <option value="all">All epochs</option>
-                    </select>
-                  </div>
-                  <div class="gallery-filter__item">
-                    <label for="gallery-edition-filter">Filter by edition size</label>
-                    <select id="gallery-edition-filter">
-                      <option value="all">All edition sizes</option>
-                    </select>
-                  </div>
-                  <div class="gallery-filter__item gallery-filter__item--partner">
-                    <label for="gallery-partner-filter-button">Filter by partner artist(s)</label>
-                    <div class="multi-select" id="gallery-partner-filter">
-                      <button class="multi-select__button" id="gallery-partner-filter-button" type="button" aria-expanded="false">
-                        All partner artists
-                      </button>
-                      <div class="multi-select__menu" id="gallery-partner-filter-menu" hidden>
-                        <div class="multi-select__actions">
-                          <button class="button" id="gallery-partner-select-all" type="button">Select all</button>
-                          <button class="button" id="gallery-partner-clear" type="button">Clear</button>
+            <div class="gallery-subtabs">
+              <div class="tabs tabs--gallery" role="tablist" aria-label="Gallery navigation">
+                <button class="tab is-active" id="gallery-tab-browse" type="button" data-tab="gallery-browse" role="tab" aria-selected="true">Browse</button>
+                <button class="tab" id="gallery-tab-create" type="button" data-tab="gallery-create" role="tab" aria-selected="false">Create</button>
+              </div>
+              <div class="tab-panels">
+                <section class="tab-panel is-active" id="panel-gallery-browse" data-panel="gallery-browse" role="tabpanel" aria-labelledby="gallery-tab-browse">
+                  <div class="gallery-filter">
+                    <div class="gallery-filter__bar">
+                      <div class="gallery-filter__group gallery-filter__group--left">
+                        <div class="gallery-filter__item">
+                          <label for="gallery-epoch-filter">Filter by epoch</label>
+                          <select id="gallery-epoch-filter">
+                            <option value="all">All epochs</option>
+                          </select>
                         </div>
-                        <div class="multi-select__options" id="gallery-partner-filter-options"></div>
+                        <div class="gallery-filter__item">
+                          <label for="gallery-edition-filter">Filter by edition size</label>
+                          <select id="gallery-edition-filter">
+                            <option value="all">All edition sizes</option>
+                          </select>
+                        </div>
+                        <div class="gallery-filter__item gallery-filter__item--partner">
+                          <label for="gallery-partner-filter-button">Filter by partner artist(s)</label>
+                          <div class="multi-select" id="gallery-partner-filter">
+                            <button class="multi-select__button" id="gallery-partner-filter-button" type="button" aria-expanded="false">
+                              All partner artists
+                            </button>
+                            <div class="multi-select__menu" id="gallery-partner-filter-menu" hidden>
+                              <div class="multi-select__actions">
+                                <button class="button" id="gallery-partner-select-all" type="button">Select all</button>
+                                <button class="button" id="gallery-partner-clear" type="button">Clear</button>
+                              </div>
+                              <div class="multi-select__options" id="gallery-partner-filter-options"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="gallery-filter__group gallery-filter__group--right">
+                        <div class="gallery-filter__item">
+                          <label for="gallery-sort-filter">Sort by</label>
+                          <select id="gallery-sort-filter">
+                            <option value="oldest">Oldest first</option>
+                            <option value="newest">Newest first</option>
+                            <option value="edition-asc">Edition size: low to high</option>
+                            <option value="edition-desc">Edition size: high to low</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="gallery-filter__group gallery-filter__group--right">
-                  <div class="gallery-filter__item">
-                    <label for="gallery-sort-filter">Sort by</label>
-                    <select id="gallery-sort-filter">
-                      <option value="oldest">Oldest first</option>
-                      <option value="newest">Newest first</option>
-                      <option value="edition-asc">Edition size: low to high</option>
-                      <option value="edition-desc">Edition size: high to low</option>
-                    </select>
+                  <div class="gallery-grid" id="gallery-grid"></div>
+                </section>
+                <section class="tab-panel" id="panel-gallery-create" data-panel="gallery-create" role="tabpanel" aria-labelledby="gallery-tab-create">
+                  <div class="quote-composer">
+                    <div class="quote-composer__controls">
+                      <label>
+                        Image
+                        <select id="quote-composer-image-select"></select>
+                      </label>
+                      <label>
+                        Quote
+                        <button class="button" id="quote-composer-reroll" type="button">Re-quote</button>
+                      </label>
+                      <label>
+                        Edit layer
+                        <select id="quote-composer-layer">
+                          <option value="quote">Quote</option>
+                          <option value="gm">gm.</option>
+                          <option value="site">Website</option>
+                        </select>
+                      </label>
+                      <label>
+                        Text size
+                        <input id="quote-composer-size" type="range" min="18" max="72" value="34">
+                      </label>
+                      <label class="quote-composer__rotate-control">
+                        Rotate
+                        <div class="quote-composer__dial-row">
+                          <button class="quote-composer__dial" id="quote-composer-rotate-dial" type="button" aria-label="Rotate quote">
+                            <span class="quote-composer__dial-hand"></span>
+                            <span class="quote-composer__dial-dot"></span>
+                          </button>
+                          <output id="quote-composer-rotate-value" for="quote-composer-rotate">0°</output>
+                        </div>
+                        <input class="quote-composer__rotate-range" id="quote-composer-rotate" type="range" min="-180" max="180" value="0">
+                      </label>
+                      <button class="button button--solid" id="quote-composer-download" type="button">Download</button>
+                    </div>
+                    <div class="quote-composer__stage" id="quote-composer-stage">
+                      <img id="quote-composer-image" alt="Selected gallery piece">
+                      <div class="quote-composer__text quote-composer__text--quote" id="quote-composer-text" data-layer="quote" role="button" tabindex="0"></div>
+                      <div class="quote-composer__text quote-composer__text--gm" id="quote-composer-gm" data-layer="gm" role="button" tabindex="0">gm.</div>
+                      <div class="quote-composer__text quote-composer__text--site" id="quote-composer-site" data-layer="site" role="button" tabindex="0">[ proof-of-culture.com ]</div>
+                    </div>
+                    <p class="section__text">Select a layer or click the text directly, then drag, resize, rotate, and download your version.</p>
                   </div>
-                </div>
+                </section>
               </div>
             </div>
-            <div class="gallery-grid" id="gallery-grid"></div>
           </section>
         </div>
       </section>

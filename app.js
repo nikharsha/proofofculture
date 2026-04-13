@@ -2627,6 +2627,336 @@ function fillGallery() {
   `).join("");
 }
 
+const quoteComposerState = {
+  activeLayer: "quote",
+  layers: {
+    quote: { x: 50, y: 50, size: 34, rotation: 0 },
+    gm: { x: 88, y: 88, size: 44, rotation: 0 },
+    site: { x: 77, y: 94, size: 13, rotation: 0 }
+  },
+  quoteIndex: 0,
+  dragging: false,
+  dragLayer: "quote",
+  dragOffsetX: 0,
+  dragOffsetY: 0,
+  gesturePointers: new Map(),
+  gesture: null
+};
+
+function getQuoteComposerLayer(layer = quoteComposerState.activeLayer) {
+  return quoteComposerState.layers[layer] || quoteComposerState.layers.quote;
+}
+
+function normalizeComposerDegrees(degrees) {
+  return ((degrees + 180) % 360) - 180;
+}
+
+function clampComposerNumber(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getQuoteComposerItems() {
+  return getGalleryItems()
+    .filter((item) => String(item.image || "").trim())
+    .sort((a, b) => Number(a.token || 0) - Number(b.token || 0));
+}
+
+function fillQuoteComposer() {
+  const imageSelect = document.getElementById("quote-composer-image-select");
+  if (!imageSelect) return;
+
+  const imageItems = getQuoteComposerItems();
+  const previousImage = imageSelect.value;
+  imageSelect.innerHTML = imageItems.map((item) => `
+    <option value="${escapeHtml(item.image)}">${escapeHtml(item.title)} · Epoch ${escapeHtml(item.epochName || "")}</option>
+  `).join("");
+  imageSelect.value = imageItems.some((item) => item.image === previousImage)
+    ? previousImage
+    : (imageItems[0]?.image || "");
+
+  updateQuoteComposerPreview();
+}
+
+function updateQuoteComposerPreview() {
+  const image = document.getElementById("quote-composer-image");
+  const imageSelect = document.getElementById("quote-composer-image-select");
+  const quoteText = document.getElementById("quote-composer-text");
+  const gmText = document.getElementById("quote-composer-gm");
+  const siteText = document.getElementById("quote-composer-site");
+  const sizeInput = document.getElementById("quote-composer-size");
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const layerSelect = document.getElementById("quote-composer-layer");
+  if (!image || !imageSelect || !quoteText || !gmText || !siteText || !sizeInput || !rotateInput) return;
+
+  image.src = imageSelect.value || "";
+  quoteText.textContent = heroQuotes[quoteComposerState.quoteIndex] || heroQuotes[0] || "";
+
+  [
+    ["quote", quoteText],
+    ["gm", gmText],
+    ["site", siteText]
+  ].forEach(([layer, element]) => {
+    const layerState = getQuoteComposerLayer(layer);
+    element.style.left = `${layerState.x}%`;
+    element.style.top = `${layerState.y}%`;
+    element.style.fontSize = `${layerState.size}px`;
+    element.style.transform = `translate(-50%, -50%) rotate(${layerState.rotation}deg)`;
+    element.classList.toggle("is-active", quoteComposerState.activeLayer === layer);
+  });
+
+  if (quoteComposerState.activeLayer) {
+    const active = getQuoteComposerLayer();
+    if (Number(sizeInput.value) !== active.size) sizeInput.value = String(active.size);
+    if (Number(rotateInput.value) !== active.rotation) rotateInput.value = String(active.rotation);
+    if (layerSelect && layerSelect.value !== quoteComposerState.activeLayer) layerSelect.value = quoteComposerState.activeLayer;
+  }
+  updateQuoteComposerDial();
+}
+
+function setQuoteComposerActiveLayer(layer) {
+  if (!quoteComposerState.layers[layer]) return;
+  quoteComposerState.activeLayer = layer;
+  const sizeInput = document.getElementById("quote-composer-size");
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const active = getQuoteComposerLayer();
+  if (sizeInput) sizeInput.value = String(active.size);
+  if (rotateInput) rotateInput.value = String(active.rotation);
+  updateQuoteComposerPreview();
+}
+
+function clearQuoteComposerActiveLayer() {
+  quoteComposerState.activeLayer = null;
+  document.querySelectorAll("[data-layer]").forEach((element) => element.classList.remove("is-active"));
+  const layerSelect = document.getElementById("quote-composer-layer");
+  if (layerSelect) layerSelect.selectedIndex = -1;
+}
+
+function syncQuoteComposerActiveControls() {
+  if (!quoteComposerState.activeLayer) return;
+  const sizeInput = document.getElementById("quote-composer-size");
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const active = getQuoteComposerLayer();
+  if (sizeInput) active.size = Number(sizeInput.value || active.size);
+  if (rotateInput) active.rotation = Number(rotateInput.value || active.rotation);
+}
+
+function rerollQuoteComposerQuote() {
+  if (!heroQuotes.length) return;
+  if (heroQuotes.length === 1) {
+    quoteComposerState.quoteIndex = 0;
+  } else {
+    let nextIndex = quoteComposerState.quoteIndex;
+    while (nextIndex === quoteComposerState.quoteIndex) {
+      nextIndex = Math.floor(Math.random() * heroQuotes.length);
+    }
+    quoteComposerState.quoteIndex = nextIndex;
+  }
+  updateQuoteComposerPreview();
+}
+
+function updateQuoteComposerDial() {
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const dial = document.getElementById("quote-composer-rotate-dial");
+  const value = document.getElementById("quote-composer-rotate-value");
+  if (!rotateInput || !dial || !value) return;
+  const degrees = Number(rotateInput.value || 0);
+  dial.style.setProperty("--rotate-deg", `${degrees}deg`);
+  value.textContent = `${degrees}°`;
+}
+
+function setQuoteComposerRotationFromPointer(event) {
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const dial = document.getElementById("quote-composer-rotate-dial");
+  if (!rotateInput || !dial) return;
+
+  const rect = dial.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const pointerX = event.clientX ?? event.touches?.[0]?.clientX;
+  const pointerY = event.clientY ?? event.touches?.[0]?.clientY;
+  if (pointerX == null || pointerY == null) return;
+
+  const rawDegrees = Math.atan2(pointerY - centerY, pointerX - centerX) * (180 / Math.PI) + 90;
+  const normalizedDegrees = normalizeComposerDegrees(rawDegrees);
+  const min = Number(rotateInput.min || -35);
+  const max = Number(rotateInput.max || 35);
+  const clamped = clampComposerNumber(Math.round(normalizedDegrees), min, max);
+  rotateInput.value = String(clamped);
+  getQuoteComposerLayer().rotation = clamped;
+  updateQuoteComposerPreview();
+}
+
+function positionQuoteComposerTextFromEvent(event) {
+  const stage = document.getElementById("quote-composer-stage");
+  if (!stage) return;
+  const rect = stage.getBoundingClientRect();
+  const pointerX = event.clientX ?? event.touches?.[0]?.clientX;
+  const pointerY = event.clientY ?? event.touches?.[0]?.clientY;
+  if (pointerX == null || pointerY == null) return;
+  const layer = getQuoteComposerLayer(quoteComposerState.dragLayer);
+  const nextX = ((pointerX - rect.left - quoteComposerState.dragOffsetX) / rect.width) * 100;
+  const nextY = ((pointerY - rect.top - quoteComposerState.dragOffsetY) / rect.height) * 100;
+  layer.x = Math.max(0, Math.min(100, nextX));
+  layer.y = Math.max(0, Math.min(100, nextY));
+  updateQuoteComposerPreview();
+}
+
+function getQuoteComposerGestureMetrics() {
+  const points = Array.from(quoteComposerState.gesturePointers.values());
+  if (points.length < 2) return null;
+  const [first, second] = points;
+  const deltaX = second.x - first.x;
+  const deltaY = second.y - first.y;
+  return {
+    distance: Math.hypot(deltaX, deltaY) || 1,
+    angle: Math.atan2(deltaY, deltaX) * (180 / Math.PI)
+  };
+}
+
+function startQuoteComposerGesture(layer) {
+  const metrics = getQuoteComposerGestureMetrics();
+  if (!metrics) return;
+  const layerState = getQuoteComposerLayer(layer);
+  quoteComposerState.gesture = {
+    layer,
+    startDistance: metrics.distance,
+    startAngle: metrics.angle,
+    startSize: layerState.size,
+    startRotation: layerState.rotation
+  };
+  quoteComposerState.dragging = false;
+}
+
+function updateQuoteComposerGesture() {
+  const gesture = quoteComposerState.gesture;
+  const metrics = getQuoteComposerGestureMetrics();
+  if (!gesture || !metrics) return false;
+
+  const sizeInput = document.getElementById("quote-composer-size");
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const minSize = Number(sizeInput?.min || 18);
+  const maxSize = Number(sizeInput?.max || 72);
+  const minRotation = Number(rotateInput?.min || -180);
+  const maxRotation = Number(rotateInput?.max || 180);
+  const layerState = getQuoteComposerLayer(gesture.layer);
+  const sizeScale = metrics.distance / gesture.startDistance;
+
+  layerState.size = Math.round(clampComposerNumber(gesture.startSize * sizeScale, minSize, maxSize));
+  layerState.rotation = clampComposerNumber(Math.round(normalizeComposerDegrees(gesture.startRotation + metrics.angle - gesture.startAngle)), minRotation, maxRotation);
+
+  if (quoteComposerState.activeLayer === gesture.layer) {
+    if (sizeInput) sizeInput.value = String(layerState.size);
+    if (rotateInput) rotateInput.value = String(layerState.rotation);
+  }
+  updateQuoteComposerPreview();
+  return true;
+}
+
+function clearQuoteComposerGesturePointer(event, textLayer) {
+  quoteComposerState.gesturePointers.delete(event.pointerId);
+  if (quoteComposerState.gesturePointers.size < 2) {
+    quoteComposerState.gesture = null;
+  }
+  quoteComposerState.dragging = false;
+  if (textLayer?.hasPointerCapture(event.pointerId)) {
+    textLayer.releasePointerCapture(event.pointerId);
+  }
+}
+
+function wrapCanvasText(context, text, maxWidth) {
+  const words = String(text || "").split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (context.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawQuoteComposerCanvasLayer(context, canvas, layer, text, scale) {
+  const layerState = getQuoteComposerLayer(layer);
+  const element = document.querySelector(`[data-layer="${layer}"]`);
+  const styles = element ? window.getComputedStyle(element) : null;
+  const fontSize = (styles ? parseFloat(styles.fontSize) : layerState.size) * scale;
+  const weight = styles?.fontWeight || (layer === "gm" ? 900 : 800);
+  const fontFamily = styles?.fontFamily || "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+  const lineHeight = ((styles && styles.lineHeight !== "normal") ? parseFloat(styles.lineHeight) : fontSize / scale * (layer === "quote" ? 1.12 : 1)) * scale;
+  const letterSpacing = styles && styles.letterSpacing !== "normal" ? parseFloat(styles.letterSpacing) * scale : 0;
+  const paddingLeft = (styles ? parseFloat(styles.paddingLeft) : fontSize * 0.36 / scale) * scale;
+  const paddingRight = (styles ? parseFloat(styles.paddingRight) : fontSize * 0.36 / scale) * scale;
+  const paddingTop = (styles ? parseFloat(styles.paddingTop) : fontSize * 0.22 / scale) * scale;
+  const paddingBottom = (styles ? parseFloat(styles.paddingBottom) : fontSize * 0.22 / scale) * scale;
+  const boxWidth = Math.max(1, (element?.offsetWidth || 0) * scale);
+  const boxHeight = Math.max(1, (element?.offsetHeight || 0) * scale);
+  const contentWidth = Math.max(1, boxWidth - paddingLeft - paddingRight);
+  context.save();
+  context.font = `${weight} ${fontSize}px ${fontFamily}`;
+  context.textBaseline = "top";
+
+  const lines = layer === "quote" ? wrapCanvasText(context, text, contentWidth) : [String(text || "")];
+  const measuredLines = lines.map((line) => {
+    const baseWidth = context.measureText(line).width;
+    return baseWidth + Math.max(0, line.length - 1) * letterSpacing;
+  });
+  const x = (layerState.x / 100) * canvas.width;
+  const y = (layerState.y / 100) * canvas.height;
+  const rotation = (layerState.rotation * Math.PI) / 180;
+
+  context.translate(x, y);
+  context.rotate(rotation);
+  context.fillStyle = "rgba(0, 0, 0, 0.92)";
+  context.fillRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+  context.fillStyle = "#fff";
+  lines.forEach((line, index) => {
+    const lineY = -boxHeight / 2 + paddingTop + index * lineHeight;
+    let cursorX = -boxWidth / 2 + paddingLeft;
+    if (!letterSpacing) {
+      context.fillText(line, cursorX, lineY);
+      return;
+    }
+    Array.from(line).forEach((char) => {
+      context.fillText(char, cursorX, lineY);
+      cursorX += context.measureText(char).width + fontSize * letterSpacing;
+    });
+  });
+  context.restore();
+}
+
+async function downloadQuoteCreation() {
+  const imageNode = document.getElementById("quote-composer-image");
+  if (!imageNode?.src) return;
+
+  const image = new Image();
+  image.crossOrigin = "anonymous";
+  image.src = imageNode.src;
+  await image.decode();
+
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth || image.width;
+  canvas.height = image.naturalHeight || image.height;
+  const context = canvas.getContext("2d");
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const stage = document.getElementById("quote-composer-stage");
+  const scale = stage ? canvas.width / stage.getBoundingClientRect().width : 1;
+
+  drawQuoteComposerCanvasLayer(context, canvas, "quote", heroQuotes[quoteComposerState.quoteIndex] || "", scale);
+  drawQuoteComposerCanvasLayer(context, canvas, "gm", "gm.", scale);
+  drawQuoteComposerCanvasLayer(context, canvas, "site", "[ proof-of-culture.com ]", scale);
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `proof-of-culture-quote-${Date.now()}.png`;
+  link.click();
+}
+
 function fillOverviewStats() {
   const active = getActiveEpochConfig();
   const epochs = getMergedEpochs().filter((item) => item.type !== "manual");
@@ -4569,6 +4899,130 @@ function setupGalleryFilter() {
   }
 }
 
+function setupQuoteComposer() {
+  const stage = document.getElementById("quote-composer-stage");
+  const textLayers = Array.from(document.querySelectorAll("[data-layer]"));
+  const rotateDial = document.getElementById("quote-composer-rotate-dial");
+  const layerSelect = document.getElementById("quote-composer-layer");
+  const controls = [
+    document.getElementById("quote-composer-image-select"),
+    document.getElementById("quote-composer-size"),
+    document.getElementById("quote-composer-rotate"),
+    layerSelect
+  ].filter(Boolean);
+
+  controls.forEach((control) => {
+    control.addEventListener("input", () => {
+      if (control === layerSelect) {
+        setQuoteComposerActiveLayer(control.value);
+      } else {
+        syncQuoteComposerActiveControls();
+        updateQuoteComposerPreview();
+      }
+    });
+    control.addEventListener("change", () => {
+      if (control === layerSelect) {
+        setQuoteComposerActiveLayer(control.value);
+      } else {
+        syncQuoteComposerActiveControls();
+        updateQuoteComposerPreview();
+      }
+    });
+  });
+
+  if (stage && textLayers.length) {
+    textLayers.forEach((textLayer) => {
+      textLayer.addEventListener("pointerdown", (event) => {
+        const layer = textLayer.dataset.layer || "quote";
+        setQuoteComposerActiveLayer(layer);
+        quoteComposerState.gesturePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        const textRect = textLayer.getBoundingClientRect();
+        quoteComposerState.dragLayer = layer;
+        quoteComposerState.activeLayer = layer;
+        quoteComposerState.dragging = quoteComposerState.gesturePointers.size === 1;
+        quoteComposerState.dragOffsetX = event.clientX - (textRect.left + textRect.width / 2);
+        quoteComposerState.dragOffsetY = event.clientY - (textRect.top + textRect.height / 2);
+        textLayer.setPointerCapture(event.pointerId);
+        if (quoteComposerState.gesturePointers.size >= 2) {
+          startQuoteComposerGesture(layer);
+        }
+        event.preventDefault();
+      });
+
+      textLayer.addEventListener("pointermove", (event) => {
+        if (quoteComposerState.gesturePointers.has(event.pointerId)) {
+          quoteComposerState.gesturePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        }
+        if (updateQuoteComposerGesture()) {
+          event.preventDefault();
+          return;
+        }
+        if (!quoteComposerState.dragging) return;
+        positionQuoteComposerTextFromEvent(event);
+      });
+
+      textLayer.addEventListener("pointerup", (event) => {
+        clearQuoteComposerGesturePointer(event, textLayer);
+      });
+
+      textLayer.addEventListener("pointercancel", (event) => {
+        clearQuoteComposerGesturePointer(event, textLayer);
+      });
+
+      textLayer.addEventListener("focus", () => {
+        setQuoteComposerActiveLayer(textLayer.dataset.layer || "quote");
+      });
+    });
+
+    stage.addEventListener("click", (event) => {
+      if (event.target.closest("[data-layer]")) return;
+      clearQuoteComposerActiveLayer();
+    });
+  }
+
+  if (rotateDial) {
+    rotateDial.addEventListener("pointerdown", (event) => {
+      rotateDial.setPointerCapture(event.pointerId);
+      setQuoteComposerRotationFromPointer(event);
+      event.preventDefault();
+    });
+
+    rotateDial.addEventListener("pointermove", (event) => {
+      if (!rotateDial.hasPointerCapture(event.pointerId)) return;
+      setQuoteComposerRotationFromPointer(event);
+    });
+
+    rotateDial.addEventListener("pointerup", (event) => {
+      if (rotateDial.hasPointerCapture(event.pointerId)) {
+        rotateDial.releasePointerCapture(event.pointerId);
+      }
+    });
+
+    rotateDial.addEventListener("keydown", (event) => {
+      const rotateInput = document.getElementById("quote-composer-rotate");
+      if (!rotateInput || !["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+      const min = Number(rotateInput.min || -35);
+      const max = Number(rotateInput.max || 35);
+      const current = Number(rotateInput.value || 0);
+      if (event.key === "Home") rotateInput.value = String(min);
+      if (event.key === "End") rotateInput.value = String(max);
+      if (event.key === "ArrowLeft" || event.key === "ArrowDown") rotateInput.value = String(Math.max(min, current - 1));
+      if (event.key === "ArrowRight" || event.key === "ArrowUp") rotateInput.value = String(Math.min(max, current + 1));
+      getQuoteComposerLayer().rotation = Number(rotateInput.value || 0);
+      updateQuoteComposerPreview();
+      event.preventDefault();
+    });
+  }
+
+  document.getElementById("quote-composer-download")?.addEventListener("click", () => {
+    downloadQuoteCreation();
+  });
+
+  document.getElementById("quote-composer-reroll")?.addEventListener("click", () => {
+    rerollQuoteComposerQuote();
+  });
+}
+
 async function init() {
   const localState = loadProtocolStateFromLocalStorage();
   protocolStateCache = getDefaultProtocolState();
@@ -4620,6 +5074,7 @@ async function init() {
   fillFairnessResult();
   fillOptionalTable();
   fillGallery();
+  fillQuoteComposer();
   fillLeaderboard();
   fillAdminActions();
   await fillStatsVisuals();
@@ -4633,6 +5088,7 @@ async function init() {
   setupHeroQuotes();
   setupWalletCheck();
   setupGalleryFilter();
+  setupQuoteComposer();
   syncAdminSettingsStatus();
   syncScraperEpochsStatus();
   activatePanelFromHash(window.location.hash);
