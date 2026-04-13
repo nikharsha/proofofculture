@@ -1261,8 +1261,12 @@ body[data-theme="dark"] .draw-card--primary dd {
   padding: 0.22em 0.38em;
   background: rgba(0, 0, 0, 0.92);
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 800;
   line-height: 1.12;
+  text-align: center;
   cursor: grab;
   user-select: none;
   box-decoration-break: clone;
@@ -1271,9 +1275,139 @@ body[data-theme="dark"] .draw-card--primary dd {
   z-index: 2;
 }
 
+.quote-composer__content {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
 .quote-composer__text.is-active {
   outline: 2px solid var(--accent-green);
   outline-offset: 4px;
+}
+
+.quote-composer__handle {
+  position: absolute;
+  display: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid var(--accent-green);
+  background: var(--panel-solid);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 8;
+  touch-action: none;
+}
+
+.quote-composer__text.is-active .quote-composer__handle {
+  display: block;
+}
+
+.quote-composer__handle--box-resize {
+  right: -15px;
+  bottom: -15px;
+  cursor: nwse-resize;
+}
+
+.quote-composer__handle--box-resize::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-right: 2px solid var(--accent-green);
+  border-bottom: 2px solid var(--accent-green);
+}
+
+.quote-composer__handle--font-size {
+  left: -15px;
+  top: -15px;
+  cursor: nesw-resize;
+}
+
+.quote-composer__handle--font-size::before {
+  content: "T";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--accent-green);
+  font: 900 13px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.quote-composer__handle--width-left,
+.quote-composer__handle--width-right {
+  top: 50%;
+  width: 16px;
+  height: 28px;
+  border-radius: 999px;
+  cursor: ew-resize;
+}
+
+.quote-composer__handle--width-left {
+  left: -13px;
+  transform: translateY(-50%);
+}
+
+.quote-composer__handle--width-right {
+  right: -13px;
+  transform: translateY(-50%);
+}
+
+.quote-composer__handle--width-left::before,
+.quote-composer__handle--width-right::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  bottom: 5px;
+  border-left: 2px solid var(--accent-green);
+  transform: translateX(-50%);
+}
+
+.quote-composer__handle--height-top,
+.quote-composer__handle--height-bottom {
+  left: 50%;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  cursor: ns-resize;
+}
+
+.quote-composer__handle--height-top {
+  top: -13px;
+  transform: translateX(-50%);
+}
+
+.quote-composer__handle--height-bottom {
+  bottom: -13px;
+  transform: translateX(-50%);
+}
+
+.quote-composer__handle--height-top::before,
+.quote-composer__handle--height-bottom::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: 50%;
+  border-top: 2px solid var(--accent-green);
+  transform: translateY(-50%);
+}
+
+.quote-composer__handle--rotate {
+  right: -15px;
+  top: -34px;
+  cursor: grab;
+}
+
+.quote-composer__handle--rotate::before {
+  content: "↻";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--accent-green);
+  font: 900 14px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .quote-composer__text--quote {
@@ -1281,19 +1415,10 @@ body[data-theme="dark"] .draw-card--primary dd {
 }
 
 .quote-composer__text--gm {
-  max-width: 40%;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
   z-index: 3;
 }
 
 .quote-composer__text--site {
-  max-width: 65%;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
   z-index: 4;
 }
 

@@ -447,7 +447,7 @@
                       </label>
                       <label>
                         Text size
-                        <input id="quote-composer-size" type="range" min="18" max="72" value="34">
+                        <input id="quote-composer-size" type="range" min="9" max="240" value="34">
                       </label>
                       <label class="quote-composer__rotate-control">
                         Rotate
@@ -464,9 +464,36 @@
                     </div>
                     <div class="quote-composer__stage" id="quote-composer-stage">
                       <img id="quote-composer-image" alt="Selected gallery piece">
-                      <div class="quote-composer__text quote-composer__text--quote" id="quote-composer-text" data-layer="quote" role="button" tabindex="0"></div>
-                      <div class="quote-composer__text quote-composer__text--gm" id="quote-composer-gm" data-layer="gm" role="button" tabindex="0">gm.</div>
-                      <div class="quote-composer__text quote-composer__text--site" id="quote-composer-site" data-layer="site" role="button" tabindex="0">[ proof-of-culture.com ]</div>
+                      <div class="quote-composer__text quote-composer__text--quote" id="quote-composer-text" data-layer="quote" role="button" tabindex="0">
+                        <span class="quote-composer__content"></span>
+                        <button class="quote-composer__handle quote-composer__handle--width-left" type="button" data-composer-handle="width-left" aria-label="Resize quote width from left"></button>
+                        <button class="quote-composer__handle quote-composer__handle--width-right" type="button" data-composer-handle="width-right" aria-label="Resize quote width from right"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-top" type="button" data-composer-handle="height-top" aria-label="Resize quote height from top"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-bottom" type="button" data-composer-handle="height-bottom" aria-label="Resize quote height from bottom"></button>
+                        <button class="quote-composer__handle quote-composer__handle--font-size" type="button" data-composer-handle="font-size" aria-label="Resize quote text"></button>
+                        <button class="quote-composer__handle quote-composer__handle--box-resize" type="button" data-composer-handle="box-resize" aria-label="Resize quote box"></button>
+                        <button class="quote-composer__handle quote-composer__handle--rotate" type="button" data-composer-handle="rotate" aria-label="Rotate quote"></button>
+                      </div>
+                      <div class="quote-composer__text quote-composer__text--gm" id="quote-composer-gm" data-layer="gm" role="button" tabindex="0">
+                        <span class="quote-composer__content">gm.</span>
+                        <button class="quote-composer__handle quote-composer__handle--width-left" type="button" data-composer-handle="width-left" aria-label="Resize gm width from left"></button>
+                        <button class="quote-composer__handle quote-composer__handle--width-right" type="button" data-composer-handle="width-right" aria-label="Resize gm width from right"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-top" type="button" data-composer-handle="height-top" aria-label="Resize gm height from top"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-bottom" type="button" data-composer-handle="height-bottom" aria-label="Resize gm height from bottom"></button>
+                        <button class="quote-composer__handle quote-composer__handle--font-size" type="button" data-composer-handle="font-size" aria-label="Resize gm text"></button>
+                        <button class="quote-composer__handle quote-composer__handle--box-resize" type="button" data-composer-handle="box-resize" aria-label="Resize gm box"></button>
+                        <button class="quote-composer__handle quote-composer__handle--rotate" type="button" data-composer-handle="rotate" aria-label="Rotate gm"></button>
+                      </div>
+                      <div class="quote-composer__text quote-composer__text--site" id="quote-composer-site" data-layer="site" role="button" tabindex="0">
+                        <span class="quote-composer__content">[ proof-of-culture.com ]</span>
+                        <button class="quote-composer__handle quote-composer__handle--width-left" type="button" data-composer-handle="width-left" aria-label="Resize website tag width from left"></button>
+                        <button class="quote-composer__handle quote-composer__handle--width-right" type="button" data-composer-handle="width-right" aria-label="Resize website tag width from right"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-top" type="button" data-composer-handle="height-top" aria-label="Resize website tag height from top"></button>
+                        <button class="quote-composer__handle quote-composer__handle--height-bottom" type="button" data-composer-handle="height-bottom" aria-label="Resize website tag height from bottom"></button>
+                        <button class="quote-composer__handle quote-composer__handle--font-size" type="button" data-composer-handle="font-size" aria-label="Resize website tag text"></button>
+                        <button class="quote-composer__handle quote-composer__handle--box-resize" type="button" data-composer-handle="box-resize" aria-label="Resize website tag box"></button>
+                        <button class="quote-composer__handle quote-composer__handle--rotate" type="button" data-composer-handle="rotate" aria-label="Rotate website tag"></button>
+                      </div>
                     </div>
                     <p class="section__text">Select a layer or click the text directly, then drag, resize, rotate, and download your version.</p>
                   </div>

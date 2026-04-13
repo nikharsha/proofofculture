@@ -2640,7 +2640,8 @@ const quoteComposerState = {
   dragOffsetX: 0,
   dragOffsetY: 0,
   gesturePointers: new Map(),
-  gesture: null
+  gesture: null,
+  handleGesture: null
 };
 
 function getQuoteComposerLayer(layer = quoteComposerState.activeLayer) {
@@ -2695,12 +2696,24 @@ function clampQuoteComposerLayerToImage(layer, element) {
     return;
   }
 
+  if (layerState.width) {
+    const widthPx = clampComposerNumber((layerState.width / 100) * frame.width, frame.width * 0.04, frame.width * 0.94);
+    layerState.width = (widthPx / frame.width) * 100;
+    element.style.width = `${widthPx}px`;
+  }
+
+  if (layerState.height) {
+    const heightPx = clampComposerNumber((layerState.height / 100) * frame.height, frame.height * 0.04, frame.height * 0.94);
+    layerState.height = (heightPx / frame.height) * 100;
+    element.style.height = `${heightPx}px`;
+  }
+
   let bounds = getQuoteComposerLayerBounds(element, layerState);
   const maxWidth = frame.width * 0.94;
   const maxHeight = frame.height * 0.94;
   if ((bounds.width > maxWidth || bounds.height > maxHeight) && layerState.size > 10) {
     const scale = Math.min(maxWidth / Math.max(bounds.width, 1), maxHeight / Math.max(bounds.height, 1), 1);
-    layerState.size = Math.max(10, Math.floor(layerState.size * scale));
+    layerState.size = Math.max(6, Math.floor(layerState.size * scale));
     element.style.fontSize = `${layerState.size}px`;
     bounds = getQuoteComposerLayerBounds(element, layerState);
     const sizeInput = document.getElementById("quote-composer-size");
@@ -2715,6 +2728,14 @@ function clampQuoteComposerLayerToImage(layer, element) {
   const maxY = Math.max(50, 100 - halfHeightPercent);
   layerState.x = clampComposerNumber(layerState.x, minX, maxX);
   layerState.y = clampComposerNumber(layerState.y, minY, maxY);
+}
+
+function fitQuoteComposerTextToBox(element, layerState) {
+  const content = element?.querySelector(".quote-composer__content");
+  if (!content) return;
+
+  element.style.fontSize = `${layerState.size}px`;
+  content.style.whiteSpace = "normal";
 }
 
 function getQuoteComposerItems() {
@@ -2751,7 +2772,8 @@ function updateQuoteComposerPreview() {
   if (!image || !imageSelect || !quoteText || !gmText || !siteText || !sizeInput || !rotateInput) return;
 
   image.src = imageSelect.value || "";
-  quoteText.textContent = heroQuotes[quoteComposerState.quoteIndex] || heroQuotes[0] || "";
+  const quoteContent = quoteText.querySelector(".quote-composer__content");
+  if (quoteContent) quoteContent.textContent = heroQuotes[quoteComposerState.quoteIndex] || heroQuotes[0] || "";
 
   [
     ["quote", quoteText],
@@ -2760,9 +2782,18 @@ function updateQuoteComposerPreview() {
   ].forEach(([layer, element]) => {
     const layerState = getQuoteComposerLayer(layer);
     element.style.fontSize = `${layerState.size}px`;
+    element.style.width = "";
+    element.style.height = "";
+    const frame = getQuoteComposerImageFrame();
+    if (frame && layerState.width) {
+      element.style.width = `${(layerState.width / 100) * frame.width}px`;
+    }
+    if (frame && layerState.height) {
+      element.style.height = `${(layerState.height / 100) * frame.height}px`;
+    }
     element.style.transform = `translate(-50%, -50%) rotate(${layerState.rotation}deg)`;
     clampQuoteComposerLayerToImage(layer, element);
-    const frame = getQuoteComposerImageFrame();
+    fitQuoteComposerTextToBox(element, layerState);
     if (frame) {
       element.style.left = `${frame.left + (layerState.x / 100) * frame.width}px`;
       element.style.top = `${frame.top + (layerState.y / 100) * frame.height}px`;
@@ -2904,8 +2935,8 @@ function updateQuoteComposerGesture() {
 
   const sizeInput = document.getElementById("quote-composer-size");
   const rotateInput = document.getElementById("quote-composer-rotate");
-  const minSize = Number(sizeInput?.min || 18);
-  const maxSize = Number(sizeInput?.max || 72);
+  const minSize = Number(sizeInput?.min || 9);
+  const maxSize = Number(sizeInput?.max || 240);
   const minRotation = Number(rotateInput?.min || -180);
   const maxRotation = Number(rotateInput?.max || 180);
   const layerState = getQuoteComposerLayer(gesture.layer);
@@ -2929,6 +2960,103 @@ function clearQuoteComposerGesturePointer(event, textLayer) {
     quoteComposerState.gesture = null;
   }
   quoteComposerState.dragging = false;
+  if (textLayer?.hasPointerCapture(event.pointerId)) {
+    textLayer.releasePointerCapture(event.pointerId);
+  }
+}
+
+function startQuoteComposerHandleGesture(event, layer, type, textLayer) {
+  const rect = textLayer.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const deltaX = event.clientX - centerX;
+  const deltaY = event.clientY - centerY;
+  const layerState = getQuoteComposerLayer(layer);
+  quoteComposerState.handleGesture = {
+    layer,
+    type,
+    centerX,
+    centerY,
+    startPointerX: event.clientX,
+    startPointerY: event.clientY,
+    startDistance: Math.hypot(deltaX, deltaY) || 1,
+    startAngle: Math.atan2(deltaY, deltaX) * (180 / Math.PI),
+    startX: layerState.x,
+    startY: layerState.y,
+    startWidth: layerState.width || (rect.width / Math.max(getQuoteComposerImageFrame()?.width || rect.width, 1)) * 100,
+    startHeight: layerState.height || (rect.height / Math.max(getQuoteComposerImageFrame()?.height || rect.height, 1)) * 100,
+    startSize: layerState.size,
+    startRotation: layerState.rotation
+  };
+  quoteComposerState.dragging = false;
+  textLayer.setPointerCapture(event.pointerId);
+  event.preventDefault();
+}
+
+function updateQuoteComposerHandleGesture(event) {
+  const gesture = quoteComposerState.handleGesture;
+  if (!gesture) return false;
+
+  const sizeInput = document.getElementById("quote-composer-size");
+  const rotateInput = document.getElementById("quote-composer-rotate");
+  const minSize = Number(sizeInput?.min || 9);
+  const maxSize = Number(sizeInput?.max || 240);
+  const minRotation = Number(rotateInput?.min || -180);
+  const maxRotation = Number(rotateInput?.max || 180);
+  const layerState = getQuoteComposerLayer(gesture.layer);
+  const deltaX = event.clientX - gesture.centerX;
+  const deltaY = event.clientY - gesture.centerY;
+  const distance = Math.hypot(deltaX, deltaY) || 1;
+  const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+  if (gesture.type === "font-size") {
+    layerState.size = Math.round(clampComposerNumber(gesture.startSize * (distance / gesture.startDistance), minSize, maxSize));
+  } else if (gesture.type === "box-resize") {
+    const frame = getQuoteComposerImageFrame();
+    if (frame) {
+      const pointerDeltaX = ((event.clientX - gesture.startPointerX) / frame.width) * 100;
+      const pointerDeltaY = ((event.clientY - gesture.startPointerY) / frame.height) * 100;
+      layerState.width = clampComposerNumber(gesture.startWidth + pointerDeltaX, 4, 94);
+      layerState.height = clampComposerNumber(gesture.startHeight + pointerDeltaY, 4, 94);
+      layerState.x = clampComposerNumber(gesture.startX + pointerDeltaX / 2, 0, 100);
+      layerState.y = clampComposerNumber(gesture.startY + pointerDeltaY / 2, 0, 100);
+    }
+  } else if (gesture.type === "width-left" || gesture.type === "width-right") {
+    const frame = getQuoteComposerImageFrame();
+    if (frame) {
+      const pointerDeltaPercent = ((event.clientX - gesture.startPointerX) / frame.width) * 100;
+      const direction = gesture.type === "width-right" ? 1 : -1;
+      const nextWidth = gesture.startWidth + pointerDeltaPercent * direction;
+      const nextCenter = gesture.startX + pointerDeltaPercent / 2;
+      layerState.width = clampComposerNumber(nextWidth, 4, 94);
+      layerState.x = clampComposerNumber(nextCenter, 0, 100);
+    }
+  } else if (gesture.type === "height-top" || gesture.type === "height-bottom") {
+    const frame = getQuoteComposerImageFrame();
+    if (frame) {
+      const pointerDeltaPercent = ((event.clientY - gesture.startPointerY) / frame.height) * 100;
+      const direction = gesture.type === "height-bottom" ? 1 : -1;
+      const nextHeight = gesture.startHeight + pointerDeltaPercent * direction;
+      const nextCenter = gesture.startY + pointerDeltaPercent / 2;
+      layerState.height = clampComposerNumber(nextHeight, 4, 94);
+      layerState.y = clampComposerNumber(nextCenter, 0, 100);
+    }
+  } else {
+    layerState.rotation = clampComposerNumber(Math.round(normalizeComposerDegrees(gesture.startRotation + angle - gesture.startAngle)), minRotation, maxRotation);
+  }
+
+  clampQuoteComposerLayerToImage(gesture.layer, document.querySelector(`[data-layer="${gesture.layer}"]`));
+  if (quoteComposerState.activeLayer === gesture.layer) {
+    if (sizeInput) sizeInput.value = String(layerState.size);
+    if (rotateInput) rotateInput.value = String(layerState.rotation);
+  }
+  updateQuoteComposerPreview();
+  event.preventDefault();
+  return true;
+}
+
+function clearQuoteComposerHandleGesture(event, textLayer) {
+  quoteComposerState.handleGesture = null;
   if (textLayer?.hasPointerCapture(event.pointerId)) {
     textLayer.releasePointerCapture(event.pointerId);
   }
@@ -2964,6 +3092,7 @@ function drawQuoteComposerCanvasLayer(context, canvas, layer, text, scale) {
   const paddingRight = (styles ? parseFloat(styles.paddingRight) : fontSize * 0.36 / scale) * scale;
   const paddingTop = (styles ? parseFloat(styles.paddingTop) : fontSize * 0.22 / scale) * scale;
   const paddingBottom = (styles ? parseFloat(styles.paddingBottom) : fontSize * 0.22 / scale) * scale;
+  const content = element?.querySelector(".quote-composer__content");
   const boxWidth = Math.max(1, (element?.offsetWidth || 0) * scale);
   const boxHeight = Math.max(1, (element?.offsetHeight || 0) * scale);
   const contentWidth = Math.max(1, boxWidth - paddingLeft - paddingRight);
@@ -2985,9 +3114,11 @@ function drawQuoteComposerCanvasLayer(context, canvas, layer, text, scale) {
   context.fillStyle = "rgba(0, 0, 0, 0.92)";
   context.fillRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
   context.fillStyle = "#fff";
+  const totalTextHeight = lines.length * lineHeight;
+  const firstLineY = -totalTextHeight / 2;
   lines.forEach((line, index) => {
-    const lineY = -boxHeight / 2 + paddingTop + index * lineHeight;
-    let cursorX = -boxWidth / 2 + paddingLeft;
+    const lineY = firstLineY + index * lineHeight;
+    let cursorX = -measuredLines[index] / 2;
     if (!letterSpacing) {
       context.fillText(line, cursorX, lineY);
       return;
@@ -5010,6 +5141,11 @@ function setupQuoteComposer() {
       textLayer.addEventListener("pointerdown", (event) => {
         const layer = textLayer.dataset.layer || "quote";
         setQuoteComposerActiveLayer(layer);
+        const handle = event.target.closest("[data-composer-handle]");
+        if (handle) {
+          startQuoteComposerHandleGesture(event, layer, handle.dataset.composerHandle, textLayer);
+          return;
+        }
         quoteComposerState.gesturePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
         const textRect = textLayer.getBoundingClientRect();
         quoteComposerState.dragLayer = layer;
@@ -5025,6 +5161,7 @@ function setupQuoteComposer() {
       });
 
       textLayer.addEventListener("pointermove", (event) => {
+        if (updateQuoteComposerHandleGesture(event)) return;
         if (quoteComposerState.gesturePointers.has(event.pointerId)) {
           quoteComposerState.gesturePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
         }
@@ -5037,10 +5174,12 @@ function setupQuoteComposer() {
       });
 
       textLayer.addEventListener("pointerup", (event) => {
+        clearQuoteComposerHandleGesture(event, textLayer);
         clearQuoteComposerGesturePointer(event, textLayer);
       });
 
       textLayer.addEventListener("pointercancel", (event) => {
+        clearQuoteComposerHandleGesture(event, textLayer);
         clearQuoteComposerGesturePointer(event, textLayer);
       });
 
