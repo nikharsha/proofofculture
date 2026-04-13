@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-13T13:37:26.263Z",
+  "exportedAt": "2026-04-13T20:40:26.943Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -293,6 +293,21 @@
         "image": "web_assets/epoch9.jpg",
         "partnerArtists": [],
         "mark": "#019"
+      },
+      {
+        "token": 20,
+        "title": "GM 10.0",
+        "epochName": "10",
+        "edition": "69",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/20",
+        "image": "web_assets/epoch10.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "DeltaSauce",
+            "handle": "deltasauce"
+          }
+        ],
+        "mark": "#020"
       }
     ],
     "projectDays": 365,
@@ -1070,7 +1085,7 @@
         "cumulativePlanned": 424,
         "key": "epoch-10",
         "name": "Epoch 10",
-        "minted": 0,
+        "minted": 69,
         "eligible": 69,
         "type": "standard"
       },

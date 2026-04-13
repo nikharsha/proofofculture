@@ -340,7 +340,17 @@ function getEffectiveLiveEntryKey() {
   ));
   if (currentByTime) return currentByTime.key;
 
-  return getLiveEntryKey();
+  const savedLive = merged.find((item) => item.key === getLiveEntryKey());
+  if (savedLive && !(savedLive.type !== "manual" && hasEpochEnded(savedLive) && hasEpochAirdropStarted(savedLive))) {
+    return savedLive.key;
+  }
+
+  const nextOpenEpoch = merged.find((item) => (
+    item.type === "manual"
+      ? item.manualStatus !== "complete"
+      : !(hasEpochEnded(item) && hasEpochAirdropStarted(item))
+  ));
+  return nextOpenEpoch?.key || getLiveEntryKey();
 }
 
 function getEpochMintedCount(epoch) {
@@ -349,10 +359,18 @@ function getEpochMintedCount(epoch) {
   return Number(trackerData?.epochSummary?.[epoch.epoch]?.minted ?? epoch.minted ?? epoch.actualMinted ?? 0);
 }
 
+function hasEpochAirdropStarted(epoch) {
+  return getEpochMintedCount(epoch) > 0;
+}
+
+function hasEpochEnded(epoch) {
+  return Boolean(epoch?.end) && Date.now() >= epoch.end.getTime();
+}
+
 function isEpochInWalletCollection(epoch) {
   if (!epoch || epoch.type === "manual") return false;
-  if (Date.now() < epoch.end.getTime()) return false;
-  return getEpochMintedCount(epoch) === 0;
+  if (!hasEpochEnded(epoch)) return false;
+  return !hasEpochAirdropStarted(epoch);
 }
 
 function getConfiguredProjectDays() {
@@ -1643,8 +1661,11 @@ function getHeroStatus(entryKey) {
   const activeKey = getEffectiveLiveEntryKey();
   const activeIndex = Math.max(0, merged.findIndex((item) => item.key === activeKey));
   const entryIndex = merged.findIndex((item) => item.key === entryKey);
+  const entry = merged[entryIndex];
+  if (entry?.type !== "manual" && hasEpochEnded(entry)) {
+    return isEpochInWalletCollection(entry) ? "Wallet Collection" : "Completed";
+  }
   if (entryIndex < activeIndex) {
-    const entry = merged[entryIndex];
     if (isEpochInWalletCollection(entry)) return "Wallet Collection";
     return "Completed";
   }
@@ -2641,7 +2662,10 @@ const quoteComposerState = {
   dragOffsetY: 0,
   gesturePointers: new Map(),
   gesture: null,
-  handleGesture: null
+  handleGesture: null,
+  quoteMode: "random",
+  customQuote: "",
+  customInitialized: false
 };
 
 function getQuoteComposerLayer(layer = quoteComposerState.activeLayer) {
@@ -2654,6 +2678,19 @@ function normalizeComposerDegrees(degrees) {
 
 function clampComposerNumber(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function sanitizeQuoteComposerText(value) {
+  return String(value || "")
+    .replace(/[<>`{}]/g, "")
+    .replace(/javascript:/gi, "")
+    .slice(0, 1000);
+}
+
+function getQuoteComposerQuoteText() {
+  return quoteComposerState.quoteMode === "custom"
+    ? quoteComposerState.customQuote
+    : (heroQuotes[quoteComposerState.quoteIndex] || heroQuotes[0] || "");
 }
 
 function getQuoteComposerImageFrame() {
@@ -2769,11 +2806,19 @@ function updateQuoteComposerPreview() {
   const sizeInput = document.getElementById("quote-composer-size");
   const rotateInput = document.getElementById("quote-composer-rotate");
   const layerSelect = document.getElementById("quote-composer-layer");
+  const customToggle = document.getElementById("quote-composer-custom-toggle");
+  const rerollButton = document.getElementById("quote-composer-reroll");
   if (!image || !imageSelect || !quoteText || !gmText || !siteText || !sizeInput || !rotateInput) return;
 
   image.src = imageSelect.value || "";
   const quoteContent = quoteText.querySelector(".quote-composer__content");
-  if (quoteContent) quoteContent.textContent = heroQuotes[quoteComposerState.quoteIndex] || heroQuotes[0] || "";
+  if (quoteContent && document.activeElement !== quoteText && document.activeElement !== quoteContent) {
+    quoteContent.textContent = getQuoteComposerQuoteText();
+  }
+  if (quoteContent) quoteContent.contentEditable = quoteComposerState.quoteMode === "custom" ? "true" : "false";
+  quoteText.classList.toggle("is-custom", quoteComposerState.quoteMode === "custom");
+  if (customToggle) customToggle.setAttribute("aria-pressed", quoteComposerState.quoteMode === "custom" ? "true" : "false");
+  if (rerollButton) rerollButton.disabled = quoteComposerState.quoteMode === "custom";
 
   [
     ["quote", quoteText],
@@ -2842,6 +2887,7 @@ function syncQuoteComposerActiveControls() {
 }
 
 function rerollQuoteComposerQuote() {
+  if (quoteComposerState.quoteMode === "custom") return;
   if (!heroQuotes.length) return;
   if (heroQuotes.length === 1) {
     quoteComposerState.quoteIndex = 0;
@@ -2853,6 +2899,51 @@ function rerollQuoteComposerQuote() {
     quoteComposerState.quoteIndex = nextIndex;
   }
   updateQuoteComposerPreview();
+}
+
+function setQuoteComposerMode(mode) {
+  quoteComposerState.quoteMode = mode === "custom" ? "custom" : "random";
+  const quoteLayer = getQuoteComposerLayer("quote");
+  if (quoteComposerState.quoteMode === "custom" && !quoteComposerState.customInitialized) {
+    quoteLayer.width = quoteLayer.width || 52;
+    quoteLayer.height = quoteLayer.height || 22;
+    quoteLayer.x = quoteLayer.x || 50;
+    quoteLayer.y = quoteLayer.y || 50;
+    quoteComposerState.customInitialized = true;
+  }
+  setQuoteComposerActiveLayer("quote");
+  updateQuoteComposerPreview();
+  if (quoteComposerState.quoteMode === "custom") {
+    const quoteText = document.getElementById("quote-composer-text");
+    const quoteContent = quoteText?.querySelector(".quote-composer__content");
+    requestAnimationFrame(() => {
+      quoteText?.focus();
+      if (!quoteContent) return;
+      const range = document.createRange();
+      range.selectNodeContents(quoteContent);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+  }
+}
+
+function syncQuoteComposerCustomText() {
+  if (quoteComposerState.quoteMode !== "custom") return;
+  const quoteContent = document.querySelector("#quote-composer-text .quote-composer__content");
+  if (!quoteContent) return;
+  const sanitized = sanitizeQuoteComposerText(quoteContent.textContent);
+  if (quoteContent.textContent !== sanitized) {
+    quoteContent.textContent = sanitized;
+    const range = document.createRange();
+    range.selectNodeContents(quoteContent);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }
+  quoteComposerState.customQuote = sanitized;
 }
 
 function updateQuoteComposerDial() {
@@ -3100,7 +3191,7 @@ function drawQuoteComposerCanvasLayer(context, canvas, layer, text, scale) {
   context.font = `${weight} ${fontSize}px ${fontFamily}`;
   context.textBaseline = "top";
 
-  const lines = layer === "quote" ? wrapCanvasText(context, text, contentWidth) : [String(text || "")];
+  const lines = wrapCanvasText(context, text, contentWidth);
   const measuredLines = lines.map((line) => {
     const baseWidth = context.measureText(line).width;
     return baseWidth + Math.max(0, line.length - 1) * letterSpacing;
@@ -3149,7 +3240,7 @@ async function downloadQuoteCreation() {
   const stage = document.getElementById("quote-composer-stage");
   const scale = stage ? canvas.width / stage.getBoundingClientRect().width : 1;
 
-  drawQuoteComposerCanvasLayer(context, canvas, "quote", heroQuotes[quoteComposerState.quoteIndex] || "", scale);
+  drawQuoteComposerCanvasLayer(context, canvas, "quote", getQuoteComposerQuoteText(), scale);
   drawQuoteComposerCanvasLayer(context, canvas, "gm", "gm.", scale);
   drawQuoteComposerCanvasLayer(context, canvas, "site", "[ proof-of-culture.com ]", scale);
 
@@ -3376,7 +3467,7 @@ function getTopRoundedBarPath(x, y, width, height, radius) {
 }
 
 async function loadCsv(path) {
-  const response = await fetch(path);
+  const response = await fetch(path, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Failed to load ${path}`);
   }
@@ -3637,6 +3728,10 @@ async function fillStatsVisuals() {
 
     fillLeaderboard();
     renderHeroDeck();
+    fillCurrentEpoch();
+    fillPilotTable();
+    fillTimeline();
+    fillOptionalTable();
     renderDelayState();
   } catch (error) {
     const message = "The tracker CSV could not be loaded. Serve the site over a local web server and keep proof_of_culture_tracker_master.csv in /data.";
@@ -5139,6 +5234,10 @@ function setupQuoteComposer() {
   if (stage && textLayers.length) {
     textLayers.forEach((textLayer) => {
       textLayer.addEventListener("pointerdown", (event) => {
+        if (event.target.closest(".quote-composer__content") && textLayer.dataset.layer === "quote" && quoteComposerState.quoteMode === "custom") {
+          setQuoteComposerActiveLayer("quote");
+          if (!event.target.closest("[data-composer-handle]")) return;
+        }
         const layer = textLayer.dataset.layer || "quote";
         setQuoteComposerActiveLayer(layer);
         const handle = event.target.closest("[data-composer-handle]");
@@ -5188,6 +5287,25 @@ function setupQuoteComposer() {
       });
     });
 
+    const quoteText = document.getElementById("quote-composer-text");
+    const quoteContent = quoteText?.querySelector(".quote-composer__content");
+    quoteContent?.addEventListener("beforeinput", (event) => {
+      if (quoteComposerState.quoteMode !== "custom") return;
+      if (event.inputType === "insertFromPaste") return;
+      const nextLength = quoteComposerState.customQuote.length + String(event.data || "").length;
+      if (nextLength > 1000) event.preventDefault();
+    });
+    quoteContent?.addEventListener("paste", (event) => {
+      if (quoteComposerState.quoteMode !== "custom") return;
+      event.preventDefault();
+      const pasted = sanitizeQuoteComposerText(event.clipboardData?.getData("text/plain") || "");
+      const remaining = Math.max(0, 1000 - quoteComposerState.customQuote.length);
+      document.execCommand("insertText", false, pasted.slice(0, remaining));
+    });
+    quoteContent?.addEventListener("input", () => {
+      syncQuoteComposerCustomText();
+    });
+
     stage.addEventListener("click", (event) => {
       if (event.target.closest("[data-layer]")) return;
       clearQuoteComposerActiveLayer();
@@ -5234,6 +5352,10 @@ function setupQuoteComposer() {
 
   document.getElementById("quote-composer-reroll")?.addEventListener("click", () => {
     rerollQuoteComposerQuote();
+  });
+
+  document.getElementById("quote-composer-custom-toggle")?.addEventListener("click", () => {
+    setQuoteComposerMode(quoteComposerState.quoteMode === "custom" ? "random" : "custom");
   });
 }
 

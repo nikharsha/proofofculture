@@ -1134,7 +1134,7 @@ body[data-theme="dark"] .draw-card--primary dd {
 
 .quote-composer__controls {
   display: grid;
-  grid-template-columns: minmax(240px, 1.4fr) auto minmax(140px, 0.55fr) minmax(135px, 0.4fr) auto auto;
+  grid-template-columns: minmax(240px, 1.35fr) auto auto minmax(150px, 0.6fr) auto auto;
   gap: 16px;
   align-items: end;
 }
@@ -1156,14 +1156,69 @@ body[data-theme="dark"] .draw-card--primary dd {
 }
 
 .quote-composer__controls .button {
-  min-width: 150px;
+  min-width: 118px;
   height: 52px;
+}
+
+.quote-composer__controls #quote-composer-reroll:not(:disabled) {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #fff;
 }
 
 .quote-composer__controls input[type="range"] {
   width: 100%;
   min-width: 140px;
   padding-inline: 0;
+}
+
+.quote-composer__mode {
+  min-width: 150px;
+}
+
+.quote-composer__toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0;
+  height: 52px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--panel-solid);
+  color: var(--muted);
+  cursor: pointer;
+  overflow: hidden;
+  font: inherit;
+}
+
+.quote-composer__toggle::before {
+  content: "";
+  position: absolute;
+  inset: 4px auto 4px 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: var(--ink);
+  transition: transform 160ms ease;
+}
+
+.quote-composer__toggle[aria-pressed="true"]::before {
+  transform: translateX(100%);
+}
+
+.quote-composer__toggle span,
+.quote-composer__toggle strong {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 70px;
+  color: var(--muted);
+}
+
+.quote-composer__toggle[aria-pressed="false"] span,
+.quote-composer__toggle[aria-pressed="true"] strong {
+  color: var(--bg);
 }
 
 .quote-composer__rotate-control {
@@ -1273,6 +1328,16 @@ body[data-theme="dark"] .draw-card--primary dd {
   -webkit-box-decoration-break: clone;
   touch-action: none;
   z-index: 2;
+}
+
+.quote-composer__content[contenteditable="true"] {
+  outline: 0;
+  caret-color: #fff;
+}
+
+.quote-composer__content[contenteditable="true"]:empty::before {
+  content: "Type your quote";
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .quote-composer__content {

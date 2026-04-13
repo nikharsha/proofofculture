@@ -437,13 +437,12 @@
                         Quote
                         <button class="button" id="quote-composer-reroll" type="button">Re-quote</button>
                       </label>
-                      <label>
-                        Edit layer
-                        <select id="quote-composer-layer">
-                          <option value="quote">Quote</option>
-                          <option value="gm">gm.</option>
-                          <option value="site">Website</option>
-                        </select>
+                      <label class="quote-composer__mode">
+                        Quote mode
+                        <button class="quote-composer__toggle" id="quote-composer-custom-toggle" type="button" aria-pressed="false">
+                          <span>Random</span>
+                          <strong>Custom</strong>
+                        </button>
                       </label>
                       <label>
                         Text size
@@ -495,7 +494,7 @@
                         <button class="quote-composer__handle quote-composer__handle--rotate" type="button" data-composer-handle="rotate" aria-label="Rotate website tag"></button>
                       </div>
                     </div>
-                    <p class="section__text">Select a layer or click the text directly, then drag, resize, rotate, and download your version.</p>
+                    <p class="section__text">Click any text on the image to edit it. Use the green handles to move, resize, stretch, rotate, or change text size. Switch to Custom to type your own quote directly on the image.</p>
                   </div>
                 </section>
               </div>
