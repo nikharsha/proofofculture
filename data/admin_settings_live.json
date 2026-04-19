@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-19T20:27:36.444Z",
+  "exportedAt": "2026-04-19T21:09:12.486Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -30,6 +30,19 @@
         "recipients": "arthr | 0x4c9b3b18a54e59b23a75250425670e6a7467d225 | 1",
         "start": "2026-03-25T13:30:00.000Z",
         "end": "2026-03-26T12:30:00.000Z"
+      },
+      {
+        "id": "manual-1776632813751",
+        "name": "Special 2",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Reward",
+        "daysNeeded": 0,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "deltasauce | 0x5fc13c5a541041f8fa12fab492d064435eb8d2f5 | 1",
+        "start": "2026-04-19T21:09:00.000Z",
+        "end": "2026-04-19T21:09:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -417,6 +430,15 @@
           }
         ],
         "mark": "#022"
+      },
+      {
+        "token": 23,
+        "title": "Special 2.0",
+        "epochName": "Special 2",
+        "edition": "",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/23",
+        "image": "web_assets/special2.jpg",
+        "mark": "#023"
       }
     ],
     "projectDays": 365,
@@ -1210,7 +1232,7 @@
         "cumulativePlanned": 466,
         "key": "epoch-11",
         "name": "Epoch 11",
-        "minted": 0,
+        "minted": 42,
         "eligible": 42,
         "type": "standard"
       },
@@ -1229,6 +1251,21 @@
         "minted": 0,
         "eligible": 0,
         "type": "standard"
+      },
+      {
+        "id": "manual-1776632813751",
+        "name": "Special 2",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Reward",
+        "daysNeeded": 0,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "deltasauce | 0x5fc13c5a541041f8fa12fab492d064435eb8d2f5 | 1",
+        "start": "2026-04-19T21:09:00.000Z",
+        "end": "2026-04-19T21:09:00.000Z",
+        "key": "manual-1776632813751",
+        "type": "manual"
       },
       {
         "epoch": 13,
