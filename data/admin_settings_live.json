@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-19T21:09:12.486Z",
+  "exportedAt": "2026-04-19T21:23:53.846Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -435,9 +435,10 @@
         "token": 23,
         "title": "Special 2.0",
         "epochName": "Special 2",
-        "edition": "",
+        "edition": "1",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/23",
         "image": "web_assets/special2.jpg",
+        "partnerArtists": [],
         "mark": "#023"
       }
     ],
