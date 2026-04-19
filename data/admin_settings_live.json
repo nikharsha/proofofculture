@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-18T13:54:39.995Z",
+  "exportedAt": "2026-04-19T06:49:59.567Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -37,6 +37,12 @@
         "id": "eligibility-1774657815185",
         "targetKey": "epoch-8",
         "mode": "Comment or QRT",
+        "customText": ""
+      },
+      {
+        "id": "eligibility-1776581399547",
+        "targetKey": "epoch-12",
+        "mode": "QRT + Comment",
         "customText": ""
       }
     ],
@@ -1149,7 +1155,7 @@
         "epoch": 12,
         "phase": "Linear",
         "daysNeeded": 8,
-        "eligibility": "Comment or QRT",
+        "eligibility": "QRT + Comment",
         "editionSize": 15,
         "actualMinted": null,
         "start": "2026-04-19T13:00:00.000Z",
