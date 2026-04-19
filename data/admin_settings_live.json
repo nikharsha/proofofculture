@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-19T21:23:53.846Z",
+  "exportedAt": "2026-04-19T21:26:10.608Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -362,25 +362,27 @@
         "token": 17,
         "title": "GM 8.1",
         "epochName": "8",
-        "edition": "37",
+        "edition": "37 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/17",
         "image": "web_assets/epoch8.1.jpg",
+        "partnerArtists": [],
         "mark": "#017"
       },
       {
         "token": 18,
         "title": "GM 8.2",
         "epochName": "8",
-        "edition": "18",
+        "edition": "18 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/18",
         "image": "web_assets/epoch8.2.jpg",
+        "partnerArtists": [],
         "mark": "#018"
       },
       {
         "token": 19,
         "title": "GM 9.0",
         "epochName": "9",
-        "edition": "25",
+        "edition": "25 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/19",
         "image": "web_assets/epoch9.jpg",
         "partnerArtists": [],
@@ -390,7 +392,7 @@
         "token": 20,
         "title": "GM 10.0",
         "epochName": "10",
-        "edition": "69",
+        "edition": "69 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/20",
         "image": "web_assets/epoch10.jpg",
         "partnerArtists": [
@@ -405,7 +407,7 @@
         "token": 21,
         "title": "GM 11.1",
         "epochName": "11",
-        "edition": "21",
+        "edition": "21 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/21",
         "image": "web_assets/epoch11.1.jpg",
         "partnerArtists": [
@@ -420,7 +422,7 @@
         "token": 22,
         "title": "GM 11.2",
         "epochName": "11",
-        "edition": "21",
+        "edition": "21 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/22",
         "image": "web_assets/epoch11.2.jpg",
         "partnerArtists": [
@@ -435,7 +437,7 @@
         "token": 23,
         "title": "Special 2.0",
         "epochName": "Special 2",
-        "edition": "1",
+        "edition": "1/1",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/23",
         "image": "web_assets/special2.jpg",
         "partnerArtists": [],
