@@ -588,34 +588,67 @@ function canUseDirectoryPicker() {
   return typeof window.showDirectoryPicker === "function";
 }
 
-async function ensureGalleryDirectoryHandles() {
-  if (!canUseDirectoryPicker()) {
-    throw new Error("Directory picker unsupported in this browser.");
-  }
-
+async function restoreGalleryDirectoryHandles() {
+  if (!canUseDirectoryPicker()) return;
   if (!galleryAssetSourceDirHandle) {
     galleryAssetSourceDirHandle = await loadHandleFromDb(galleryAssetSourceHandleKey);
   }
   if (!galleryAssetTargetDirHandle) {
     galleryAssetTargetDirHandle = await loadHandleFromDb(galleryAssetTargetHandleKey);
   }
+}
+
+async function connectGalleryAssetSourceFolder() {
+  if (!canUseDirectoryPicker()) {
+    throw new Error("Directory picker unsupported in this browser.");
+  }
+
+  const handle = await window.showDirectoryPicker({ mode: "read" });
+  const permission = await handle.requestPermission({ mode: "read" });
+  if (permission !== "granted") {
+    throw new Error("Source folder permission was not granted.");
+  }
+  galleryAssetSourceDirHandle = handle;
+  await saveHandleToDb(galleryAssetSourceHandleKey, handle);
+  syncGalleryAssetStatus(`Connected source assets folder: ${handle.name}.`);
+}
+
+async function connectGalleryAssetTargetFolder() {
+  if (!canUseDirectoryPicker()) {
+    throw new Error("Directory picker unsupported in this browser.");
+  }
+
+  const handle = await window.showDirectoryPicker({ mode: "readwrite" });
+  const permission = await handle.requestPermission({ mode: "readwrite" });
+  if (permission !== "granted") {
+    throw new Error("Destination folder permission was not granted.");
+  }
+  galleryAssetTargetDirHandle = handle;
+  await saveHandleToDb(galleryAssetTargetHandleKey, handle);
+  syncGalleryAssetStatus(`Connected destination web_assets folder: ${handle.name}.`);
+}
+
+async function ensureGalleryDirectoryHandles() {
+  if (!canUseDirectoryPicker()) {
+    throw new Error("Directory picker unsupported in this browser.");
+  }
+
+  await restoreGalleryDirectoryHandles();
 
   let sourcePermission = galleryAssetSourceDirHandle
     ? await galleryAssetSourceDirHandle.queryPermission({ mode: "read" })
     : "prompt";
   if (!galleryAssetSourceDirHandle || sourcePermission !== "granted") {
-    galleryAssetSourceDirHandle = await window.showDirectoryPicker({ mode: "read" });
-    await saveHandleToDb(galleryAssetSourceHandleKey, galleryAssetSourceDirHandle);
-    sourcePermission = await galleryAssetSourceDirHandle.requestPermission({ mode: "read" });
+    await connectGalleryAssetSourceFolder();
+    sourcePermission = await galleryAssetSourceDirHandle.queryPermission({ mode: "read" });
   }
 
   let targetPermission = galleryAssetTargetDirHandle
     ? await galleryAssetTargetDirHandle.queryPermission({ mode: "readwrite" })
     : "prompt";
   if (!galleryAssetTargetDirHandle || targetPermission !== "granted") {
-    galleryAssetTargetDirHandle = await window.showDirectoryPicker({ mode: "readwrite" });
-    await saveHandleToDb(galleryAssetTargetHandleKey, galleryAssetTargetDirHandle);
-    targetPermission = await galleryAssetTargetDirHandle.requestPermission({ mode: "readwrite" });
+    await connectGalleryAssetTargetFolder();
+    targetPermission = await galleryAssetTargetDirHandle.queryPermission({ mode: "readwrite" });
   }
 
   if (sourcePermission !== "granted" || targetPermission !== "granted") {
@@ -5030,6 +5063,30 @@ function setupDelayControls() {
     await refreshGalleryAssetList();
   });
 
+  document.getElementById("gallery-connect-source")?.addEventListener("click", async () => {
+    try {
+      syncGalleryAssetStatus("Choose the folder where your original source images live.");
+      await connectGalleryAssetSourceFolder();
+      syncGalleryAssetStatus();
+    } catch (error) {
+      galleryAssetLastRefreshSummary = "Source folder was not connected.";
+      syncGalleryAssetStatus();
+      console.error(error);
+    }
+  });
+
+  document.getElementById("gallery-connect-target")?.addEventListener("click", async () => {
+    try {
+      syncGalleryAssetStatus("Choose the web_assets folder where resized gallery images should be saved.");
+      await connectGalleryAssetTargetFolder();
+      syncGalleryAssetStatus();
+    } catch (error) {
+      galleryAssetLastRefreshSummary = "Destination folder was not connected.";
+      syncGalleryAssetStatus();
+      console.error(error);
+    }
+  });
+
   document.getElementById("gallery-apply").addEventListener("click", () => {
     const state = getProtocolState();
     const selectedToken = Number(document.getElementById("gallery-token-select").value || 0);
@@ -5376,6 +5433,13 @@ async function init() {
   }
 
   try {
+    await restoreGalleryDirectoryHandles();
+  } catch (_) {
+    galleryAssetSourceDirHandle = null;
+    galleryAssetTargetDirHandle = null;
+  }
+
+  try {
     const storedHandle = await loadAdminSettingsHandle();
     if (storedHandle) {
       const permission = await storedHandle.queryPermission({ mode: "readwrite" });
@@ -5427,6 +5491,7 @@ async function init() {
   setupQuoteComposer();
   syncAdminSettingsStatus();
   syncScraperEpochsStatus();
+  syncGalleryAssetStatus();
   activatePanelFromHash(window.location.hash);
   window.addEventListener("hashchange", () => {
     activatePanelFromHash(window.location.hash);

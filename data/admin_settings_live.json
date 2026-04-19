@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-19T13:53:01.507Z",
+  "exportedAt": "2026-04-19T20:27:36.444Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -192,6 +192,14 @@
         "link": "https://x.com/1xharsh/status/2043409470223765653?s=20"
       },
       {
+        "id": "tweet-epoch-12-day-1-1",
+        "targetKey": "epoch-12",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2045860970300407916?s=20"
+      },
+      {
         "id": "tweet-epoch-11-day-1-1",
         "targetKey": "epoch-11",
         "kind": "day",
@@ -248,12 +256,12 @@
         "link": "https://x.com/1xharsh/status/2045493801188298841?s=20"
       },
       {
-        "id": "tweet-epoch-12-day-1-1",
-        "targetKey": "epoch-12",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-11-wallet-0-1",
+        "targetKey": "epoch-11",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2045860970300407916?s=20"
+        "link": "https://x.com/1xharsh/status/2045942373218411005?s=20"
       }
     ],
     "engagementOverrides": [
@@ -284,6 +292,13 @@
         "qrtComment": 61,
         "onlyQrt": 21,
         "onlyComment": 149
+      },
+      {
+        "id": "engagement-1776623597823",
+        "targetKey": "epoch-11",
+        "qrtComment": 58,
+        "onlyQrt": 16,
+        "onlyComment": 155
       }
     ],
     "drawRecords": [
@@ -316,6 +331,16 @@
         "drawDate": "2026-04-12T18:00:00.000Z",
         "drawMode": "Manual",
         "winnerList": "_shibbywibby 0x8BitArt 0xdeepsea 0xLapom 0xWhysoserious absurdeity Aloungkot BenCRWarrior BoredJosei Chumwizards convobrianhere dan_fraser_ DankyHashpantz datblutoast deltasauce dondiiieeee eitzisart evcal7 evvi2222 fairyseibot Foodie_Boy15 frankie_high fun_tokens glassspy Gpebbles grubnot hansefar73 happylolohappy0 illiquidpixel imShonari inceptionally ivanga0016 JohnPaulBraden kruuul KubtiTheCreator LaurentNft64534 Lavistaly liapsart livesawave m1ntdr1ms matriona_fails MichaelBuda2 Moflightx moonzoey_zuu mrc_arte MysterioNFT mysteriovision NadeemSult77488 newlightvisuals Nft_Boy82 ol1y_art Phocus_10 Qoheleth3000 rain41 RhythmKing rocketgirlART SecretariYat the_Mess TheArtRunway tinoch VSTRVL_FFF WaveSurfer38185 WildeLobstar woodificouldart x3n1n xptoplayici Zina_Caramelo zumbah ZunairaUsman84"
+      },
+      {
+        "id": "draw-1776623958766",
+        "epoch": "11",
+        "editionSize": 42,
+        "eligibleCount": 65,
+        "drawOutput": "42",
+        "drawDate": "2026-04-19T18:40:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "_awhurst_ 0xdeepsea 0xLapom 0xWhysoserious absurdeity Aloungkot BenCRWarrior Chumwizards convobrianhere dan_fraser_ DankyHashpantz dondiiieeee eitzisart Punk8868 fairyseibot fun_tokens glassspy grubnot happylolohappy0 HB_hira1 illiquidpixel ivanga0016 JohnPaulBraden liapsart livesawave Lpha_7 matriona_fails MichaelBuda2 mysteriovision suparno67 ol1y_art Phocus_10 rain41 RhythmKing SecretariYat t420_g TheArtRunway tinoch VSTRVL_FFF x3n1n xptoplayici Zina_Caramelo"
       }
     ],
     "opsChecklist": {},
@@ -362,6 +387,36 @@
           }
         ],
         "mark": "#020"
+      },
+      {
+        "token": 21,
+        "title": "GM 11.1",
+        "epochName": "11",
+        "edition": "21",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/21",
+        "image": "web_assets/epoch11.1.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "Lorcan",
+            "handle": "lorcanart"
+          }
+        ],
+        "mark": "#021"
+      },
+      {
+        "token": 22,
+        "title": "GM 11.2",
+        "epochName": "11",
+        "edition": "21",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/22",
+        "image": "web_assets/epoch11.2.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "Lorcan",
+            "handle": "lorcanart"
+          }
+        ],
+        "mark": "#022"
       }
     ],
     "projectDays": 365,
@@ -1156,7 +1211,7 @@
         "key": "epoch-11",
         "name": "Epoch 11",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 42,
         "type": "standard"
       },
       {
