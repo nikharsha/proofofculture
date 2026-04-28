@@ -1038,13 +1038,15 @@ body[data-theme="dark"] .draw-card--primary dd {
 }
 
 .gallery-card__image img,
+.gallery-card__image video,
 .gallery-card__fallback {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-.gallery-card__image img {
+.gallery-card__image img,
+.gallery-card__image video {
   object-fit: cover;
 }
 
@@ -1101,11 +1103,24 @@ body[data-theme="dark"] .draw-card--primary dd {
 
 .gallery-card__meta {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed var(--line);
+}
+
+.gallery-card__type {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .gallery-card__links,

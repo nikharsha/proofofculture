@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-28T04:21:56.485Z",
+  "exportedAt": "2026-04-28T05:32:27.600Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -537,6 +537,31 @@
         "image": "web_assets/special2.jpg",
         "partnerArtists": [],
         "mark": "#023"
+      },
+      {
+        "token": 24,
+        "title": "GM 12.1",
+        "epochName": "12",
+        "edition": "5",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/24",
+        "image": "web_assets/epoch12.1.webm",
+        "partnerArtists": [],
+        "mark": "#024"
+      },
+      {
+        "token": 25,
+        "title": "GM 12.2",
+        "epochName": "12",
+        "edition": "10",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/25",
+        "image": "web_assets/epoch12.2.webm",
+        "partnerArtists": [
+          {
+            "displayName": "andrew",
+            "handle": "_awhurst_"
+          }
+        ],
+        "mark": "#025"
       }
     ],
     "projectDays": 365,

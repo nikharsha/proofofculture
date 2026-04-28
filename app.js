@@ -522,8 +522,47 @@ function getKnownWebAssets() {
   return [...new Set(knownWebAssets)];
 }
 
-function isSupportedImageAsset(path) {
-  return /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(String(path || ""));
+function isSupportedGalleryAsset(path) {
+  return /\.(png|jpe?g|gif|webp|avif|svg|mp4|webm|mov)$/i.test(String(path || ""));
+}
+
+function isAnimatedGalleryAsset(path) {
+  return /\.(gif|mp4|webm|mov)$/i.test(String(path || ""));
+}
+
+function isVideoGalleryAsset(path) {
+  return /\.(mp4|webm|mov)$/i.test(String(path || ""));
+}
+
+function isResizableStaticAsset(path) {
+  return /\.(png|jpe?g|webp|avif)$/i.test(String(path || ""));
+}
+
+function getGalleryAssetTypeFromPath(path) {
+  return isAnimatedGalleryAsset(path) ? "animated" : "static";
+}
+
+function getGalleryAssetEpochMatch(assetPath, epoch) {
+  const derived = getDraftGalleryMetadataFromAsset(assetPath);
+  const epochNames = [String(epoch?.name || ""), String(epoch?.epoch || "")].filter(Boolean);
+  return epochNames.includes(String(derived.epochName || ""));
+}
+
+function getDerivedPosterImageForAsset(path) {
+  const value = String(path || "").trim();
+  if (!value || getGalleryAssetTypeFromPath(value) !== "animated") return "";
+  const normalized = normalizeWebAssetPath(value);
+  const baseName = normalized.replace(/^web_assets\//, "").replace(/\.[^.]+$/, "");
+  const posterPath = getAnimatedPosterAssetPath(baseName);
+  return getKnownWebAssets().includes(posterPath) ? posterPath : "";
+}
+
+function hasAnimatedSiblingAsset(path, assetSet = new Set(getKnownWebAssets())) {
+  const value = String(path || "").trim();
+  if (!value) return false;
+  const normalized = normalizeWebAssetPath(value);
+  const baseName = normalized.replace(/^web_assets\//, "").replace(/\.[^.]+$/, "");
+  return [".webm", ".gif", ".mp4", ".mov"].some((suffix) => assetSet.has(`web_assets/${baseName}${suffix}`));
 }
 
 function normalizeWebAssetPath(input) {
@@ -580,7 +619,7 @@ async function fetchWebAssetsFromDirectory() {
   const doc = parser.parseFromString(html, "text/html");
   const assets = Array.from(doc.querySelectorAll("a"))
     .map((link) => normalizeWebAssetPath(link.getAttribute("href") || link.textContent || ""))
-    .filter((path) => path.startsWith("web_assets/") && isSupportedImageAsset(path));
+    .filter((path) => path.startsWith("web_assets/") && isSupportedGalleryAsset(path));
   return [...new Set(assets)].sort((a, b) => a.localeCompare(b));
 }
 
@@ -626,6 +665,16 @@ async function connectGalleryAssetTargetFolder() {
   galleryAssetTargetDirHandle = handle;
   await saveHandleToDb(galleryAssetTargetHandleKey, handle);
   syncGalleryAssetStatus(`Connected destination web_assets folder: ${handle.name}.`);
+}
+
+async function getConnectedGalleryHandleAssets(handle) {
+  if (!handle) return [];
+  const assets = [];
+  for await (const [name, entry] of handle.entries()) {
+    if (entry.kind !== "file" || !isSupportedGalleryAsset(name)) continue;
+    assets.push(`web_assets/${name}`);
+  }
+  return assets.sort((a, b) => a.localeCompare(b));
 }
 
 async function ensureGalleryDirectoryHandles() {
@@ -683,18 +732,233 @@ async function resizeImageForWeb(file) {
   });
 }
 
+function getAnimatedWebAssetPath(baseName) {
+  return `web_assets/${baseName}.webm`;
+}
+
+function getAnimatedPosterAssetPath(baseName) {
+  return `web_assets/${baseName}.jpg`;
+}
+
+async function createPosterFromBitmap(bitmap, maxWidth = 1600) {
+  const targetWidth = Math.min(bitmap.width, maxWidth);
+  const targetHeight = Math.max(1, Math.round((bitmap.height / bitmap.width) * targetWidth));
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext("2d", { alpha: false });
+  context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Could not encode animated poster frame."));
+        return;
+      }
+      resolve(blob);
+    }, "image/jpeg", 0.88);
+  });
+}
+
+async function createPosterFromAnimatedFile(file) {
+  if (isVideoGalleryAsset(file.name)) {
+    const url = URL.createObjectURL(file);
+    try {
+      const video = document.createElement("video");
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = "auto";
+      video.src = url;
+      await new Promise((resolve, reject) => {
+        video.addEventListener("loadeddata", resolve, { once: true });
+        video.addEventListener("error", () => reject(new Error("Could not load animated video for poster frame.")), { once: true });
+      });
+      const width = video.videoWidth || 1;
+      const height = video.videoHeight || 1;
+      const canvas = document.createElement("canvas");
+      const targetWidth = Math.min(width, 1600);
+      const targetHeight = Math.max(1, Math.round((height / width) * targetWidth));
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const context = canvas.getContext("2d", { alpha: false });
+      context.drawImage(video, 0, 0, targetWidth, targetHeight);
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Could not encode animated video poster frame."));
+            return;
+          }
+          resolve(blob);
+        }, "image/jpeg", 0.88);
+      });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    return await createPosterFromBitmap(bitmap, 1600);
+  } finally {
+    bitmap.close();
+  }
+}
+
+function getPreferredRecorderMimeType() {
+  const mimeTypes = [
+    "video/webm;codecs=vp9",
+    "video/webm;codecs=vp8",
+    "video/webm"
+  ];
+  return mimeTypes.find((mime) => window.MediaRecorder?.isTypeSupported?.(mime)) || "";
+}
+
+async function transcodeVideoFileForWeb(file, maxWidth = 960) {
+  if (!window.MediaRecorder) {
+    throw new Error("MediaRecorder is not available for video transcoding.");
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.src = url;
+    await new Promise((resolve, reject) => {
+      video.addEventListener("loadedmetadata", resolve, { once: true });
+      video.addEventListener("error", () => reject(new Error("Could not load source video.")), { once: true });
+    });
+
+    const sourceWidth = video.videoWidth || 1;
+    const sourceHeight = video.videoHeight || 1;
+    const targetWidth = Math.min(sourceWidth, maxWidth);
+    const targetHeight = Math.max(1, Math.round((sourceHeight / sourceWidth) * targetWidth));
+    const canvas = document.createElement("canvas");
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const context = canvas.getContext("2d", { alpha: false });
+    const stream = canvas.captureStream(24);
+    const mimeType = getPreferredRecorderMimeType();
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType, videoBitsPerSecond: 1_400_000 } : { videoBitsPerSecond: 1_400_000 });
+    const chunks = [];
+    recorder.addEventListener("dataavailable", (event) => {
+      if (event.data?.size) chunks.push(event.data);
+    });
+
+    const stopPromise = new Promise((resolve) => {
+      recorder.addEventListener("stop", () => {
+        resolve(new Blob(chunks, { type: mimeType || "video/webm" }));
+      }, { once: true });
+    });
+
+    recorder.start();
+    await video.play();
+
+    await new Promise((resolve) => {
+      const render = () => {
+        if (video.ended || video.paused) {
+          resolve();
+          return;
+        }
+        context.drawImage(video, 0, 0, targetWidth, targetHeight);
+        requestAnimationFrame(render);
+      };
+      video.addEventListener("ended", resolve, { once: true });
+      requestAnimationFrame(render);
+    });
+
+    recorder.stop();
+    const output = await stopPromise;
+    stream.getTracks().forEach((track) => track.stop());
+    return output;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function transcodeAnimatedImageToWebm(file, maxWidth = 960) {
+  if (!("ImageDecoder" in window) || !window.MediaRecorder) {
+    throw new Error("Animated image transcoding is not available in this browser.");
+  }
+
+  const mimeType = file.type || (file.name.toLowerCase().endsWith(".gif") ? "image/gif" : "");
+  const decoder = new window.ImageDecoder({ data: await file.arrayBuffer(), type: mimeType });
+  await decoder.tracks.ready;
+  const track = decoder.tracks.selectedTrack;
+  const frameCount = track?.frameCount || 0;
+  if (!frameCount) {
+    throw new Error("No animation frames found in source image.");
+  }
+
+  const firstFrame = await decoder.decode({ frameIndex: 0 });
+  const sourceWidth = firstFrame.image.displayWidth || firstFrame.image.codedWidth || firstFrame.image.width || 1;
+  const sourceHeight = firstFrame.image.displayHeight || firstFrame.image.codedHeight || firstFrame.image.height || 1;
+  const targetWidth = Math.min(sourceWidth, maxWidth);
+  const targetHeight = Math.max(1, Math.round((sourceHeight / sourceWidth) * targetWidth));
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext("2d", { alpha: false });
+  const stream = canvas.captureStream(16);
+  const recorderMimeType = getPreferredRecorderMimeType();
+  const recorder = new MediaRecorder(stream, recorderMimeType ? { mimeType: recorderMimeType, videoBitsPerSecond: 1_100_000 } : { videoBitsPerSecond: 1_100_000 });
+  const chunks = [];
+  recorder.addEventListener("dataavailable", (event) => {
+    if (event.data?.size) chunks.push(event.data);
+  });
+  const stopPromise = new Promise((resolve) => {
+    recorder.addEventListener("stop", () => resolve(new Blob(chunks, { type: recorderMimeType || "video/webm" })), { once: true });
+  });
+
+  recorder.start();
+  try {
+    for (let index = 0; index < frameCount; index += 1) {
+      const frame = index === 0 ? firstFrame : await decoder.decode({ frameIndex: index });
+      try {
+        context.drawImage(frame.image, 0, 0, targetWidth, targetHeight);
+        const durationMs = Math.max(40, Math.round((frame.image.duration || 100_000) / 1000));
+        await new Promise((resolve) => setTimeout(resolve, durationMs));
+      } finally {
+        frame.image.close();
+      }
+    }
+  } finally {
+    recorder.stop();
+  }
+
+  const output = await stopPromise;
+  stream.getTracks().forEach((track) => track.stop());
+  return output;
+}
+
+async function processAnimatedAssetForWeb(file) {
+  const animationBlob = isVideoGalleryAsset(file.name)
+    ? await transcodeVideoFileForWeb(file)
+    : await transcodeAnimatedImageToWebm(file);
+  const posterBlob = await createPosterFromAnimatedFile(file);
+  return { animationBlob, posterBlob };
+}
+
 async function syncAssetsIntoWebAssets() {
   const { source, target } = await ensureGalleryDirectoryHandles();
   const processed = [];
+  const warnings = [];
 
   for await (const [name, handle] of source.entries()) {
-    if (handle.kind !== "file" || !isSupportedImageAsset(name)) continue;
+    if (handle.kind !== "file" || !isSupportedGalleryAsset(name)) continue;
     const baseName = name.replace(/\.[^.]+$/, "");
-    const normalizedTargetName = `${baseName}.jpg`;
+    const extension = (name.match(/\.([^.]+)$/)?.[1] || "").toLowerCase();
+    const isAnimated = isAnimatedGalleryAsset(name);
+    const normalizedTargetName = isAnimated ? `${baseName}.webm` : `${baseName}.jpg`;
     let targetExists = false;
-    for (const candidateName of [`${baseName}.jpg`, `${baseName}.jpeg`, `${baseName}.png`]) {
+    const candidateNames = isAnimated
+      ? [`${baseName}.webm`, `${baseName}.gif`, `${baseName}.mp4`, `${baseName}.mov`, `${baseName}.jpg`]
+      : [`${baseName}.jpg`, `${baseName}.jpeg`, `${baseName}.png`, `${baseName}.webp`, `${baseName}.avif`, `${baseName}.svg`];
+    for (const candidateName of candidateNames) {
       try {
         await target.getFileHandle(candidateName);
+        if (isAnimated && candidateName.endsWith(".jpg")) {
+          continue;
+        }
         targetExists = true;
         break;
       } catch (_) {}
@@ -702,7 +966,43 @@ async function syncAssetsIntoWebAssets() {
     if (targetExists) continue;
 
     const sourceFile = await handle.getFile();
-    const resizedBlob = await resizeImageForWeb(sourceFile);
+    if (isAnimated) {
+      try {
+        const { animationBlob, posterBlob } = await processAnimatedAssetForWeb(sourceFile);
+        const animatedHandle = await target.getFileHandle(normalizedTargetName, { create: true });
+        const animatedWritable = await animatedHandle.createWritable();
+        await animatedWritable.write(animationBlob);
+        await animatedWritable.close();
+
+        const posterHandle = await target.getFileHandle(`${baseName}.jpg`, { create: true });
+        const posterWritable = await posterHandle.createWritable();
+        await posterWritable.write(posterBlob);
+        await posterWritable.close();
+
+        processed.push(`web_assets/${normalizedTargetName}`);
+        processed.push(`web_assets/${baseName}.jpg`);
+      } catch (error) {
+        const fallbackAnimatedPath = `web_assets/${baseName}.${extension}`;
+        const animatedHandle = await target.getFileHandle(`${baseName}.${extension}`, { create: true });
+        const animatedWritable = await animatedHandle.createWritable();
+        await animatedWritable.write(sourceFile);
+        await animatedWritable.close();
+
+        const posterBlob = await createPosterFromAnimatedFile(sourceFile);
+        const posterHandle = await target.getFileHandle(`${baseName}.jpg`, { create: true });
+        const posterWritable = await posterHandle.createWritable();
+        await posterWritable.write(posterBlob);
+        await posterWritable.close();
+
+        processed.push(fallbackAnimatedPath);
+        processed.push(`web_assets/${baseName}.jpg`);
+        warnings.push(`Could not compress ${name} in-browser, so the original animated file was copied instead.`);
+        console.warn(error);
+      }
+      continue;
+    }
+
+    const resizedBlob = isResizableStaticAsset(name) ? await resizeImageForWeb(sourceFile) : sourceFile;
     const writableHandle = await target.getFileHandle(normalizedTargetName, { create: true });
     const writable = await writableHandle.createWritable();
     await writable.write(resizedBlob);
@@ -710,7 +1010,7 @@ async function syncAssetsIntoWebAssets() {
     processed.push(`web_assets/${normalizedTargetName}`);
   }
 
-  return processed;
+  return { processed, warnings };
 }
 
 function syncGalleryAssetStatus(message = "") {
@@ -739,32 +1039,28 @@ function buildDraftGalleryOverride(token, image) {
     edition: "",
     os: `${openseaBaseUrl}/${token}`,
     image,
+    assetType: getGalleryAssetTypeFromPath(image),
+    posterImage: getDerivedPosterImageForAsset(image),
     mark: `#${String(token).padStart(3, "0")}`
   };
 }
 
 async function refreshGalleryAssetList() {
-  syncGalleryAssetStatus("Refreshing assets and gallery list…");
+  syncGalleryAssetStatus("Refreshing the local site web_assets list…");
 
   try {
-    let processedAssets = [];
-    if (hasAdminUi() && canUseDirectoryPicker()) {
-      try {
-        processedAssets = await syncAssetsIntoWebAssets();
-      } catch (error) {
-        console.warn(error);
-      }
-    }
     const scannedAssets = await fetchWebAssetsFromDirectory();
     knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
 
     const state = getProtocolState();
     const existingItems = getGalleryItems();
+    const assetSet = new Set(getKnownWebAssets());
     const usedImages = new Set(existingItems.map((item) => item.image).filter(Boolean));
     let nextToken = Math.max(0, ...existingItems.map((item) => Number(item.token) || 0)) + 1;
     const draftOverrides = [];
 
     getKnownWebAssets().forEach((assetPath) => {
+      if (/\.(jpe?g|png|webp|avif)$/i.test(assetPath) && hasAnimatedSiblingAsset(assetPath, assetSet)) return;
       if (usedImages.has(assetPath)) return;
       draftOverrides.push(buildDraftGalleryOverride(nextToken, assetPath));
       usedImages.add(assetPath);
@@ -778,16 +1074,45 @@ async function refreshGalleryAssetList() {
       });
     }
 
-    const resizedMessage = processedAssets.length
-      ? `Resized ${processedAssets.length} new ${processedAssets.length === 1 ? "image" : "images"} into web_assets.`
-      : "No new source images needed resizing.";
     const draftMessage = draftOverrides.length
       ? `Added ${draftOverrides.length} new draft ${draftOverrides.length === 1 ? "entry" : "entries"} for editing.`
       : "No new gallery draft entries were needed.";
-    galleryAssetLastRefreshSummary = `${resizedMessage} ${draftMessage}`;
+    galleryAssetLastRefreshSummary = `Scanned the local site web_assets folder. ${draftMessage}`;
+    fillGallery();
+    fillQuoteComposer();
     renderDelayState();
   } catch (error) {
-    galleryAssetLastRefreshSummary = "Could not refresh assets automatically. Make sure the site is running from a local web server with directory listing enabled for web_assets.";
+    galleryAssetLastRefreshSummary = "Could not refresh the local site asset list. Make sure the site is running from a local web server with directory listing enabled for web_assets.";
+    syncGalleryAssetStatus();
+    console.error(error);
+  }
+}
+
+async function processGallerySourceAssets() {
+  syncGalleryAssetStatus("Resizing and copying source assets into the connected cultivation web_assets folder…");
+
+  try {
+    let processedAssets = [];
+    let processingWarnings = [];
+    let processingError = "";
+    try {
+      const result = await syncAssetsIntoWebAssets();
+      processedAssets = result.processed || [];
+      processingWarnings = result.warnings || [];
+    } catch (error) {
+      processingError = error?.message || "Animated/static asset processing failed.";
+      console.warn(error);
+    }
+
+    const processedMessage = processedAssets.length
+      ? `Processed ${processedAssets.length} generated ${processedAssets.length === 1 ? "file" : "files"} into the connected cultivation web_assets folder, including animated web versions and poster frames where needed.`
+      : (processingError ? "No new source assets were processed." : "No new source assets needed processing.");
+    const warningMessage = processingWarnings.length ? ` ${processingWarnings.join(" ")}` : "";
+    const errorMessage = processingError ? ` ${processingError}` : "";
+    galleryAssetLastRefreshSummary = `${processedMessage}${warningMessage}${errorMessage} Copy the files you want into this site's local web_assets folder, then use Refresh Local Asset List.`;
+    syncGalleryAssetStatus();
+  } catch (error) {
+    galleryAssetLastRefreshSummary = "Could not process source assets into the connected cultivation web_assets folder.";
     syncGalleryAssetStatus();
     console.error(error);
   }
@@ -819,6 +1144,7 @@ const galleryBase = [
   { token: 16, title: "GM 7.0", epochName: "7", image: "web_assets/epoch7.jpg", editionSize: "1/1" }
 ].map((item) => ({
   ...item,
+  assetType: "static",
   status: "Issued",
   edition: item.editionSize,
   mark: `#${String(item.token).padStart(3, "0")}`,
@@ -831,12 +1157,15 @@ function getGalleryItems() {
   const overrideMap = new Map(overrides.map((item) => [String(item.token), item]));
   const mergedBase = galleryBase.map((item) => {
     const override = overrideMap.get(String(item.token));
-    return override ? {
+    const mergedItem = override ? {
       ...item,
       ...override,
       token: Number(override.token || item.token),
       edition: override.edition || item.edition
-    } : item;
+    } : { ...item };
+    mergedItem.assetType = override?.assetType || mergedItem.assetType || getGalleryAssetTypeFromPath(mergedItem.image);
+    mergedItem.posterImage = override?.posterImage || mergedItem.posterImage || getDerivedPosterImageForAsset(mergedItem.image);
+    return mergedItem;
   });
   const extraOverrides = overrides
     .filter((item) => !galleryBase.some((baseItem) => Number(baseItem.token) === Number(item.token)))
@@ -846,7 +1175,9 @@ function getGalleryItems() {
       sales: item.os || `${openseaBaseUrl}/${item.token}`,
       ...item,
       token: Number(item.token || 0),
-      edition: item.edition || ""
+      edition: item.edition || "",
+      assetType: item.assetType || getGalleryAssetTypeFromPath(item.image),
+      posterImage: item.posterImage || getDerivedPosterImageForAsset(item.image)
     }));
 
   return [...mergedBase, ...extraOverrides].sort((a, b) => Number(a.token) - Number(b.token));
@@ -998,6 +1329,8 @@ const fairnessCards = [
 
 const heroQuotes = [
   "GM is Life.",
+  "Put a GM on it!",
+  "One small GM on the timeline. One big milestone for the culture.",
   "GMs are free.",
   "Flowers for every gm.",
   "Because what are we without culture?",
@@ -1018,6 +1351,10 @@ const heroQuotes = [
   "This started with a gm and stayed for the people.",
   "Return to sender: 2021 gm energy.",
   "Culture is a habit you practice together.",
+  "A single gm is not a shout into the void. It is the first drop of rain on dormant soil. Web3 culture does not erupt in spectacle; it roots quietly, petal by patient petal, until the garden belongs only to those who returned when no one was watching. - RarePattern",
+  "Flowers do not bargain with seasons. They turn toward the light of those who show up every day. Proof of Culture is this sacred turning epoch after epoch, gm after gm until the bloom is no longer fragile, but legacy, rooted in the rhythm only the patient can claim. - RarePattern",
+  "True growth in digital culture begins unseen. Roots thread silently through code, drawing life from the same small act repeated beneath every sunrise. The rarest flower is never the brightest; it is the one whose stem remembers every dawn its gardener refused to miss. - RarePattern",
+  "Web3 culture is not planted by kings or hype. It is cultivated in the quiet covenant between a soul and tomorrow: one gm at a time, one root at a time, until the entire field stands as living proof that beauty, rhythm, and permanence belong only to those willing to tend the unseen. - RarePattern",
   "It is the time you have wasted for your rose that makes your rose so important. - Antoine de Saint-Exupery"
 ];
 
@@ -2274,6 +2611,13 @@ async function getOpsStatusItems(targetKey) {
   const galleryItemsForEpoch = getGalleryItems().filter((item) => galleryEpochNames.includes(String(item.epochName || "")));
   const hasGalleryImage = galleryItemsForEpoch.some((item) => String(item.image || "").trim());
   const hasGalleryDetails = galleryItemsForEpoch.some((item) => String(item.image || "").trim() && String(item.edition || "").trim());
+  const sourceConnected = Boolean(galleryAssetSourceDirHandle);
+  const targetConnected = Boolean(galleryAssetTargetDirHandle);
+  const sourceAssets = sourceConnected ? await getConnectedGalleryHandleAssets(galleryAssetSourceDirHandle) : [];
+  const processedTargetAssets = targetConnected ? await getConnectedGalleryHandleAssets(galleryAssetTargetDirHandle) : [];
+  const sourceAssetsForEpoch = sourceAssets.filter((assetPath) => getGalleryAssetEpochMatch(assetPath, epoch));
+  const processedTargetAssetsForEpoch = processedTargetAssets.filter((assetPath) => getGalleryAssetEpochMatch(assetPath, epoch));
+  const localServedAssetsForEpoch = getKnownWebAssets().filter((assetPath) => getGalleryAssetEpochMatch(assetPath, epoch));
   const cloudflareSyncDone = await doSettingsFilesMatch();
   const trackerHeaders = trackerData?.headers || [];
   const hasTrackerColumns = trackerHeaders.includes(`day${epochNumber}_engagement`) && trackerHeaders.includes(`day${epochNumber}_airdrop`);
@@ -2380,12 +2724,41 @@ async function getOpsStatusItems(targetKey) {
       kind: "auto"
     },
     {
-      id: "gallery_sync",
-      label: "Gallery assets synced",
-      detail: hasGalleryImage
-        ? `${galleryItemsForEpoch.length} gallery image ${galleryItemsForEpoch.length === 1 ? "entry is" : "entries are"} present for this epoch.`
-        : "No gallery image for this epoch is visible to the site yet.",
-      done: hasGalleryImage,
+      id: "gallery_source_connected",
+      label: "Gallery source folder connected",
+      detail: sourceConnected
+        ? `Source folder ${galleryAssetSourceDirHandle.name} is connected.${sourceAssetsForEpoch.length ? ` ${sourceAssetsForEpoch.length} source asset${sourceAssetsForEpoch.length === 1 ? "" : "s"} match this epoch.` : ""}`
+        : "Connect the cultivation assets folder in Admin > Gallery.",
+      done: sourceConnected,
+      kind: "auto"
+    },
+    {
+      id: "gallery_target_connected",
+      label: "Cultivation web_assets folder connected",
+      detail: targetConnected
+        ? `Destination folder ${galleryAssetTargetDirHandle.name} is connected.${processedTargetAssetsForEpoch.length ? ` ${processedTargetAssetsForEpoch.length} processed asset${processedTargetAssetsForEpoch.length === 1 ? "" : "s"} match this epoch.` : ""}`
+        : "Connect the cultivation web_assets folder in Admin > Gallery.",
+      done: targetConnected,
+      kind: "auto"
+    },
+    {
+      id: "gallery_processed_external",
+      label: "Resized assets generated in cultivation web_assets",
+      detail: !sourceAssetsForEpoch.length
+        ? "No source gallery asset for this epoch is visible in the connected cultivation assets folder yet."
+        : (processedTargetAssetsForEpoch.length
+          ? `${processedTargetAssetsForEpoch.length} processed gallery asset${processedTargetAssetsForEpoch.length === 1 ? "" : "s"} for this epoch exist in the connected cultivation web_assets folder.`
+          : "Run Refresh Asset List after connecting the cultivation assets and cultivation web_assets folders."),
+      done: sourceAssetsForEpoch.length > 0 && processedTargetAssetsForEpoch.length > 0,
+      kind: "auto"
+    },
+    {
+      id: "gallery_copied_local",
+      label: "Processed assets copied into local site web_assets",
+      detail: localServedAssetsForEpoch.length
+        ? `${localServedAssetsForEpoch.length} asset${localServedAssetsForEpoch.length === 1 ? "" : "s"} for this epoch are visible in the local site web_assets folder.`
+        : "Copy the processed files you want from cultivation/web_assets into New project/web_assets.",
+      done: localServedAssetsForEpoch.length > 0,
       kind: "auto"
     },
     {
@@ -2578,6 +2951,7 @@ function fillGallery() {
   const container = document.getElementById("gallery-grid");
   const epochFilter = document.getElementById("gallery-epoch-filter");
   const editionFilter = document.getElementById("gallery-edition-filter");
+  const assetTypeFilter = document.getElementById("gallery-asset-type-filter");
   const sortFilter = document.getElementById("gallery-sort-filter");
   const partnerFilter = document.getElementById("gallery-partner-filter");
   const partnerButton = document.getElementById("gallery-partner-filter-button");
@@ -2586,6 +2960,7 @@ function fillGallery() {
   const galleryItems = getGalleryItems();
   const selectedEpoch = epochFilter?.value || "all";
   const selectedEdition = editionFilter?.value || "all";
+  const selectedAssetType = assetTypeFilter?.value || "all";
   const selectedSort = sortFilter?.value || "oldest";
   const selectedPartners = partnerFilter?.dataset.selected
     ? partnerFilter.dataset.selected.split("||").filter(Boolean)
@@ -2643,9 +3018,11 @@ function fillGallery() {
   const items = galleryItems.filter((item) => {
     const epochMatch = selectedEpoch === "all" || item.epochName === selectedEpoch;
     const editionMatch = selectedEdition === "all" || item.edition === selectedEdition;
+    const assetType = item.assetType || getGalleryAssetTypeFromPath(item.image);
+    const assetTypeMatch = selectedAssetType === "all" || assetType === selectedAssetType;
     const partnerValues = getPartnerArtistFilterValues(item);
     const partnerMatch = !selectedPartners.length || selectedPartners.some((value) => partnerValues.includes(value));
-    return epochMatch && editionMatch && partnerMatch;
+    return epochMatch && editionMatch && assetTypeMatch && partnerMatch;
   }).sort((a, b) => {
     const tokenDiff = Number(a.token || 0) - Number(b.token || 0);
     const editionDiff = getGalleryEditionCount(a) - getGalleryEditionCount(b);
@@ -2663,7 +3040,11 @@ function fillGallery() {
   container.innerHTML = items.map((item) => `
     <article class="gallery-card">
       <div class="gallery-card__image">
-        ${item.image ? `<img src="${item.image}" alt="${escapeHtml(item.title)}">` : `<div class="gallery-card__fallback">Image pending</div>`}
+        ${item.image
+          ? (isVideoGalleryAsset(item.image)
+            ? `<video src="${escapeHtml(item.image)}" autoplay muted loop playsinline preload="metadata"></video>`
+            : `<img src="${item.image}" alt="${escapeHtml(item.title)}">`)
+          : `<div class="gallery-card__fallback">Image pending</div>`}
       </div>
       <p class="manifesto-card__label">${item.status}</p>
       <h3>${item.title}</h3>
@@ -2674,8 +3055,11 @@ function fillGallery() {
       ${item.partnerArtists?.length ? `
         <p class="gallery-card__partners">Partner Artist${item.partnerArtists.length > 1 ? "s" : ""}: ${item.partnerArtists.map((partner) => `<a href="https://x.com/${encodeURIComponent(partner.handle)}" target="_blank" rel="noreferrer">${escapeHtml(partner.displayName)}</a>`).join(", ")}</p>
       ` : ""}
-      <div class="gallery-card__links">
+      <div class="gallery-card__meta">
+        <span class="gallery-card__type">${escapeHtml((item.assetType || getGalleryAssetTypeFromPath(item.image)) === "animated" ? "Animated" : "Static")}</span>
+        <div class="gallery-card__links">
         <a href="${item.os}" target="_blank" rel="noreferrer">OS listing</a>
+        </div>
       </div>
     </article>
   `).join("");
@@ -2810,8 +3194,21 @@ function fitQuoteComposerTextToBox(element, layerState) {
 
 function getQuoteComposerItems() {
   return getGalleryItems()
-    .filter((item) => String(item.image || "").trim())
+    .filter((item) => {
+      const assetType = item.assetType || getGalleryAssetTypeFromPath(item.image);
+      if (assetType === "static") return String(item.image || "").trim();
+      return Boolean(String(item.posterImage || getDerivedPosterImageForAsset(item.image)).trim());
+    })
     .sort((a, b) => Number(a.token || 0) - Number(b.token || 0));
+}
+
+function getQuoteComposerImageValue(item) {
+  if (!item) return "";
+  const assetType = item.assetType || getGalleryAssetTypeFromPath(item.image);
+  if (assetType === "animated") {
+    return item.posterImage || getDerivedPosterImageForAsset(item.image) || item.image || "";
+  }
+  return item.image || "";
 }
 
 function fillQuoteComposer() {
@@ -2821,11 +3218,11 @@ function fillQuoteComposer() {
   const imageItems = getQuoteComposerItems();
   const previousImage = imageSelect.value;
   imageSelect.innerHTML = imageItems.map((item) => `
-    <option value="${escapeHtml(item.image)}">${escapeHtml(item.title)} · Epoch ${escapeHtml(item.epochName || "")}</option>
+    <option value="${escapeHtml(getQuoteComposerImageValue(item))}">${escapeHtml(item.title)} · Epoch ${escapeHtml(item.epochName || "")}</option>
   `).join("");
-  imageSelect.value = imageItems.some((item) => item.image === previousImage)
+  imageSelect.value = imageItems.some((item) => getQuoteComposerImageValue(item) === previousImage)
     ? previousImage
-    : (imageItems[0]?.image || "");
+    : getQuoteComposerImageValue(imageItems[0]);
 
   updateQuoteComposerPreview();
 }
@@ -4042,6 +4439,7 @@ function renderDelayState() {
   fillOverviewStats();
   fillOptionalTable();
   fillGallery();
+  fillQuoteComposer();
 }
 
 function syncRefactorModeInputs() {
@@ -5063,6 +5461,10 @@ function setupDelayControls() {
     await refreshGalleryAssetList();
   });
 
+  document.getElementById("gallery-process-assets")?.addEventListener("click", async () => {
+    await processGallerySourceAssets();
+  });
+
   document.getElementById("gallery-connect-source")?.addEventListener("click", async () => {
     try {
       syncGalleryAssetStatus("Choose the folder where your original source images live.");
@@ -5196,8 +5598,9 @@ function setupWalletCheck() {
 function setupGalleryFilter() {
   const epochFilter = document.getElementById("gallery-epoch-filter");
   const editionFilter = document.getElementById("gallery-edition-filter");
+  const assetTypeFilter = document.getElementById("gallery-asset-type-filter");
   const sortFilter = document.getElementById("gallery-sort-filter");
-  [epochFilter, editionFilter, sortFilter].filter(Boolean).forEach((filter) => {
+  [epochFilter, editionFilter, assetTypeFilter, sortFilter].filter(Boolean).forEach((filter) => {
     filter.addEventListener("change", () => {
       fillGallery();
     });
