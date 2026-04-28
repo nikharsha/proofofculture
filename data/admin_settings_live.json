@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-04-27T13:33:16.477Z",
+  "exportedAt": "2026-04-28T03:08:03.840Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -382,6 +382,13 @@
         "qrtComment": 58,
         "onlyQrt": 16,
         "onlyComment": 155
+      },
+      {
+        "id": "engagement-1777345314321",
+        "targetKey": "epoch-12",
+        "qrtComment": 86,
+        "onlyQrt": 21,
+        "onlyComment": 140
       }
     ],
     "drawRecords": [
@@ -424,6 +431,16 @@
         "drawDate": "2026-04-19T18:40:00.000Z",
         "drawMode": "Manual",
         "winnerList": "_awhurst_ 0xdeepsea 0xLapom 0xWhysoserious absurdeity Aloungkot BenCRWarrior Chumwizards convobrianhere dan_fraser_ DankyHashpantz dondiiieeee eitzisart Punk8868 fairyseibot fun_tokens glassspy grubnot happylolohappy0 HB_hira1 illiquidpixel ivanga0016 JohnPaulBraden liapsart livesawave Lpha_7 matriona_fails MichaelBuda2 mysteriovision suparno67 ol1y_art Phocus_10 rain41 RhythmKing SecretariYat t420_g TheArtRunway tinoch VSTRVL_FFF x3n1n xptoplayici Zina_Caramelo"
+      },
+      {
+        "id": "draw-1777345683778",
+        "epoch": "12",
+        "editionSize": 15,
+        "eligibleCount": 26,
+        "drawOutput": "15",
+        "drawDate": "2026-04-28T03:00:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@kruuul @0xaq_ @absurdeity @Aloungkot @convobrianhere @dan_fraser_ @eitzisart @fairyseibot @happylolohappy0 @illiquidpixel @MichaelBuda2 @newlightvisuals @SurfriderNFT @woodificouldart @Zina_Caramelo"
       }
     ],
     "opsChecklist": {},
