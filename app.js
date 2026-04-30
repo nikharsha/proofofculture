@@ -5535,7 +5535,7 @@ function setupHeroDeckControls() {
 
   document.getElementById("epoch-next").addEventListener("click", () => {
     heroFlipDirection = "right";
-    heroDeckIndex = Math.min(getShiftedEpochs().length - 1, heroDeckIndex + 1);
+    heroDeckIndex = Math.min(getMergedEpochs().length - 1, heroDeckIndex + 1);
     renderHeroDeck();
   });
 
