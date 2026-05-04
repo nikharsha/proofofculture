@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-04T13:50:05.190Z",
+  "exportedAt": "2026-05-04T19:40:13.424Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -43,6 +43,19 @@
         "recipients": "deltasauce | 0x5fc13c5a541041f8fa12fab492d064435eb8d2f5 | 1",
         "start": "2026-04-19T21:09:00.000Z",
         "end": "2026-04-19T21:09:00.000Z"
+      },
+      {
+        "id": "manual-1777923130907",
+        "name": "Special 3",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Appreciation",
+        "daysNeeded": 0,
+        "editionSize": 10,
+        "minted": 10,
+        "recipients": "gpebbles | 0x7d88f221e9ecef9eef118e0d0e8a47f81b37e0b6 | 1\nol1y_art | 0x78086ad810f8f99a0b6c92a9a6c8857d3c665622 | 1\nPunk8868 | 0x24cd92cbb96ee2b60d1ad1dfdfd37ccb1110d790 | 1\nrain41 | 0x8e15f10ebaa9cb64e6881b71a0216b6433c2e880 | 1\nONEOFF420 | 0x86ad68874399b09a2428162e323f65b566f662e3 | 1\nkruuul | 0x6ce42d8b2a202e206051bc09dbaafd1fed24d044 | 1\nlivesawave | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nsuparno67 | 0x89d53e8612e8416bf960dc9444ce0e2a0878a582 | 1\nmrc_arte | 0x3a661a18cb0258119636dfdde098648c6ad5ba62 | 1\nMaryPatBing | 0x4583e00b4d17ce9e969f94baa2a6336f923d68de | 1",
+        "start": "2026-05-04T19:30:00.000Z",
+        "end": "2026-05-04T19:30:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -618,6 +631,16 @@
           }
         ],
         "mark": "#025"
+      },
+      {
+        "token": 26,
+        "title": "Special 3.0",
+        "epochName": "Special 3",
+        "edition": "10",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/26",
+        "image": "web_assets/special3.webm",
+        "partnerArtists": [],
+        "mark": "#026"
       }
     ],
     "projectDays": 365,
@@ -1461,6 +1484,21 @@
         "minted": 0,
         "eligible": 0,
         "type": "standard"
+      },
+      {
+        "id": "manual-1777923130907",
+        "name": "Special 3",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Appreciation",
+        "daysNeeded": 0,
+        "editionSize": 10,
+        "minted": 10,
+        "recipients": "gpebbles | 0x7d88f221e9ecef9eef118e0d0e8a47f81b37e0b6 | 1\nol1y_art | 0x78086ad810f8f99a0b6c92a9a6c8857d3c665622 | 1\nPunk8868 | 0x24cd92cbb96ee2b60d1ad1dfdfd37ccb1110d790 | 1\nrain41 | 0x8e15f10ebaa9cb64e6881b71a0216b6433c2e880 | 1\nONEOFF420 | 0x86ad68874399b09a2428162e323f65b566f662e3 | 1\nkruuul | 0x6ce42d8b2a202e206051bc09dbaafd1fed24d044 | 1\nlivesawave | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nsuparno67 | 0x89d53e8612e8416bf960dc9444ce0e2a0878a582 | 1\nmrc_arte | 0x3a661a18cb0258119636dfdde098648c6ad5ba62 | 1\nMaryPatBing | 0x4583e00b4d17ce9e969f94baa2a6336f923d68de | 1",
+        "start": "2026-05-04T19:30:00.000Z",
+        "end": "2026-05-04T19:30:00.000Z",
+        "key": "manual-1777923130907",
+        "type": "manual"
       },
       {
         "epoch": 14,
