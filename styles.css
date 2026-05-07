@@ -613,6 +613,7 @@ body[data-theme="dark"] .metric-link {
 
 .tab-panels {
   margin-top: 8px;
+  min-width: 0;
 }
 
 .tab-panels--protocol {
@@ -625,6 +626,7 @@ body[data-theme="dark"] .metric-link {
 
 .tab-panel {
   display: none;
+  min-width: 0;
 }
 
 .tab-panel.is-active {
@@ -1532,6 +1534,10 @@ body[data-theme="dark"] .draw-card--primary dd {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel-solid);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .stats-panel {
@@ -1741,12 +1747,67 @@ body[data-theme="dark"] .draw-card--primary dd {
 
 .chart-shell {
   padding: 18px 18px 12px;
+  overflow: hidden;
+}
+
+.chart-shell__tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.chart-shell__toggle {
+  min-width: 150px;
+}
+
+.chart-shell__scroller {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-gutter: stable both-edges;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.chart-shell__scroller::-webkit-scrollbar {
+  height: 12px;
+}
+
+.chart-shell__scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chart-shell__scroller::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
 }
 
 .chart-shell svg {
-  width: 100%;
-  height: auto;
   display: block;
+}
+
+.chart-scroll-controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  min-height: 44px;
+}
+
+.chart-scroll-controls__button {
+  min-width: 48px;
+  padding-inline: 0;
+}
+
+.chart-scroll-controls__text {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .chart-legend {
@@ -1783,8 +1844,34 @@ body[data-theme="dark"] .draw-card--primary dd {
   margin-top: 14px;
 }
 
+.stats-data-table__scroller {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.stats-data-table__scroller::-webkit-scrollbar {
+  height: 12px;
+}
+
+.stats-data-table__scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stats-data-table__scroller::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
 .stats-data-table table {
   width: 100%;
+  min-width: 960px;
   border-collapse: collapse;
 }
 

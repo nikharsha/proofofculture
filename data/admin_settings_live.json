@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-06T14:28:43.549Z",
+  "exportedAt": "2026-05-06T20:04:23.559Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -482,6 +482,13 @@
         "qrtComment": 86,
         "onlyQrt": 21,
         "onlyComment": 140
+      },
+      {
+        "id": "engagement-1778097428643",
+        "targetKey": "epoch-13",
+        "qrtComment": 126,
+        "onlyQrt": 50,
+        "onlyComment": 192
       }
     ],
     "drawRecords": [
@@ -534,6 +541,16 @@
         "drawDate": "2026-04-28T03:00:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@kruuul @0xaq_ @absurdeity @Aloungkot @convobrianhere @dan_fraser_ @eitzisart @fairyseibot @happylolohappy0 @illiquidpixel @MichaelBuda2 @newlightvisuals @SurfriderNFT @woodificouldart @Zina_Caramelo"
+      },
+      {
+        "id": "draw-1778096011119",
+        "epoch": "13",
+        "editionSize": 25,
+        "eligibleCount": 50,
+        "drawOutput": "25",
+        "drawDate": "2026-05-06T19:33:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@grubnot @andyvowell @Punk8868 @BenCRWarrior @BoredJosei @woodificouldart @convobrianhere @DankyHashpantz @newlightvisuals @eitzisart @glassspy @halving_fun @HB_hira1 @illiquidpixel @JohnPaulBraden @livesawave @MichaelBuda2 @MisturaDPE @NadeemSult77488 @ex_mortal_ @ol1y_art @rabiamasood327 @RhythmKing @SecretariYat @VSTRVL_FFF"
       }
     ],
     "opsChecklist": {},
@@ -657,6 +674,21 @@
         "image": "web_assets/special3.webm",
         "partnerArtists": [],
         "mark": "#026"
+      },
+      {
+        "token": 27,
+        "title": "GM 13.0",
+        "epochName": "13",
+        "edition": "25",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/27",
+        "image": "web_assets/epoch13.webm",
+        "partnerArtists": [
+          {
+            "displayName": "ex_mortal_",
+            "handle": "ex_mortal_"
+          }
+        ],
+        "mark": "#027"
       }
     ],
     "projectDays": 365,

@@ -2908,10 +2908,11 @@ function fillOptionalTable() {
   const pool = poolSourceRows.reduce((sum, item) => sum + item.unminted, 0);
   const totalManualEditions = rows.reduce((sum, item) => sum + item.editionSize, 0);
   const totalManualMinted = rows.reduce((sum, item) => sum + item.minted, 0);
+  const availablePool = Math.max(0, pool - totalManualMinted);
   const poolNode = document.getElementById("unclaimed-pool-count");
   const editionsNode = document.getElementById("manual-epoch-editions");
   const mintedNode = document.getElementById("manual-epoch-minted");
-  if (poolNode) poolNode.textContent = `${pool} slots`;
+  if (poolNode) poolNode.textContent = `${availablePool} / ${pool} slots`;
   if (editionsNode) editionsNode.textContent = `${totalManualEditions} editions`;
   if (mintedNode) mintedNode.textContent = `${totalManualMinted} minted`;
 
@@ -3776,19 +3777,23 @@ function renderDataTable(containerId, headers, rows) {
   const container = document.getElementById(containerId);
   container.innerHTML = `
     <div class="stats-data-table">
-      <table>
-        <thead>
-          <tr>${headers.map((header) => `<th>${escapeHtml(header.label)}</th>`).join("")}</tr>
-        </thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>${headers.map((header) => `<td>${escapeHtml(row[header.key] ?? "")}</td>`).join("")}</tr>
-          `).join("")}
-        </tbody>
-      </table>
+      <div class="stats-data-table__scroller">
+        <table>
+          <thead>
+            <tr>${headers.map((header) => `<th>${escapeHtml(header.label)}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>${headers.map((header) => `<td>${escapeHtml(row[header.key] ?? "")}</td>`).join("")}</tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }
+
+const chartViewModes = Object.create(null);
 
 function renderStackedBarChart(containerId, data, options) {
   const container = document.getElementById(containerId);
@@ -3797,9 +3802,20 @@ function renderStackedBarChart(containerId, data, options) {
     return;
   }
 
-  const width = 980;
+  const isFullView = Boolean(chartViewModes[containerId]);
+  const shellHorizontalPadding = 36;
+  const minBandWidth = isFullView ? 78 : 140;
+  const frameWidth = Math.max(980, Math.floor(container.getBoundingClientRect().width || container.clientWidth || 980));
+  const width = isFullView
+    ? Math.max(frameWidth - shellHorizontalPadding - 2, 720)
+    : Math.max(frameWidth + 160, 52 + 18 + (data.length * minBandWidth));
   const height = 420;
-  const margin = { top: 26, right: 18, bottom: 78, left: 52 };
+  const margin = {
+    top: 26,
+    right: 18,
+    bottom: isFullView && data.length > 12 ? 108 : 78,
+    left: 52
+  };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const totals = data.map((row) => options.series.reduce((sum, item) => sum + asNumber(row[item.key]), 0));
@@ -3808,7 +3824,9 @@ function renderStackedBarChart(containerId, data, options) {
   const stepValue = Math.max(1, Math.ceil(maxValue / steps));
   const yMax = stepValue * steps;
   const band = plotWidth / data.length;
-  const barWidth = Math.min(86, band * 0.62);
+  const barWidth = Math.min(isFullView ? 54 : 92, band * (isFullView ? 0.72 : 0.7));
+  const labelMode = isFullView && data.length > 15 ? "vertical" : isFullView && data.length > 12 ? "diagonal" : "horizontal";
+  const labelFontSize = isFullView ? 10 : 12;
 
   const gridLines = Array.from({ length: steps + 1 }, (_, index) => {
     const value = index * stepValue;
@@ -3843,36 +3861,115 @@ function renderStackedBarChart(containerId, data, options) {
 
   container.innerHTML = `
     <div class="chart-shell">
-      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(options.title)}">
-        ${gridLines.map((line) => `
-          <line x1="${margin.left}" y1="${line.y}" x2="${width - margin.right}" y2="${line.y}" stroke="var(--line)" stroke-width="1" />
-          <text x="${margin.left - 10}" y="${line.y + 5}" text-anchor="end" fill="var(--muted)" font-size="12">${line.value}</text>
-        `).join("")}
-        <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" stroke="var(--line-strong)" stroke-width="1.3" />
-        <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${width - margin.right}" y2="${margin.top + plotHeight}" stroke="var(--line-strong)" stroke-width="1.3" />
-        ${bars.map((bar) => `
-          ${bar.segments.map((segment, segmentIndex) => segment.height > 0 ? `
-            ${segmentIndex === bar.topVisibleSegmentIndex
-              ? `<path d="${getTopRoundedBarPath(segment.x, segment.y, barWidth, segment.height, 18)}" fill="${segment.color}" />`
-              : `<rect
-                  x="${segment.x}"
-                  y="${segment.y}"
-                  width="${barWidth}"
-                  height="${segment.height}"
-                  fill="${segment.color}"
-                />`
-            }
+      <div class="chart-shell__tools">
+        <button class="button chart-shell__toggle" type="button" data-chart-toggle="${containerId}">
+          ${isFullView ? "Scrollable View" : "Full View"}
+        </button>
+      </div>
+      <div class="chart-shell__scroller">
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(options.title)}" style="width:${width}px;min-width:${width}px;height:${height}px">
+          ${gridLines.map((line) => `
+            <line x1="${margin.left}" y1="${line.y}" x2="${width - margin.right}" y2="${line.y}" stroke="var(--line)" stroke-width="1" />
+            <text x="${margin.left - 10}" y="${line.y + 5}" text-anchor="end" fill="var(--muted)" font-size="12">${line.value}</text>
+          `).join("")}
+          <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" stroke="var(--line-strong)" stroke-width="1.3" />
+          <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${width - margin.right}" y2="${margin.top + plotHeight}" stroke="var(--line-strong)" stroke-width="1.3" />
+          ${bars.map((bar) => `
+            ${bar.segments.map((segment, segmentIndex) => segment.height > 0 ? `
+              ${segmentIndex === bar.topVisibleSegmentIndex
+                ? `<path d="${getTopRoundedBarPath(segment.x, segment.y, barWidth, segment.height, 18)}" fill="${segment.color}" />`
+                : `<rect
+                    x="${segment.x}"
+                    y="${segment.y}"
+                    width="${barWidth}"
+                    height="${segment.height}"
+                    fill="${segment.color}"
+                  />`
+              }
             ${segment.height > 20 ? `<text x="${segment.x + barWidth / 2}" y="${segment.y + segment.height / 2 + 5}" text-anchor="middle" fill="${segment.textColor || "#fff"}" font-size="13">${segment.value}</text>` : ""}
           ` : "").join("")}
           <text x="${bar.x + barWidth / 2}" y="${Math.max(margin.top - 6, bar.totalY - 10)}" text-anchor="middle" fill="var(--ink)" font-size="15">${bar.total}</text>
-          <text x="${bar.x + barWidth / 2}" y="${margin.top + plotHeight + 24}" text-anchor="middle" fill="var(--ink)" font-size="12">${escapeHtml(bar.label)}</text>
-        `).join("")}
-      </svg>
+            ${renderChartAxisLabel(bar.label, bar.x + barWidth / 2, margin.top + plotHeight, labelMode, labelFontSize)}
+          `).join("")}
+        </svg>
+      </div>
+      <div class="chart-scroll-controls ${isFullView ? "is-hidden" : ""}">
+        <button class="button chart-scroll-controls__button" type="button" data-chart-scroll="${containerId}" data-direction="left">←</button>
+        <span class="chart-scroll-controls__text">Drag the bar or use arrows to scroll</span>
+        <button class="button chart-scroll-controls__button" type="button" data-chart-scroll="${containerId}" data-direction="right">→</button>
+      </div>
       <div class="chart-legend">
         ${options.series.map((item) => `<span><i style="background:${item.color}"></i>${escapeHtml(item.label)}</span>`).join("")}
       </div>
     </div>
   `;
+
+  const toggle = container.querySelector(`[data-chart-toggle="${containerId}"]`);
+  toggle?.addEventListener("click", () => {
+    chartViewModes[containerId] = !chartViewModes[containerId];
+    renderStackedBarChart(containerId, data, options);
+  });
+
+  syncChartScrollControls(container);
+}
+
+function syncChartScrollControls(container) {
+  const scroller = container.querySelector(".chart-shell__scroller");
+  const controls = container.querySelector(".chart-scroll-controls");
+  const leftButton = container.querySelector('[data-direction="left"]');
+  const rightButton = container.querySelector('[data-direction="right"]');
+  if (!scroller || !controls || !leftButton || !rightButton) return;
+
+  const update = () => {
+    const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    if (maxScroll <= 0) {
+      leftButton.disabled = true;
+      rightButton.disabled = true;
+      controls.dataset.state = "at-rest";
+      return;
+    }
+    controls.dataset.state = "scrollable";
+    leftButton.disabled = scroller.scrollLeft <= 4;
+    rightButton.disabled = scroller.scrollLeft >= maxScroll - 4;
+  };
+
+  const scrollAmount = () => Math.max(240, Math.round(scroller.clientWidth * 0.55));
+  leftButton.addEventListener("click", () => {
+    scroller.scrollBy({ left: -scrollAmount(), behavior: "smooth" });
+  });
+  rightButton.addEventListener("click", () => {
+    scroller.scrollBy({ left: scrollAmount(), behavior: "smooth" });
+  });
+  scroller.addEventListener("scroll", update, { passive: true });
+  update();
+  requestAnimationFrame(() => {
+    update();
+    requestAnimationFrame(update);
+  });
+  setTimeout(update, 60);
+  setTimeout(update, 180);
+  window.addEventListener("resize", update, { passive: true });
+  scroller.addEventListener("pointerenter", update, { passive: true });
+
+  if (typeof ResizeObserver !== "undefined") {
+    const observer = new ResizeObserver(() => update());
+    observer.observe(scroller);
+    const svg = scroller.querySelector("svg");
+    if (svg) observer.observe(svg);
+  }
+}
+
+function renderChartAxisLabel(label, x, plotBottom, mode = "horizontal", fontSize = 12) {
+  const safeLabel = escapeHtml(label);
+  if (mode === "vertical") {
+    const y = plotBottom + 18;
+    return `<text x="${x}" y="${y}" transform="rotate(90 ${x} ${y})" text-anchor="start" dominant-baseline="hanging" fill="var(--ink)" font-size="${fontSize}">${safeLabel}</text>`;
+  }
+  if (mode === "diagonal") {
+    const y = plotBottom + 20;
+    return `<text x="${x - 4}" y="${y}" transform="rotate(38 ${x - 4} ${y})" text-anchor="start" dominant-baseline="hanging" fill="var(--ink)" font-size="${fontSize}">${safeLabel}</text>`;
+  }
+  return `<text x="${x}" y="${plotBottom + 24}" text-anchor="middle" fill="var(--ink)" font-size="${fontSize}">${safeLabel}</text>`;
 }
 
 function getTopRoundedBarPath(x, y, width, height, radius) {
