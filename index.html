@@ -225,6 +225,16 @@
               <button class="tab" type="button" data-tab="stats-minting" role="tab" aria-selected="false">Minting</button>
               <button class="tab" type="button" data-tab="stats-top" role="tab" aria-selected="false">Top Minters</button>
             </div>
+            <div class="stats-filter-bar">
+              <label class="stats-filter-bar__item" for="stats-epoch-type-filter">
+                <span>Filter</span>
+                <select id="stats-epoch-type-filter">
+                  <option value="all">All</option>
+                  <option value="non-special">Non-special</option>
+                  <option value="special">Special</option>
+                </select>
+              </label>
+            </div>
             <div class="tab-panels">
               <section class="tab-panel is-active" data-panel="stats-engagement" role="tabpanel">
                 <div id="engagement-chart"></div>

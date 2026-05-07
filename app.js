@@ -4169,6 +4169,7 @@ function buildChronologicalChartRows(dayRows) {
         const eligible = Number(item.editionSize || 0);
         const editionSize = Number(item.editionSize || 0);
         const isCompleted = getHeroStatus(item.key) === "Completed";
+        const isSpecial = isSpecialEpochLike(item);
         const override = engagementOverrideMap.get(item.key);
         const qrtComment = override ? Number(override.qrtComment || 0) : 0;
         const onlyQrt = override ? Number(override.onlyQrt || 0) : 0;
@@ -4189,7 +4190,8 @@ function buildChronologicalChartRows(dayRows) {
           unminted: 0,
           success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`,
           sortTime: item.start.getTime(),
-          isCompleted
+          isCompleted,
+          isSpecial
         };
       }
 
@@ -4198,11 +4200,28 @@ function buildChronologicalChartRows(dayRows) {
         ...row,
         label: item.name || row.label,
         sortTime: item.start.getTime(),
-        isCompleted: getHeroStatus(item.key) === "Completed"
+        isCompleted: getHeroStatus(item.key) === "Completed",
+        isSpecial: isSpecialEpochLike(item)
       };
     });
   return scheduledRows
     .sort((a, b) => a.sortTime - b.sortTime || a.label.localeCompare(b.label));
+}
+
+function isSpecialEpochLike(item) {
+  const name = String(item?.name || "").trim().toLowerCase();
+  return item?.type === "manual" || name.startsWith("special");
+}
+
+function getStatsEpochTypeFilter() {
+  return document.getElementById("stats-epoch-type-filter")?.value || "all";
+}
+
+function filterStatsRows(rows) {
+  const mode = getStatsEpochTypeFilter();
+  if (mode === "special") return rows.filter((row) => Boolean(row.isSpecial));
+  if (mode === "non-special") return rows.filter((row) => !row.isSpecial);
+  return rows;
 }
 
 async function fillStatsVisuals() {
@@ -4211,8 +4230,9 @@ async function fillStatsVisuals() {
     trackerData = summarizeTracker(trackerRows);
     materializedSchedule.dirty = true;
     trackerData.chartRows = buildChronologicalChartRows(trackerData.dayRows);
+    const filteredChartRows = filterStatsRows(trackerData.chartRows);
 
-    renderStackedBarChart("engagement-chart", trackerData.chartRows, {
+    renderStackedBarChart("engagement-chart", filteredChartRows, {
       title: "Proof of Culture engagement mix",
       labelKey: "label",
       minMax: 70,
@@ -4229,9 +4249,9 @@ async function fillStatsVisuals() {
       { key: "only_qrt", label: "Only QRT" },
       { key: "only_comment", label: "Only Comment" },
       { key: "total", label: "Total" }
-    ], trackerData.chartRows);
+    ], filteredChartRows);
 
-    renderStackedBarChart("minting-chart", trackerData.chartRows, {
+    renderStackedBarChart("minting-chart", filteredChartRows, {
       title: "Proof of Culture minting stats",
       labelKey: "label",
       minMax: 70,
@@ -4251,7 +4271,7 @@ async function fillStatsVisuals() {
       { key: "wallet_not_shared", label: "Wallet Not Shared" },
       { key: "unfilled", label: "Unfilled" },
       { key: "success_pct", label: "Success%" }
-    ], trackerData.chartRows);
+    ], filteredChartRows);
 
     fillLeaderboard();
     renderHeroDeck();
@@ -5560,6 +5580,10 @@ function setupDelayControls() {
 
   document.getElementById("gallery-process-assets")?.addEventListener("click", async () => {
     await processGallerySourceAssets();
+  });
+
+  document.getElementById("stats-epoch-type-filter")?.addEventListener("change", () => {
+    fillStatsVisuals();
   });
 
   document.getElementById("gallery-connect-source")?.addEventListener("click", async () => {
