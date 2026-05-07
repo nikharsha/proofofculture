@@ -129,6 +129,7 @@ function getDefaultProtocolState() {
     drawRecords: [],
     opsChecklist: {},
     galleryOverrides: [],
+    tradeListings: [],
     projectDays: defaultProjectDays,
     maxSupply: defaultMaxSupply,
     refactorMode: "maxSupply"
@@ -1236,6 +1237,201 @@ function getGalleryItemByToken(token) {
 
 function getGalleryItemsForEpoch(epochName) {
   return getGalleryItems().filter((item) => String(item.epochName || "") === String(epochName || ""));
+}
+
+function getTradeListings() {
+  return [...(getProtocolState().tradeListings || [])]
+    .map((listing) => ({
+      ...listing,
+      tokens: Array.isArray(listing.tokens)
+        ? listing.tokens.map(String)
+        : [...new Set([...(listing.offerTokens || []), ...(listing.seekTokens || [])].map(String).filter(Boolean))]
+    }))
+    .sort((a, b) => new Date(b.completedAt || b.createdAt || 0).getTime() - new Date(a.completedAt || a.createdAt || 0).getTime());
+}
+
+function createTradeListingId() {
+  return `trade-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getTradeAssetOptions() {
+  return getGalleryItems()
+    .filter((item) => item.image)
+    .map((item) => ({
+      token: Number(item.token),
+      value: String(item.token),
+      title: item.title,
+      epochName: item.epochName,
+      edition: item.edition,
+      image: item.assetType === "animated" ? (item.posterImage || item.image) : item.image,
+      os: item.os || item.sales || `${openseaBaseUrl}/${item.token}`
+    }))
+    .sort((a, b) => a.token - b.token);
+}
+
+function getTradeIntentLabel(intent) {
+  if (intent === "buy") return "Buy";
+  if (intent === "sell") return "Sell";
+  return "Trade";
+}
+
+function getTradeOwnerId() {
+  const key = "proof-of-culture-trade-owner";
+  let ownerId = window.localStorage.getItem(key);
+  if (!ownerId) {
+    ownerId = `owner-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    window.localStorage.setItem(key, ownerId);
+  }
+  return ownerId;
+}
+
+function getTradeCardAssets(tokens = []) {
+  const optionMap = new Map(getTradeAssetOptions().map((item) => [String(item.token), item]));
+  return (tokens || [])
+    .map((token) => optionMap.get(String(token)))
+    .filter(Boolean);
+}
+
+function getTradeListingEpochs(listing) {
+  return [...new Set(getTradeCardAssets(listing.tokens || []).map((item) => String(item.epochName || "")).filter(Boolean))];
+}
+
+function collectTradeSelections(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`))
+    .map((input) => String(input.value))
+    .filter(Boolean);
+}
+
+function updateTradingTypeFilterLabel() {
+  const wrapper = document.getElementById("trading-type-filter");
+  const button = document.getElementById("trading-type-filter-button");
+  const optionsNode = document.getElementById("trading-type-filter-options");
+  if (!wrapper || !button || !optionsNode) return [];
+  const values = Array.from(optionsNode.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+  wrapper.dataset.selected = values.join("||");
+  if (!values.length || values.length === 3) {
+    button.textContent = "All types";
+  } else if (values.length === 1) {
+    button.textContent = getTradeIntentLabel(values[0]);
+  } else {
+    button.textContent = `${values.length} types`;
+  }
+  return values;
+}
+
+function updateTradeAssetsButton(buttonId, containerId, emptyLabel) {
+  const button = document.getElementById(buttonId);
+  const assets = getTradeCardAssets(collectTradeSelections(containerId));
+  if (!button) return assets;
+  if (!assets.length) {
+    button.textContent = emptyLabel;
+  } else if (assets.length === 1) {
+    button.textContent = assets[0].title;
+  } else {
+    button.textContent = `${assets.length} assets selected`;
+  }
+  return assets;
+}
+
+function renderTradeSelectionPreview() {
+  const preview = document.getElementById("trade-selection-preview");
+  const intent = document.getElementById("trade-intent")?.value || "buy";
+  const offerWrapper = document.getElementById("trade-offer-assets-select");
+  const seekWrapper = document.getElementById("trade-seek-assets-select");
+  const offerEth = document.getElementById("trade-offer-eth");
+  const seekEth = document.getElementById("trade-seek-eth");
+  const offerMenu = document.getElementById("trade-offer-assets-menu");
+  const seekMenu = document.getElementById("trade-seek-assets-menu");
+  const offerButtonNode = document.getElementById("trade-offer-assets-button");
+  const seekButtonNode = document.getElementById("trade-seek-assets-button");
+  const priceInput = document.getElementById("trade-price");
+  const priceNote = document.getElementById("trade-price-note");
+  const offerAssets = updateTradeAssetsButton("trade-offer-assets-button", "trade-offer-assets-options", "Select flower(s)");
+  const seekAssets = updateTradeAssetsButton("trade-seek-assets-button", "trade-seek-assets-options", "Select flower(s)");
+  if (priceInput) {
+    priceInput.disabled = false;
+    priceInput.placeholder = "Price";
+  }
+  if (priceNote) priceNote.hidden = intent !== "trade";
+  const renderIcons = (assets) => assets.length
+    ? assets.map((asset) => `
+      <a class="trading-preview-icon" href="${escapeHtml(asset.os)}" target="_blank" rel="noreferrer" title="${escapeHtml(asset.title)}">
+        <img src="${escapeHtml(asset.image)}" alt="${escapeHtml(asset.title)}">
+      </a>
+    `).join("")
+    : `<span class="trading-preview-empty">None</span>`;
+  if (intent === "buy") {
+    if (offerWrapper) offerWrapper.hidden = true;
+    if (offerEth) offerEth.hidden = false;
+    if (seekWrapper) seekWrapper.hidden = false;
+    if (seekEth) seekEth.hidden = true;
+    if (offerMenu) offerMenu.hidden = true;
+    if (offerButtonNode) offerButtonNode.setAttribute("aria-expanded", "false");
+    if (preview) preview.innerHTML = renderIcons(seekAssets);
+    return;
+  }
+  if (intent === "sell") {
+    if (offerWrapper) offerWrapper.hidden = false;
+    if (offerEth) offerEth.hidden = true;
+    if (seekWrapper) seekWrapper.hidden = true;
+    if (seekEth) seekEth.hidden = false;
+    if (seekMenu) seekMenu.hidden = true;
+    if (seekButtonNode) seekButtonNode.setAttribute("aria-expanded", "false");
+    if (preview) preview.innerHTML = renderIcons(offerAssets);
+    return;
+  }
+  if (offerWrapper) offerWrapper.hidden = false;
+  if (offerEth) offerEth.hidden = true;
+  if (seekWrapper) seekWrapper.hidden = false;
+  if (seekEth) seekEth.hidden = true;
+  if (preview) {
+    preview.innerHTML = `
+      <div class="trading-preview-group">${renderIcons(offerAssets)}</div>
+      <span class="trading-preview-arrow">→</span>
+      <div class="trading-preview-group">${renderIcons(seekAssets)}</div>
+    `;
+  }
+}
+
+function renderAdminTradingList() {
+  const container = document.getElementById("admin-trading-list");
+  if (!container) return;
+  const listings = getTradeListings();
+  if (!listings.length) {
+    container.innerHTML = `<div class="chart-empty">No trading listings yet.</div>`;
+    return;
+  }
+  container.innerHTML = listings.map((listing, index) => `
+    <article class="admin-manual-item">
+      <div>
+        <p class="manifesto-card__label">${escapeHtml(getTradeIntentLabel(listing.intent))} · ${listing.completed ? "Completed" : "Active"}</p>
+        <strong>${escapeHtml(listing.handle ? `@${String(listing.handle).replace(/^@+/, "")}` : `Listing ${index + 1}`)}</strong>
+        <p class="section__text">${escapeHtml(listing.note || "No description")}</p>
+      </div>
+      <div class="hero__actions">
+        <button class="button button--red" type="button" data-admin-trade-delete="${escapeHtml(listing.id)}">Delete</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function populateTradePickers() {
+  const offerNode = document.getElementById("trade-offer-assets-options");
+  const seekNode = document.getElementById("trade-seek-assets-options");
+  if (!offerNode || !seekNode) return;
+  const renderOptions = (selectedValues) => getTradeAssetOptions().map((item) => `
+    <label class="multi-select__option trading-asset-option">
+      <input type="checkbox" value="${escapeHtml(item.value)}" ${selectedValues.has(item.value) ? "checked" : ""}>
+      <span class="trading-asset-option__thumb">${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}">` : ""}</span>
+      <span class="trading-asset-option__body">
+        <strong>${escapeHtml(item.title)}</strong>
+        <small>Epoch ${escapeHtml(item.epochName || "")}</small>
+      </span>
+    </label>
+  `).join("");
+  offerNode.innerHTML = renderOptions(new Set(collectTradeSelections("trade-offer-assets-options")));
+  seekNode.innerHTML = renderOptions(new Set(collectTradeSelections("trade-seek-assets-options")));
+  renderTradeSelectionPreview();
 }
 
 function buildFlowerEntriesForEpoch(epochName, mintedCount) {
@@ -3064,6 +3260,410 @@ function fillGallery() {
       </div>
     </article>
   `).join("");
+}
+
+function fillTrading() {
+  const statsNode = document.getElementById("trading-stats");
+  const grid = document.getElementById("trading-grid");
+  const statusFilter = document.getElementById("trading-status-filter");
+  const epochFilter = document.getElementById("trading-epoch-filter");
+  const assetFilter = document.getElementById("trading-asset-filter");
+  if (!statsNode || !grid) return;
+
+  const listings = getTradeListings();
+  const activeListings = listings.filter((item) => !item.completed);
+  const completedListings = listings.filter((item) => item.completed);
+  const epochOptions = ["all", ...new Set(listings.flatMap((item) => getTradeListingEpochs(item)).filter(Boolean))];
+  if (epochFilter && (
+    epochFilter.options.length !== epochOptions.length ||
+    Array.from(epochFilter.options).some((option, index) => option.value !== epochOptions[index])
+  )) {
+    const previousValue = epochFilter.value;
+    epochFilter.innerHTML = epochOptions.map((value) => `
+      <option value="${escapeHtml(value)}">${value === "all" ? "All epochs" : `Epoch ${value}`}</option>
+    `).join("");
+    epochFilter.value = epochOptions.includes(previousValue) ? previousValue : "all";
+  }
+  const assetOptions = ["all", ...new Set(listings.flatMap((item) => getTradeCardAssets(item.tokens || []).map((asset) => asset.title)).filter(Boolean))];
+  if (assetFilter && (
+    assetFilter.options.length !== assetOptions.length ||
+    Array.from(assetFilter.options).some((option, index) => option.value !== assetOptions[index])
+  )) {
+    const previousValue = assetFilter.value;
+    assetFilter.innerHTML = assetOptions.map((value) => `
+      <option value="${escapeHtml(value)}">${value === "all" ? "All assets" : escapeHtml(value)}</option>
+    `).join("");
+    assetFilter.value = assetOptions.includes(previousValue) ? previousValue : "all";
+  }
+
+  const selectedStatus = statusFilter?.value || "active";
+  const selectedEpoch = epochFilter?.value || "all";
+  const selectedAsset = assetFilter?.value || "all";
+  const selectedTypes = (document.getElementById("trading-type-filter")?.dataset.selected || "")
+    .split("||")
+    .filter(Boolean);
+  const filteredListings = listings.filter((item) => {
+    const statusMatch = selectedStatus === "all"
+      || (selectedStatus === "active" && !item.completed)
+      || (selectedStatus === "completed" && item.completed);
+    const typeMatch = !selectedTypes.length || selectedTypes.includes(item.intent);
+    const epochMatch = selectedEpoch === "all" || getTradeListingEpochs(item).includes(selectedEpoch);
+    const assetMatch = selectedAsset === "all" || getTradeCardAssets(item.tokens || []).some((asset) => asset.title === selectedAsset);
+    return statusMatch && typeMatch && epochMatch && assetMatch;
+  });
+
+  const counts = {
+    total: activeListings.length,
+    buy: activeListings.filter((item) => item.intent === "buy").length,
+    sell: activeListings.filter((item) => item.intent === "sell").length,
+    trade: activeListings.filter((item) => item.intent === "trade").length,
+    completed: completedListings.length
+  };
+  statsNode.innerHTML = [
+    { label: "Currently active", value: String(counts.total) },
+    { label: "Want to buy", value: String(counts.buy) },
+    { label: "Want to sell", value: String(counts.sell) },
+    { label: "Want to trade", value: String(counts.trade) },
+    { label: "Total trades", value: String(counts.completed) }
+  ].map((item) => `
+    <article class="stat-card">
+      <p class="manifesto-card__label">${item.label}</p>
+      <strong>${item.value}</strong>
+    </article>
+  `).join("");
+
+  if (!filteredListings.length) {
+    grid.innerHTML = `<div class="chart-empty">No trading listings match the current filters yet.</div>`;
+    document.getElementById("trading-storage-note").textContent = "Listings are currently stored in browser state and any connected settings JSON, not in a shared hosted database.";
+    renderAdminTradingList();
+    return;
+  }
+
+  const currentOwnerId = getTradeOwnerId();
+  grid.innerHTML = filteredListings.map((listing) => {
+    const offerAssets = getTradeCardAssets(listing.offerTokens || listing.tokens || []);
+    const seekAssets = getTradeCardAssets(listing.seekTokens || []);
+    const completed = Boolean(listing.completed);
+    const isOwner = !listing.ownerId || listing.ownerId === currentOwnerId;
+    const osHandleText = String(listing.osHandle || "").trim();
+    const osHandleCell = osHandleText
+      ? (/^https?:\/\//i.test(osHandleText)
+        ? `<a href="${escapeHtml(osHandleText)}" target="_blank" rel="noreferrer">OpenSea</a>`
+        : escapeHtml(osHandleText))
+      : "—";
+    const renderRowIcons = (assets) => assets.length ? assets.map((asset) => `
+      <a class="trading-preview-icon" href="${escapeHtml(asset.os)}" target="_blank" rel="noreferrer" title="${escapeHtml(asset.title)}">
+        <img src="${escapeHtml(asset.image)}" alt="${escapeHtml(asset.title)}">
+      </a>
+    `).join("") : `<span class="trading-preview-empty">—</span>`;
+    return `
+      <article class="trading-row ${completed ? "trading-row--completed" : ""}">
+        <span class="trading-row__type">${escapeHtml(completed ? "Completed" : getTradeIntentLabel(listing.intent))}</span>
+        <div class="trading-row__assets">
+          ${listing.intent === "trade"
+            ? `<div class="trading-row__trade-pair"><div class="trading-preview-group">${renderRowIcons(offerAssets)}</div><span class="trading-preview-arrow">→</span><div class="trading-preview-group">${renderRowIcons(seekAssets)}</div></div>`
+            : renderRowIcons(listing.intent === "buy" ? seekAssets : offerAssets)}
+        </div>
+        <span class="trading-row__handle">${listing.handle ? `@${escapeHtml(String(listing.handle).replace(/^@+/, ""))}` : "—"}</span>
+        <span class="trading-row__handle">${osHandleCell}</span>
+        <span class="trading-row__price">${listing.price ? escapeHtml(listing.price) : "—"}</span>
+        <span class="trading-row__desc">${escapeHtml(listing.note || "")}</span>
+        <div class="trading-row__actions">
+          <button class="button button--icon button--green" type="button" data-trade-complete="${escapeHtml(listing.id)}" ${completed || !isOwner ? "disabled" : ""} title="Complete">✓</button>
+          <button class="button button--icon button--blue" type="button" data-trade-edit="${escapeHtml(listing.id)}" ${completed || !isOwner ? "disabled" : ""} title="Edit">✎</button>
+          <button class="button button--icon button--red" type="button" data-trade-delete="${escapeHtml(listing.id)}" ${completed || !isOwner ? "disabled" : ""} title="Delete">✕</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+  document.getElementById("trading-storage-note").textContent = "Listings are currently stored in browser state and any connected settings JSON, not in a shared hosted database.";
+  renderAdminTradingList();
+}
+
+function resetTradeForm() {
+  const editor = document.getElementById("trade-editor");
+  const applyButton = document.getElementById("trade-apply");
+  const handleNode = document.getElementById("trade-handle");
+  const osHandleNode = document.getElementById("trade-os-handle");
+  const priceNode = document.getElementById("trade-price");
+  const noteNode = document.getElementById("trade-note");
+  const intentNode = document.getElementById("trade-intent");
+  if (intentNode) intentNode.value = "buy";
+  if (handleNode) handleNode.value = "";
+  if (osHandleNode) osHandleNode.value = "";
+  if (priceNode) priceNode.value = "";
+  if (noteNode) noteNode.value = "";
+  document.querySelectorAll('#trade-offer-assets-options input[type="checkbox"], #trade-seek-assets-options input[type="checkbox"]').forEach((input) => {
+    input.checked = false;
+  });
+  if (applyButton) {
+    delete applyButton.dataset.editingId;
+    applyButton.textContent = "Create";
+  }
+  if (editor) editor.hidden = true;
+  renderTradeSelectionPreview();
+}
+
+function populateTradeForm(listingId) {
+  const listing = getTradeListings().find((item) => item.id === listingId);
+  const editor = document.getElementById("trade-editor");
+  if (!listing || listing.completed) return;
+  if (editor) editor.hidden = false;
+  document.getElementById("trade-intent").value = listing.intent || "buy";
+  document.getElementById("trade-handle").value = listing.handle || "";
+  document.getElementById("trade-os-handle").value = listing.osHandle || "";
+  document.getElementById("trade-price").value = listing.price || "";
+  document.getElementById("trade-note").value = listing.note || "";
+  populateTradePickers();
+  document.querySelectorAll('#trade-offer-assets-options input[type="checkbox"]').forEach((input) => {
+    input.checked = (listing.offerTokens || listing.tokens || []).includes(String(input.value));
+  });
+  document.querySelectorAll('#trade-seek-assets-options input[type="checkbox"]').forEach((input) => {
+    input.checked = (listing.seekTokens || []).includes(String(input.value));
+  });
+  const applyButton = document.getElementById("trade-apply");
+  if (applyButton) {
+    applyButton.dataset.editingId = listing.id;
+    applyButton.textContent = "Update";
+  }
+  renderTradeSelectionPreview();
+}
+
+function setupTrading() {
+  [document.getElementById("trading-status-filter"), document.getElementById("trading-epoch-filter"), document.getElementById("trading-asset-filter")]
+    .filter(Boolean)
+    .forEach((node) => node.addEventListener("change", () => fillTrading()));
+
+  const typeWrapper = document.getElementById("trading-type-filter");
+  const typeButton = document.getElementById("trading-type-filter-button");
+  const typeMenu = document.getElementById("trading-type-filter-menu");
+  const typeOptions = document.getElementById("trading-type-filter-options");
+  if (typeWrapper && typeButton && typeMenu && typeOptions) {
+    typeOptions.innerHTML = ["buy", "sell", "trade"].map((value) => `
+      <label class="multi-select__option">
+        <input type="checkbox" value="${value}" checked>
+        <span>${getTradeIntentLabel(value)}</span>
+      </label>
+    `).join("");
+    updateTradingTypeFilterLabel();
+    typeButton.addEventListener("click", () => {
+      const nextHidden = !typeMenu.hidden;
+      typeMenu.hidden = nextHidden;
+      typeButton.setAttribute("aria-expanded", String(!nextHidden));
+    });
+    typeOptions.addEventListener("change", () => {
+      updateTradingTypeFilterLabel();
+      fillTrading();
+      typeMenu.hidden = false;
+      typeButton.setAttribute("aria-expanded", "true");
+    });
+    document.getElementById("trading-type-select-all")?.addEventListener("click", () => {
+      typeOptions.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+      });
+      updateTradingTypeFilterLabel();
+      fillTrading();
+      typeMenu.hidden = false;
+    });
+    document.getElementById("trading-type-clear")?.addEventListener("click", () => {
+      typeOptions.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+      updateTradingTypeFilterLabel();
+      fillTrading();
+      typeMenu.hidden = false;
+    });
+    document.addEventListener("click", (event) => {
+      if (!typeWrapper.contains(event.target)) {
+        typeMenu.hidden = true;
+        typeButton.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  const setupAssetMenu = (wrapperId, buttonId, menuId, optionsId, selectAllId, clearId) => {
+    const wrapper = document.getElementById(wrapperId);
+    const button = document.getElementById(buttonId);
+    const menu = document.getElementById(menuId);
+    const options = document.getElementById(optionsId);
+    if (!wrapper || !button || !menu || !options) return;
+    const positionMenu = () => {
+      if (menu.hidden) return;
+      const viewportPadding = 16;
+      const rect = wrapper.getBoundingClientRect();
+      const availableBelow = window.innerHeight - rect.bottom - viewportPadding;
+      const availableAbove = rect.top - viewportPadding;
+      const openUp = availableBelow < 280 && availableAbove > availableBelow;
+      const targetWidth = Math.max(rect.width, Math.min(520, window.innerWidth - viewportPadding * 2));
+      menu.classList.toggle("multi-select__menu--open-up", openUp);
+      menu.style.width = `${Math.max(280, targetWidth)}px`;
+      menu.style.maxWidth = `${Math.max(280, window.innerWidth - viewportPadding * 2)}px`;
+      menu.style.maxHeight = `${Math.max(180, Math.min(420, openUp ? availableAbove - 8 : availableBelow - 8))}px`;
+      if (rect.left + targetWidth > window.innerWidth - viewportPadding) {
+        menu.style.left = "auto";
+        menu.style.right = "0";
+      } else {
+        menu.style.left = "0";
+        menu.style.right = "auto";
+      }
+    };
+    button.addEventListener("click", () => {
+      const nextHidden = !menu.hidden;
+      menu.hidden = nextHidden;
+      button.setAttribute("aria-expanded", String(!nextHidden));
+      if (!nextHidden) {
+        requestAnimationFrame(positionMenu);
+      }
+    });
+    options.addEventListener("change", () => {
+      renderTradeSelectionPreview();
+      menu.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(positionMenu);
+    });
+    document.getElementById(selectAllId)?.addEventListener("click", () => {
+      options.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+      });
+      renderTradeSelectionPreview();
+      menu.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(positionMenu);
+    });
+    document.getElementById(clearId)?.addEventListener("click", () => {
+      options.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+      renderTradeSelectionPreview();
+      menu.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(positionMenu);
+    });
+    document.addEventListener("click", (event) => {
+      if (!wrapper.contains(event.target)) {
+        menu.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+      }
+    });
+    window.addEventListener("resize", positionMenu);
+    window.addEventListener("scroll", positionMenu, true);
+  };
+  setupAssetMenu("trade-offer-assets-select", "trade-offer-assets-button", "trade-offer-assets-menu", "trade-offer-assets-options", "trade-offer-assets-select-all", "trade-offer-assets-clear");
+  setupAssetMenu("trade-seek-assets-select", "trade-seek-assets-button", "trade-seek-assets-menu", "trade-seek-assets-options", "trade-seek-assets-select-all", "trade-seek-assets-clear");
+
+  document.getElementById("trade-add-row")?.addEventListener("click", () => {
+    document.getElementById("trade-editor").hidden = false;
+    document.getElementById("trade-intent")?.focus();
+  });
+  document.getElementById("trade-intent")?.addEventListener("change", () => {
+    renderTradeSelectionPreview();
+  });
+
+  document.getElementById("trade-reset")?.addEventListener("click", () => {
+    resetTradeForm();
+    populateTradePickers();
+  });
+
+  document.getElementById("trade-apply")?.addEventListener("click", () => {
+    const state = getProtocolState();
+    const button = document.getElementById("trade-apply");
+    const editingId = button?.dataset.editingId || "";
+    const intent = document.getElementById("trade-intent").value;
+    const handle = String(document.getElementById("trade-handle").value || "").trim().replace(/^@+/, "");
+    const osHandle = String(document.getElementById("trade-os-handle").value || "").trim();
+    const price = String(document.getElementById("trade-price").value || "").trim();
+    const note = String(document.getElementById("trade-note").value || "").trim();
+    const offerTokens = collectTradeSelections("trade-offer-assets-options");
+    const seekTokens = collectTradeSelections("trade-seek-assets-options");
+
+    if (!handle) return;
+    if (intent === "buy" && !seekTokens.length) return;
+    if (intent === "sell" && !offerTokens.length) return;
+    if (intent === "trade" && (!offerTokens.length || !seekTokens.length)) return;
+    if ((intent === "buy" || intent === "sell") && !price) return;
+
+    const existing = editingId ? getTradeListings().find((item) => item.id === editingId) : null;
+    const nextListing = {
+      id: editingId || createTradeListingId(),
+      intent,
+      handle,
+      osHandle,
+      price,
+      note,
+      tokens: [...new Set([...offerTokens, ...seekTokens])],
+      offerTokens,
+      seekTokens,
+      ownerId: existing?.ownerId || getTradeOwnerId(),
+      completed: existing?.completed || false,
+      completedAt: existing?.completedAt || "",
+      createdAt: existing?.createdAt || new Date().toISOString()
+    };
+
+    const nextListings = (state.tradeListings || []).filter((item) => item.id !== editingId);
+    nextListings.push(nextListing);
+    setProtocolState({
+      ...state,
+      tradeListings: nextListings
+    });
+    resetTradeForm();
+    populateTradePickers();
+    fillTrading();
+  });
+
+  document.getElementById("trading-grid")?.addEventListener("click", (event) => {
+    const completeToggle = event.target.closest("[data-trade-complete]");
+    const editButton = event.target.closest("[data-trade-edit]");
+    const deleteButton = event.target.closest("[data-trade-delete]");
+    if (completeToggle) {
+      const state = getProtocolState();
+      const nextListings = (state.tradeListings || []).map((item) => {
+        if (item.id !== completeToggle.dataset.tradeComplete) return item;
+        if (item.ownerId && item.ownerId !== getTradeOwnerId()) return item;
+        return {
+          ...item,
+          completed: true,
+          completedAt: new Date().toISOString()
+        };
+      });
+      setProtocolState({
+        ...state,
+        tradeListings: nextListings
+      });
+      if (document.getElementById("trade-apply")?.dataset.editingId === completeToggle.dataset.tradeComplete) {
+        resetTradeForm();
+        populateTradePickers();
+      }
+      fillTrading();
+      return;
+    }
+    if (editButton) {
+      populateTradeForm(editButton.dataset.tradeEdit);
+      return;
+    }
+    if (deleteButton) {
+      const state = getProtocolState();
+      setProtocolState({
+        ...state,
+        tradeListings: (state.tradeListings || []).filter((item) => !(item.id === deleteButton.dataset.tradeDelete && !item.completed && (!item.ownerId || item.ownerId === getTradeOwnerId())))
+      });
+      fillTrading();
+    }
+  });
+
+  document.getElementById("admin-trading-list")?.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-admin-trade-delete]");
+    if (!deleteButton) return;
+    const state = getProtocolState();
+    setProtocolState({
+      ...state,
+      tradeListings: (state.tradeListings || []).filter((item) => item.id !== deleteButton.dataset.adminTradeDelete)
+    });
+    fillTrading();
+    renderAdminTradingList();
+  });
+
+  populateTradePickers();
+  renderTradeSelectionPreview();
 }
 
 const quoteComposerState = {

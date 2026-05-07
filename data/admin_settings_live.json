@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-06T20:04:23.559Z",
+  "exportedAt": "2026-05-07T06:11:32.390Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -360,6 +360,14 @@
         "link": "https://x.com/1xharsh/status/2048965021368254802?s=20"
       },
       {
+        "id": "tweet-epoch-14-day-1-1",
+        "targetKey": "epoch-14",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2052013259587305808?s=20"
+      },
+      {
         "id": "tweet-epoch-13-day-1-1",
         "targetKey": "epoch-13",
         "kind": "day",
@@ -432,12 +440,12 @@
         "link": "https://x.com/1xharsh/status/2051659428319879357?s=20"
       },
       {
-        "id": "tweet-epoch-14-day-1-1",
-        "targetKey": "epoch-14",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-13-wallet-0-1",
+        "targetKey": "epoch-13",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2052013259587305808?s=20"
+        "link": "https://x.com/1xharsh/status/2052117099708072140?s=20"
       }
     ],
     "engagementOverrides": [
@@ -691,6 +699,7 @@
         "mark": "#027"
       }
     ],
+    "tradeListings": [],
     "projectDays": 365,
     "maxSupply": 1111,
     "refactorMode": "both"
@@ -1530,7 +1539,7 @@
         "key": "epoch-13",
         "name": "Epoch 13",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 25,
         "type": "standard"
       },
       {
