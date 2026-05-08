@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-07T06:11:32.390Z",
+  "exportedAt": "2026-05-08T16:09:15.974Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -360,14 +360,6 @@
         "link": "https://x.com/1xharsh/status/2048965021368254802?s=20"
       },
       {
-        "id": "tweet-epoch-14-day-1-1",
-        "targetKey": "epoch-14",
-        "kind": "day",
-        "dayNumber": 1,
-        "variant": 1,
-        "link": "https://x.com/1xharsh/status/2052013259587305808?s=20"
-      },
-      {
         "id": "tweet-epoch-13-day-1-1",
         "targetKey": "epoch-13",
         "kind": "day",
@@ -446,6 +438,30 @@
         "dayNumber": 0,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2052117099708072140?s=20"
+      },
+      {
+        "id": "tweet-epoch-14-day-1-1",
+        "targetKey": "epoch-14",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2052013259587305808?s=20"
+      },
+      {
+        "id": "tweet-epoch-14-day-2-1",
+        "targetKey": "epoch-14",
+        "kind": "day",
+        "dayNumber": 2,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2052379421924012507?s=20"
+      },
+      {
+        "id": "tweet-epoch-14-day-3-1",
+        "targetKey": "epoch-14",
+        "kind": "day",
+        "dayNumber": 3,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2052743319793611250?s=20"
       }
     ],
     "engagementOverrides": [
@@ -1538,7 +1554,7 @@
         "cumulativePlanned": 506,
         "key": "epoch-13",
         "name": "Epoch 13",
-        "minted": 0,
+        "minted": 25,
         "eligible": 25,
         "type": "standard"
       },
