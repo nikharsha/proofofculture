@@ -1648,6 +1648,15 @@ function formatDate(date) {
   }).format(date);
 }
 
+function formatDateCompactUTC(date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC"
+  }).format(date).replace(/ /g, "-");
+}
+
 function formatDateTimeUTC(date) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -1663,6 +1672,40 @@ function formatDateTimeUTC(date) {
 function diffDaysInclusive(start, end) {
   const oneDay = 24 * 60 * 60 * 1000;
   return Math.floor((end - start) / oneDay) + 1;
+}
+
+function getActiveEpochDayCount(referenceDate = new Date()) {
+  const now = referenceDate instanceof Date ? referenceDate : new Date(referenceDate);
+  const epochs = getMergedEpochs().filter((item) => item.start < now);
+  if (!epochs.length) return 0;
+
+  const oneDay = 24 * 60 * 60 * 1000;
+  const coveredSlots = new Set();
+  const totalSlots = Math.max(0, Math.ceil((now - baseStart) / oneDay));
+
+  epochs.forEach((epoch) => {
+    const effectiveEnd = epoch.end < now ? epoch.end : now;
+    if (effectiveEnd <= epoch.start) return;
+
+    const startIndex = Math.max(0, Math.floor((epoch.start - baseStart) / oneDay));
+    const endIndexExclusive = Math.min(
+      totalSlots,
+      Math.ceil((effectiveEnd - baseStart) / oneDay)
+    );
+
+    for (let index = startIndex; index < endIndexExclusive; index += 1) {
+      coveredSlots.add(index);
+    }
+  });
+
+  return coveredSlots.size;
+}
+
+function fillHeroStreak() {
+  const node = document.getElementById("hero-streak");
+  if (!node) return;
+  const days = Math.max(1, getActiveEpochDayCount(new Date()));
+  node.textContent = `Everyday GMs since ${formatDateCompactUTC(baseStart)} (${days.toLocaleString()} ${days === 1 ? "day" : "days"})`;
 }
 
 function addDays(date, days) {
@@ -5144,6 +5187,7 @@ function renderDelayState() {
   syncGalleryAssetStatus();
   syncHeroDeckIndex(getMergedEpochs()[heroDeckIndex]?.key);
   fillSummaryStrip();
+  fillHeroStreak();
   fillProgression();
   fillFormulaCards();
   fillFairnessCards();
@@ -6590,6 +6634,7 @@ async function init() {
   }
 
   fillSummaryStrip();
+  fillHeroStreak();
   fillFairnessCards();
   fillProgression();
   fillPilotTable();
