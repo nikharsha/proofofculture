@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-11T13:46:20.586Z",
+  "exportedAt": "2026-05-12T13:44:20.362Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -486,6 +486,14 @@
         "dayNumber": 6,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2053827966770282529?s=20"
+      },
+      {
+        "id": "tweet-epoch-14-day-7-1",
+        "targetKey": "epoch-14",
+        "kind": "day",
+        "dayNumber": 7,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2054195136113037371?s=20"
       }
     ],
     "engagementOverrides": [
