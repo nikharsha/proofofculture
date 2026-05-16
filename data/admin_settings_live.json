@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-16T17:24:18.127Z",
+  "exportedAt": "2026-05-16T18:24:34.052Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -440,6 +440,14 @@
         "link": "https://x.com/1xharsh/status/2052117099708072140?s=20"
       },
       {
+        "id": "tweet-epoch-15-day-1-1",
+        "targetKey": "epoch-15",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2055645946042556464?s=20"
+      },
+      {
         "id": "tweet-epoch-14-day-1-1",
         "targetKey": "epoch-14",
         "kind": "day",
@@ -520,12 +528,12 @@
         "link": "https://x.com/1xharsh/status/2055283306501972101?s=20"
       },
       {
-        "id": "tweet-epoch-15-day-1-1",
-        "targetKey": "epoch-15",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-14-wallet-0-1",
+        "targetKey": "epoch-14",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2055645946042556464?s=20"
+        "link": "https://x.com/1xharsh/status/2055713801232904249?s=20"
       }
     ],
     "engagementOverrides": [
@@ -577,6 +585,13 @@
         "qrtComment": 126,
         "onlyQrt": 50,
         "onlyComment": 192
+      },
+      {
+        "id": "engagement-1778952644793",
+        "targetKey": "epoch-14",
+        "qrtComment": 67,
+        "onlyQrt": 39,
+        "onlyComment": 204
       }
     ],
     "drawRecords": [
@@ -777,6 +792,21 @@
           }
         ],
         "mark": "#027"
+      },
+      {
+        "token": 28,
+        "title": "GM 14.0",
+        "epochName": "14",
+        "edition": "61",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/28",
+        "image": "web_assets/epoch14.webm",
+        "partnerArtists": [
+          {
+            "displayName": "BoredJosei",
+            "handle": "BoredJosei"
+          }
+        ],
+        "mark": "#028"
       }
     ],
     "tradeListings": [],
@@ -1650,7 +1680,7 @@
         "key": "epoch-14",
         "name": "Epoch 14",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 61,
         "type": "standard"
       },
       {
