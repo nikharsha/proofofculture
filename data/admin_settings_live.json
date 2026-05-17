@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-17T16:21:17.036Z",
+  "exportedAt": "2026-05-17T19:46:25.490Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -805,7 +805,7 @@
         "token": 28,
         "title": "GM 14.0",
         "epochName": "14",
-        "edition": "61",
+        "edition": "64",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/28",
         "image": "web_assets/epoch14.webm",
         "partnerArtists": [
