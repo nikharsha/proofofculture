@@ -2271,6 +2271,9 @@ function getHeroStatus(entryKey) {
   const activeIndex = Math.max(0, merged.findIndex((item) => item.key === activeKey));
   const entryIndex = merged.findIndex((item) => item.key === entryKey);
   const entry = merged[entryIndex];
+  if (entry?.type === "manual" && entry.manualStatus === "complete") {
+    return "Completed";
+  }
   if (entry?.type !== "manual" && hasEpochEnded(entry)) {
     return isEpochInWalletCollection(entry) ? "Wallet Collection" : "Completed";
   }
