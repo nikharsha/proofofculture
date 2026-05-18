@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-17T19:46:25.490Z",
+  "exportedAt": "2026-05-18T14:06:06.473Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "epoch-8",
@@ -542,6 +542,14 @@
         "dayNumber": 2,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2055999525878145040?s=20"
+      },
+      {
+        "id": "tweet-epoch-15-day-3-1",
+        "targetKey": "epoch-15",
+        "kind": "day",
+        "dayNumber": 3,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2056362920527978798?s=20"
       }
     ],
     "engagementOverrides": [
@@ -1687,8 +1695,8 @@
         "cumulativePlanned": 575,
         "key": "epoch-14",
         "name": "Epoch 14",
-        "minted": 0,
-        "eligible": 63,
+        "minted": 64,
+        "eligible": 64,
         "type": "standard"
       },
       {
