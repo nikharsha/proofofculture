@@ -1,8 +1,8 @@
 {
-  "exportedAt": "2026-05-24T14:12:20.258Z",
+  "exportedAt": "2026-05-24T14:52:06.711Z",
   "protocolState": {
     "currentEpochNumber": 8,
-    "liveEntryKey": "epoch-8",
+    "liveEntryKey": "manual-1779632371177",
     "delayDays": 0,
     "extensionDays": 0,
     "paused": false,
@@ -69,6 +69,19 @@
         "recipients": "DankyHashpantz | 0xFbf8AE69b25542aC6833e2DE631E7B082Ffab1f5 | 1",
         "start": "2026-05-17T20:50:00.000Z",
         "end": "2026-05-18T20:50:00.000Z"
+      },
+      {
+        "id": "manual-1779632371177",
+        "name": "Special 5",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "QRT + Comment",
+        "daysNeeded": 1,
+        "editionSize": 3,
+        "minted": 3,
+        "recipients": "eitzisart | 0x1b9f0415Ec380b539b4C16E4E8e6D5192a076a33 | 1\nJoseadeoye | 0xc29324365009E083dB31627d4787303c1253C8a0 | 1\ngrubnot | 0x08F1f3669598EeB0E8A63FA73480D1E023C30AFd | 1",
+        "start": "2026-05-23T13:53:00.000Z",
+        "end": "2026-05-24T13:53:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -899,6 +912,21 @@
           }
         ],
         "mark": "#029"
+      },
+      {
+        "token": 30,
+        "title": "Special 5.0",
+        "epochName": "Special 5",
+        "edition": "3",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/30",
+        "image": "web_assets/special5.png",
+        "partnerArtists": [
+          {
+            "displayName": "grubnot",
+            "handle": "grubnot"
+          }
+        ],
+        "mark": "#030"
       }
     ],
     "tradeListings": [],
@@ -1804,6 +1832,21 @@
         "start": "2026-05-17T20:50:00.000Z",
         "end": "2026-05-18T20:50:00.000Z",
         "key": "manual-1779140011079",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1779632371177",
+        "name": "Special 5",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "QRT + Comment",
+        "daysNeeded": 1,
+        "editionSize": 3,
+        "minted": 3,
+        "recipients": "eitzisart | 0x1b9f0415Ec380b539b4C16E4E8e6D5192a076a33 | 1\nJoseadeoye | 0xc29324365009E083dB31627d4787303c1253C8a0 | 1\ngrubnot | 0x08F1f3669598EeB0E8A63FA73480D1E023C30AFd | 1",
+        "start": "2026-05-23T13:53:00.000Z",
+        "end": "2026-05-24T13:53:00.000Z",
+        "key": "manual-1779632371177",
         "type": "manual"
       },
       {
