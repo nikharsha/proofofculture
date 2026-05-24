@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-24T14:52:06.711Z",
+  "exportedAt": "2026-05-24T15:04:06.386Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -837,7 +837,7 @@
         "token": 24,
         "title": "GM 12.1",
         "epochName": "12",
-        "edition": "5",
+        "edition": "5 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/24",
         "image": "web_assets/epoch12.1.webm",
         "partnerArtists": [],
@@ -847,7 +847,7 @@
         "token": 25,
         "title": "GM 12.2",
         "epochName": "12",
-        "edition": "10",
+        "edition": "10 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/25",
         "image": "web_assets/epoch12.2.webm",
         "partnerArtists": [
@@ -862,7 +862,7 @@
         "token": 26,
         "title": "Special 3.0",
         "epochName": "Special 3",
-        "edition": "10",
+        "edition": "10 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/26",
         "image": "web_assets/special3.webm",
         "partnerArtists": [],
@@ -872,7 +872,7 @@
         "token": 27,
         "title": "GM 13.0",
         "epochName": "13",
-        "edition": "25",
+        "edition": "25 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/27",
         "image": "web_assets/epoch13.webm",
         "partnerArtists": [
@@ -887,7 +887,7 @@
         "token": 28,
         "title": "GM 14.0",
         "epochName": "14",
-        "edition": "64",
+        "edition": "64 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/28",
         "image": "web_assets/epoch14.webm",
         "partnerArtists": [
@@ -902,7 +902,7 @@
         "token": 29,
         "title": "Special 4.0",
         "epochName": "Special 4",
-        "edition": "1",
+        "edition": "1/1",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/29",
         "image": "web_assets/special4.jpg",
         "partnerArtists": [
@@ -917,7 +917,7 @@
         "token": 30,
         "title": "Special 5.0",
         "epochName": "Special 5",
-        "edition": "3",
+        "edition": "3 editions",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/30",
         "image": "web_assets/special5.png",
         "partnerArtists": [
