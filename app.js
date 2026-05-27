@@ -56,6 +56,7 @@ let galleryAssetSourceDirHandle = null;
 let galleryAssetTargetDirHandle = null;
 let scraperEpochsDirHandle = null;
 let galleryAssetLastRefreshSummary = "";
+let galleryInlineEditingToken = "";
 let forceEpochPlanRebuild = false;
 const materializedSchedule = {
   dirty: true,
@@ -5166,10 +5167,7 @@ function renderDelayState() {
   const galleryImageSelect = document.getElementById("gallery-image-select");
   if (galleryImageSelect) {
     const previousValue = galleryImageSelect.value || "";
-    galleryImageSelect.innerHTML = `
-      <option value="">Select mapped image</option>
-      ${getKnownWebAssets().map((path) => `<option value="${escapeHtml(path)}">${escapeHtml(path)}</option>`).join("")}
-    `;
+    galleryImageSelect.innerHTML = getGalleryImageSelectOptions(previousValue);
     if (getKnownWebAssets().includes(previousValue)) {
       galleryImageSelect.value = previousValue;
     }
@@ -5363,7 +5361,52 @@ function populateGalleryForm(token) {
   document.getElementById("gallery-partner-artists").value = serializePartnerArtists(item.partnerArtists || []);
 }
 
+function getGalleryImageSelectOptions(selectedImage = "") {
+  return `
+    <option value="">Select mapped image</option>
+    ${getKnownWebAssets().map((path) => {
+      const selected = path === selectedImage ? " selected" : "";
+      return `<option value="${escapeHtml(path)}"${selected}>${escapeHtml(path)}</option>`;
+    }).join("")}
+  `;
+}
+
+function buildGalleryOverrideFromValues(values) {
+  const selectedToken = Number(values.selectedToken || 0);
+  const token = Number(values.token || selectedToken || 0);
+  if (!token) return null;
+
+  const imageSelect = values.imageSelect || "";
+  const imageCustom = String(values.imageCustom || "").trim();
+  const image = imageCustom || imageSelect;
+  const baseItem = galleryBase.find((item) => Number(item.token) === selectedToken) || getGalleryItemByToken(token);
+
+  return {
+    token,
+    title: String(values.title || "").trim() || baseItem?.title || `Token ${token}`,
+    epochName: String(values.epochName || "").trim() || baseItem?.epochName || "",
+    edition: String(values.edition || "").trim() || baseItem?.edition || "",
+    os: String(values.os || "").trim() || `${openseaBaseUrl}/${token}`,
+    image: image || baseItem?.image || "",
+    partnerArtists: parsePartnerArtists(values.partnerArtists || ""),
+    mark: `#${String(token).padStart(3, "0")}`
+  };
+}
+
+function saveGalleryOverride(selectedToken, nextOverride) {
+  if (!nextOverride) return;
+  const state = getProtocolState();
+  const nextOverrides = (state.galleryOverrides || [])
+    .filter((item) => Number(item.token) !== Number(selectedToken) && Number(item.token) !== Number(nextOverride.token));
+  nextOverrides.push(nextOverride);
+  setProtocolState({
+    ...state,
+    galleryOverrides: nextOverrides
+  });
+}
+
 function clearGalleryForm() {
+  galleryInlineEditingToken = "";
   const select = document.getElementById("gallery-token-select");
   const firstToken = select?.value || String(galleryBase[0]?.token || 1);
   populateGalleryForm(firstToken);
@@ -5776,47 +5819,115 @@ function renderTimelineAdjustmentList() {
   });
 }
 
+function renderGalleryInlineEditor(item) {
+  const token = Number(item.token || 0);
+  const selectedImage = getKnownWebAssets().includes(item.image) ? item.image : "";
+  const customImage = selectedImage ? "" : (item.image || "");
+  return `
+    <div class="admin-gallery-inline-edit" data-gallery-inline-form="${escapeHtml(String(token))}">
+      <input data-gallery-inline-field="title" type="text" placeholder="Title" value="${escapeHtml(item.title || "")}">
+      <input data-gallery-inline-field="epochName" type="text" placeholder="Epoch name" value="${escapeHtml(item.epochName || "")}">
+      <input data-gallery-inline-field="edition" type="text" placeholder="Edition size label" value="${escapeHtml(item.edition || "")}">
+      <input data-gallery-inline-field="token" type="number" min="1" placeholder="Token number" value="${escapeHtml(String(token || ""))}">
+      <input data-gallery-inline-field="os" type="text" placeholder="OpenSea link" value="${escapeHtml(item.os || "")}">
+      <select data-gallery-inline-field="imageSelect">${getGalleryImageSelectOptions(selectedImage)}</select>
+      <input data-gallery-inline-field="imageCustom" type="text" placeholder="Custom image path (optional)" value="${escapeHtml(customImage)}">
+      <textarea data-gallery-inline-field="partnerArtists" placeholder="Partner Artist(s): one per line as Display Name | @handle">${escapeHtml(serializePartnerArtists(item.partnerArtists || []))}</textarea>
+      <div class="hero__actions admin-gallery-inline-actions">
+        <button class="button button--solid" type="button" data-gallery-save="${escapeHtml(String(token))}">Save</button>
+        <button class="button" type="button" data-gallery-cancel="${escapeHtml(String(token))}">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+function getGalleryInlineFieldValue(form, field) {
+  return form?.querySelector(`[data-gallery-inline-field="${field}"]`)?.value || "";
+}
+
 function renderGalleryOverrideList() {
   const container = document.getElementById("gallery-override-list");
   if (!container) return;
-  const overrides = getGalleryOverrides()
-    .map((item) => ({ ...item, effective: getGalleryItemByToken(item.token) || item }))
-    .sort((a, b) => Number(a.token) - Number(b.token));
+  const overrideTokens = new Set(getGalleryOverrides().map((item) => String(Number(item.token))));
+  const items = getGalleryItems().sort((a, b) => Number(b.token) - Number(a.token));
 
-  if (!overrides.length) {
-    container.innerHTML = `<div class="chart-empty">No gallery overrides added yet.</div>`;
+  if (!items.length) {
+    container.innerHTML = `<div class="chart-empty">No gallery entries available.</div>`;
     return;
   }
 
-  container.innerHTML = overrides.map((item) => `
-    <article class="admin-manual-item">
-      <div class="admin-manual-item__head">
-        <strong>Token ${escapeHtml(String(item.token))} · ${escapeHtml(item.effective.title || item.title || "")}</strong>
-        <span>${escapeHtml(item.effective.edition || item.edition || "")}</span>
-      </div>
-      <div class="admin-manual-item__meta">
-        <span>Epoch ${escapeHtml(item.effective.epochName || item.epochName || "")}</span>
-        <span>${escapeHtml(item.effective.image || item.image || "No image")}</span>
-      </div>
-      ${(item.effective.partnerArtists || item.partnerArtists || []).length ? `
-        <div class="admin-manual-item__meta">
-          <span>Partners: ${escapeHtml((item.effective.partnerArtists || item.partnerArtists || []).map((partner) => partner.displayName).join(", "))}</span>
+  container.innerHTML = items.map((item) => {
+    const token = Number(item.token || 0);
+    const isEditing = String(token) === String(galleryInlineEditingToken);
+    const hasOverride = overrideTokens.has(String(token));
+    return `
+      <article class="admin-manual-item${isEditing ? " is-editing" : ""}" data-gallery-row="${escapeHtml(String(token))}">
+        <div class="admin-manual-item__head">
+          <strong>Token ${escapeHtml(String(token))} · ${escapeHtml(item.title || "")}</strong>
+          <span>${escapeHtml(item.edition || "")}</span>
         </div>
-      ` : ""}
-      <div class="hero__actions">
-        <button class="button" type="button" data-gallery-edit="${escapeHtml(String(item.token))}">Edit</button>
-        <button class="button" type="button" data-gallery-delete="${escapeHtml(String(item.token))}">Delete</button>
-      </div>
-    </article>
-  `).join("");
+        <div class="admin-manual-item__meta">
+          <span>Epoch ${escapeHtml(item.epochName || "")}</span>
+          <span>${escapeHtml(item.image || "No image")}</span>
+        </div>
+        ${(item.partnerArtists || []).length ? `
+          <div class="admin-manual-item__meta">
+            <span>Partners: ${escapeHtml((item.partnerArtists || []).map((partner) => partner.displayName).join(", "))}</span>
+          </div>
+        ` : ""}
+        <div class="hero__actions">
+          <button class="button" type="button" data-gallery-edit="${escapeHtml(String(token))}">Edit</button>
+          ${hasOverride ? `<button class="button" type="button" data-gallery-delete="${escapeHtml(String(token))}">Delete</button>` : ""}
+        </div>
+        ${isEditing ? renderGalleryInlineEditor(item) : ""}
+      </article>
+    `;
+  }).join("");
 
   container.querySelectorAll("[data-gallery-edit]").forEach((button) => {
     button.addEventListener("click", () => {
       const token = Number(button.dataset.galleryEdit);
-      populateGalleryForm(token);
+      galleryInlineEditingToken = String(token);
+      renderGalleryOverrideList();
+      container.querySelector(`[data-gallery-row="${token}"] [data-gallery-inline-field="title"]`)?.focus();
+    });
+  });
+
+  container.querySelectorAll("[data-gallery-cancel]").forEach((button) => {
+    button.addEventListener("click", () => {
+      galleryInlineEditingToken = "";
+      renderGalleryOverrideList();
+    });
+  });
+
+  container.querySelectorAll("[data-gallery-save]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedToken = Number(button.dataset.gallerySave);
+      const form = container.querySelector(`[data-gallery-inline-form="${selectedToken}"]`);
+      const nextOverride = buildGalleryOverrideFromValues({
+        selectedToken,
+        token: getGalleryInlineFieldValue(form, "token"),
+        title: getGalleryInlineFieldValue(form, "title"),
+        epochName: getGalleryInlineFieldValue(form, "epochName"),
+        edition: getGalleryInlineFieldValue(form, "edition"),
+        os: getGalleryInlineFieldValue(form, "os"),
+        imageSelect: getGalleryInlineFieldValue(form, "imageSelect"),
+        imageCustom: getGalleryInlineFieldValue(form, "imageCustom"),
+        partnerArtists: getGalleryInlineFieldValue(form, "partnerArtists")
+      });
+      if (!nextOverride) return;
+      galleryInlineEditingToken = "";
+      saveGalleryOverride(selectedToken, nextOverride);
+      populateGalleryForm(nextOverride.token);
+      const galleryTokenSelect = document.getElementById("gallery-token-select");
+      if (galleryTokenSelect) galleryTokenSelect.value = String(nextOverride.token);
       const applyButton = document.getElementById("gallery-apply");
-      applyButton.dataset.editingId = String(token);
-      applyButton.textContent = "Update Gallery Entry";
+      if (applyButton) {
+        applyButton.dataset.editingId = String(nextOverride.token);
+        applyButton.textContent = "Update Gallery Entry";
+      }
+      fillGallery();
+      renderDelayState();
     });
   });
 
@@ -5824,6 +5935,7 @@ function renderGalleryOverrideList() {
     button.addEventListener("click", () => {
       const state = getProtocolState();
       const token = Number(button.dataset.galleryDelete);
+      galleryInlineEditingToken = "";
       setProtocolState({
         ...state,
         galleryOverrides: (state.galleryOverrides || []).filter((item) => Number(item.token) !== token)
@@ -6211,6 +6323,7 @@ function setupDelayControls() {
   });
 
   document.getElementById("gallery-token-select").addEventListener("change", (event) => {
+    galleryInlineEditingToken = "";
     populateGalleryForm(event.target.value);
     const button = document.getElementById("gallery-apply");
     button.dataset.editingId = "";
@@ -6258,36 +6371,26 @@ function setupDelayControls() {
   });
 
   document.getElementById("gallery-apply").addEventListener("click", () => {
-    const state = getProtocolState();
     const selectedToken = Number(document.getElementById("gallery-token-select").value || 0);
-    const token = Number(document.getElementById("gallery-token-number").value || selectedToken || 0);
-    if (!token) return;
-
-    const imageSelect = document.getElementById("gallery-image-select").value || "";
-    const imageCustom = document.getElementById("gallery-image-custom").value.trim();
-    const image = imageCustom || imageSelect;
-    const baseItem = galleryBase.find((item) => Number(item.token) === selectedToken) || getGalleryItemByToken(token);
-    const nextOverride = {
-      token,
-      title: document.getElementById("gallery-title").value.trim() || baseItem?.title || `Token ${token}`,
-      epochName: document.getElementById("gallery-epoch-name").value.trim() || baseItem?.epochName || "",
-      edition: document.getElementById("gallery-edition").value.trim() || baseItem?.edition || "",
-      os: document.getElementById("gallery-os-link").value.trim() || `${openseaBaseUrl}/${token}`,
-      image: image || baseItem?.image || "",
-      partnerArtists: parsePartnerArtists(document.getElementById("gallery-partner-artists").value),
-      mark: `#${String(token).padStart(3, "0")}`
-    };
-
-    const nextOverrides = (state.galleryOverrides || []).filter((item) => Number(item.token) !== selectedToken && Number(item.token) !== token);
-    nextOverrides.push(nextOverride);
-    setProtocolState({
-      ...state,
-      galleryOverrides: nextOverrides
+    const nextOverride = buildGalleryOverrideFromValues({
+      selectedToken,
+      token: document.getElementById("gallery-token-number").value,
+      title: document.getElementById("gallery-title").value,
+      epochName: document.getElementById("gallery-epoch-name").value,
+      edition: document.getElementById("gallery-edition").value,
+      os: document.getElementById("gallery-os-link").value,
+      imageSelect: document.getElementById("gallery-image-select").value,
+      imageCustom: document.getElementById("gallery-image-custom").value,
+      partnerArtists: document.getElementById("gallery-partner-artists").value
     });
-    populateGalleryForm(token);
-    document.getElementById("gallery-token-select").value = String(token);
+    if (!nextOverride) return;
+
+    galleryInlineEditingToken = "";
+    saveGalleryOverride(selectedToken, nextOverride);
+    populateGalleryForm(nextOverride.token);
+    document.getElementById("gallery-token-select").value = String(nextOverride.token);
     const button = document.getElementById("gallery-apply");
-    button.dataset.editingId = String(token);
+    button.dataset.editingId = String(nextOverride.token);
     button.textContent = "Update Gallery Entry";
     fillGallery();
     renderDelayState();

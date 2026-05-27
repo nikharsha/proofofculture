@@ -1992,12 +1992,33 @@ body[data-theme="dark"] .draw-card--primary dd {
   gap: 12px;
 }
 
+.admin-manual-item.is-editing {
+  border-color: var(--line-strong);
+}
+
 .admin-manual-item__head,
 .admin-manual-item__meta {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.admin-gallery-inline-edit {
+  border-top: 1px dashed var(--line);
+  padding-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-gallery-inline-edit textarea,
+.admin-gallery-inline-actions {
+  grid-column: 1 / -1;
+}
+
+.admin-gallery-inline-edit textarea {
+  min-height: 96px;
 }
 
 .ops-status-item {
@@ -2456,6 +2477,7 @@ body[data-theme="dark"] .draw-card--primary dd {
 
   .wallet-check__controls,
   .admin-override__grid,
+  .admin-gallery-inline-edit,
   .epoch-card__nav {
     grid-template-columns: 1fr;
   }
