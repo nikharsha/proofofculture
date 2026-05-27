@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-27T01:56:36.350Z",
+  "exportedAt": "2026-05-27T08:07:29.676Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -82,6 +82,32 @@
         "recipients": "eitzisart | 0x1b9f0415Ec380b539b4C16E4E8e6D5192a076a33 | 1\nJoseadeoye | 0xc29324365009E083dB31627d4787303c1253C8a0 | 1\ngrubnot | 0x08F1f3669598EeB0E8A63FA73480D1E023C30AFd | 1",
         "start": "2026-05-23T13:53:00.000Z",
         "end": "2026-05-24T13:53:00.000Z"
+      },
+      {
+        "id": "manual-1779865385550",
+        "name": "Special 6.1",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Contest Win",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "ipaperhand | 0x518b1cf3f887b35c606a9333b5ef013565ff9b64 | 1",
+        "start": "2026-05-26T15:01:00.000Z",
+        "end": "2026-05-26T16:01:00.000Z"
+      },
+      {
+        "id": "manual-1779865605647",
+        "name": "Special 6.2",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Contest Win",
+        "daysNeeded": 1,
+        "editionSize": 5,
+        "minted": 5,
+        "recipients": "DankyHashpantz | 0xFbf8AE69b25542aC6833e2DE631E7B082Ffab1f5 | 1\nlivesawave | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nAloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
+        "start": "2026-05-26T21:03:00.000Z",
+        "end": "2026-05-27T02:03:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -943,6 +969,101 @@
           }
         ],
         "mark": "#030"
+      },
+      {
+        "token": 35,
+        "title": "GM 15.5",
+        "epochName": "15",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/35",
+        "image": "web_assets/epoch15.5.webm",
+        "partnerArtists": [
+          {
+            "displayName": "тнe Mess ✿ᴗ◕⁠)",
+            "handle": "the_Mess"
+          }
+        ],
+        "mark": "#035"
+      },
+      {
+        "token": 34,
+        "title": "GM 15.4",
+        "epochName": "15",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/34",
+        "image": "web_assets/epoch15.4.webm",
+        "partnerArtists": [
+          {
+            "displayName": "тнe Mess ✿ᴗ◕⁠)",
+            "handle": "the_Mess"
+          }
+        ],
+        "mark": "#034"
+      },
+      {
+        "token": 33,
+        "title": "GM 15.3",
+        "epochName": "15",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/33",
+        "image": "web_assets/epoch15.3.webm",
+        "partnerArtists": [
+          {
+            "displayName": "тнe Mess ✿ᴗ◕⁠)",
+            "handle": "the_Mess"
+          }
+        ],
+        "mark": "#033"
+      },
+      {
+        "token": 32,
+        "title": "GM 15.2",
+        "epochName": "15",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/32",
+        "image": "web_assets/epoch15.2.webm",
+        "partnerArtists": [
+          {
+            "displayName": "тнe Mess ✿ᴗ◕⁠)",
+            "handle": "the_Mess"
+          }
+        ],
+        "mark": "#032"
+      },
+      {
+        "token": 31,
+        "title": "GM 15.1",
+        "epochName": "15",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/31",
+        "image": "web_assets/epoch15.1.webm",
+        "partnerArtists": [
+          {
+            "displayName": "тнe Mess ✿ᴗ◕⁠)",
+            "handle": "the_Mess"
+          }
+        ],
+        "mark": "#031"
+      },
+      {
+        "token": 37,
+        "title": "Special 6.2",
+        "epochName": "Special 6",
+        "edition": "5 editions",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/37",
+        "image": "web_assets/special6.2.jpg",
+        "partnerArtists": [],
+        "mark": "#037"
+      },
+      {
+        "token": 36,
+        "title": "Special 6.1",
+        "epochName": "Special 6",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/36",
+        "image": "web_assets/special6.1.jpg",
+        "partnerArtists": [],
+        "mark": "#036"
       }
     ],
     "tradeListings": [],
@@ -1863,6 +1984,36 @@
         "start": "2026-05-23T13:53:00.000Z",
         "end": "2026-05-24T13:53:00.000Z",
         "key": "manual-1779632371177",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1779865385550",
+        "name": "Special 6.1",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Contest Win",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "ipaperhand | 0x518b1cf3f887b35c606a9333b5ef013565ff9b64 | 1",
+        "start": "2026-05-26T15:01:00.000Z",
+        "end": "2026-05-26T16:01:00.000Z",
+        "key": "manual-1779865385550",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1779865605647",
+        "name": "Special 6.2",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Contest Win",
+        "daysNeeded": 1,
+        "editionSize": 5,
+        "minted": 5,
+        "recipients": "DankyHashpantz | 0xFbf8AE69b25542aC6833e2DE631E7B082Ffab1f5 | 1\nlivesawave | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nAloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
+        "start": "2026-05-26T21:03:00.000Z",
+        "end": "2026-05-27T02:03:00.000Z",
+        "key": "manual-1779865605647",
         "type": "manual"
       },
       {
