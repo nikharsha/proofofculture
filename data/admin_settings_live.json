@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-05-27T09:16:08.471Z",
+  "exportedAt": "2026-05-27T17:01:20.398Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -580,6 +580,14 @@
         "link": "https://x.com/1xharsh/status/2055713801232904249?s=20"
       },
       {
+        "id": "tweet-epoch-16-day-1-1",
+        "targetKey": "epoch-16",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2059630451065573849?s=20"
+      },
+      {
         "id": "tweet-epoch-15-day-1-1",
         "targetKey": "epoch-15",
         "kind": "day",
@@ -666,6 +674,14 @@
         "dayNumber": 11,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2059266553300840479?s=20"
+      },
+      {
+        "id": "tweet-epoch-15-wallet-0-1",
+        "targetKey": "epoch-15",
+        "kind": "wallet",
+        "dayNumber": 0,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2059677527451599025?s=20"
       }
     ],
     "engagementOverrides": [
@@ -724,6 +740,13 @@
         "qrtComment": 67,
         "onlyQrt": 39,
         "onlyComment": 204
+      },
+      {
+        "id": "engagement-1779899018000",
+        "targetKey": "epoch-15",
+        "qrtComment": 197,
+        "onlyQrt": 54,
+        "onlyComment": 180
       }
     ],
     "drawRecords": [
@@ -786,6 +809,26 @@
         "drawDate": "2026-05-06T19:33:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@grubnot @andyvowell @Punk8868 @BenCRWarrior @BoredJosei @woodificouldart @convobrianhere @DankyHashpantz @newlightvisuals @eitzisart @glassspy @halving_fun @HB_hira1 @illiquidpixel @JohnPaulBraden @livesawave @MichaelBuda2 @MisturaDPE @NadeemSult77488 @ex_mortal_ @ol1y_art @rabiamasood327 @RhythmKing @SecretariYat @VSTRVL_FFF"
+      },
+      {
+        "id": "draw-1779899224194",
+        "epoch": "15",
+        "editionSize": 5,
+        "eligibleCount": 53,
+        "drawOutput": "5",
+        "drawDate": "2026-05-27T16:26:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@Aloungkot @AsapChow @ol1y_art @x3n1n @liapsart"
+      },
+      {
+        "id": "draw-1779899539826",
+        "epoch": "15",
+        "editionSize": 5,
+        "eligibleCount": 0,
+        "drawOutput": "",
+        "drawDate": "",
+        "drawMode": "Manual",
+        "winnerList": ""
       }
     ],
     "opsChecklist": {},
@@ -1953,7 +1996,7 @@
         "key": "epoch-15",
         "name": "Epoch 15",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 5,
         "type": "standard"
       },
       {
