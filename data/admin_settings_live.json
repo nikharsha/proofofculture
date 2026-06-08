@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-06-08T18:24:44.919Z",
+  "exportedAt": "2026-06-08T18:32:46.604Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -851,6 +851,13 @@
         "qrtComment": 197,
         "onlyQrt": 54,
         "onlyComment": 180
+      },
+      {
+        "id": "engagement-1780943266645",
+        "targetKey": "epoch-16",
+        "qrtComment": 88,
+        "onlyQrt": 23,
+        "onlyComment": 218
       }
     ],
     "drawRecords": [
@@ -1211,6 +1218,21 @@
           }
         ],
         "mark": "#031"
+      },
+      {
+        "token": 38,
+        "title": "GM 16.0",
+        "epochName": "16",
+        "edition": "63",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/38",
+        "image": "web_assets/epoch16.webm",
+        "partnerArtists": [
+          {
+            "displayName": "NLV",
+            "handle": "newlightvisuals"
+          }
+        ],
+        "mark": "#038"
       }
     ],
     "tradeListings": [],
@@ -2176,7 +2198,7 @@
         "key": "epoch-16",
         "name": "Epoch 16",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 63,
         "type": "standard"
       },
       {
