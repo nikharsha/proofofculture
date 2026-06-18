@@ -4441,6 +4441,10 @@ function renderDataTable(containerId, headers, rows) {
 }
 
 const chartViewModes = Object.create(null);
+const defaultChartFullViewModes = {
+  "engagement-chart": true,
+  "minting-chart": true
+};
 
 function renderStackedBarChart(containerId, data, options) {
   const container = document.getElementById(containerId);
@@ -4449,7 +4453,9 @@ function renderStackedBarChart(containerId, data, options) {
     return;
   }
 
-  const isFullView = Boolean(chartViewModes[containerId]);
+  const isFullView = Object.prototype.hasOwnProperty.call(chartViewModes, containerId)
+    ? Boolean(chartViewModes[containerId])
+    : Boolean(defaultChartFullViewModes[containerId]);
   const shellHorizontalPadding = 36;
   const minBandWidth = isFullView ? 78 : 140;
   const frameWidth = Math.max(980, Math.floor(container.getBoundingClientRect().width || container.clientWidth || 980));
@@ -4838,7 +4844,8 @@ function buildChronologicalChartRows(dayRows) {
           success_pct: `${eligible ? Math.round((minted / eligible) * 100) : 0}%`,
           sortTime: item.start.getTime(),
           isCompleted,
-          isSpecial
+          isSpecial,
+          epochKind: isSpecial ? "special" : "standard"
         };
       }
 
@@ -4848,7 +4855,8 @@ function buildChronologicalChartRows(dayRows) {
         label: item.name || row.label,
         sortTime: item.start.getTime(),
         isCompleted: getHeroStatus(item.key) === "Completed",
-        isSpecial: isSpecialEpochLike(item)
+        isSpecial: isSpecialEpochLike(item),
+        epochKind: isSpecialEpochLike(item) ? "special" : "standard"
       };
     });
   return scheduledRows
@@ -4865,9 +4873,9 @@ function getStatsEpochTypeFilter() {
 }
 
 function filterStatsRows(rows) {
-  const mode = getStatsEpochTypeFilter();
-  if (mode === "special") return rows.filter((row) => Boolean(row.isSpecial));
-  if (mode === "non-special") return rows.filter((row) => !row.isSpecial);
+  const mode = String(getStatsEpochTypeFilter() || "all").trim().toLowerCase();
+  if (mode === "special") return rows.filter((row) => row.epochKind === "special");
+  if (mode === "non-special") return rows.filter((row) => row.epochKind !== "special");
   return rows;
 }
 

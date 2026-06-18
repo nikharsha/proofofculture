@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-06-17T14:53:09.130Z",
+  "exportedAt": "2026-06-18T06:56:00.449Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -108,6 +108,19 @@
         "recipients": "DankyHashpantz | 0xFbf8AE69b25542aC6833e2DE631E7B082Ffab1f5 | 1\nlivesawave | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nAloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
         "start": "2026-05-26T21:03:00.000Z",
         "end": "2026-05-27T02:03:00.000Z"
+      },
+      {
+        "id": "manual-1781763625125",
+        "name": "Special 7",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Collector Tags",
+        "daysNeeded": 1,
+        "editionSize": 9,
+        "minted": 9,
+        "recipients": "ImHaris24 | 0x675418460D204cA099AeAD3727E335e853B2009a | 1\nzumbah | 0xDDb9AB1421E6F1d864c01BA63FB05B183d5ea4d4 | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nAdamWeitsman | 0x1cf78c4f402ec925c7b997d8d739e8cff4d93022 | 1 \nPow9chai | 0x081bcA4a664Cc3B440F3F6De5fEa209986056856 | 1\nJinnat_bhai | 0x5B37837b4f35EfC387Be3eeEc924a9A283876280 | 1\nandyvowell | 0x40C967Bd8f32DDA34947d3CC0c094B4c1c52fC34 | 1\neniola_ayoo | 0x6f525e111a6aa959ff0a8e3f98b0c62f5814fee0 | 1\nmrc_arte | 0x3A661a18CB0258119636DfDDe098648c6ad5bA62 | 1",
+        "start": "2026-06-15T15:45:00.000Z",
+        "end": "2026-06-16T15:45:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -1305,6 +1318,21 @@
           }
         ],
         "mark": "#038"
+      },
+      {
+        "token": 39,
+        "title": "Special 7.0",
+        "epochName": "Special 7",
+        "edition": "9 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/39",
+        "image": "web_assets/special7.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "M R C",
+            "handle": "mrc_arte"
+          }
+        ],
+        "mark": "#039"
       }
     ],
     "tradeListings": [],
@@ -2288,6 +2316,21 @@
         "minted": 0,
         "eligible": 0,
         "type": "standard"
+      },
+      {
+        "id": "manual-1781763625125",
+        "name": "Special 7",
+        "manualStatus": "complete",
+        "phase": "Linear",
+        "eligibility": "Collector Tags",
+        "daysNeeded": 1,
+        "editionSize": 9,
+        "minted": 9,
+        "recipients": "ImHaris24 | 0x675418460D204cA099AeAD3727E335e853B2009a | 1\nzumbah | 0xDDb9AB1421E6F1d864c01BA63FB05B183d5ea4d4 | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nAdamWeitsman | 0x1cf78c4f402ec925c7b997d8d739e8cff4d93022 | 1 \nPow9chai | 0x081bcA4a664Cc3B440F3F6De5fEa209986056856 | 1\nJinnat_bhai | 0x5B37837b4f35EfC387Be3eeEc924a9A283876280 | 1\nandyvowell | 0x40C967Bd8f32DDA34947d3CC0c094B4c1c52fC34 | 1\neniola_ayoo | 0x6f525e111a6aa959ff0a8e3f98b0c62f5814fee0 | 1\nmrc_arte | 0x3A661a18CB0258119636DfDDe098648c6ad5bA62 | 1",
+        "start": "2026-06-15T15:45:00.000Z",
+        "end": "2026-06-16T15:45:00.000Z",
+        "key": "manual-1781763625125",
+        "type": "manual"
       },
       {
         "epoch": 18,
