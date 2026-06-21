@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-06-21T13:39:26.879Z",
+  "exportedAt": "2026-06-21T19:46:13.184Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -793,6 +793,14 @@
         "link": "https://x.com/1xharsh/status/2064050887769911503?s=20"
       },
       {
+        "id": "tweet-epoch-18-day-1-1",
+        "targetKey": "epoch-18",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/dondiiieeee/status/2068688720300298630"
+      },
+      {
         "id": "tweet-epoch-17-day-1-1",
         "targetKey": "epoch-17",
         "kind": "day",
@@ -897,12 +905,12 @@
         "link": "https://x.com/1xharsh/status/2068322978438230042?s=20"
       },
       {
-        "id": "tweet-epoch-18-day-1-1",
-        "targetKey": "epoch-18",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-17-wallet-0-1",
+        "targetKey": "epoch-17",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/dondiiieeee/status/2068688720300298630"
+        "link": "https://x.com/1xharsh/status/2068782449484603471?s=20"
       }
     ],
     "engagementOverrides": [
@@ -975,6 +983,13 @@
         "qrtComment": 88,
         "onlyQrt": 23,
         "onlyComment": 218
+      },
+      {
+        "id": "engagement-1782068722098",
+        "targetKey": "epoch-17",
+        "qrtComment": 69,
+        "onlyQrt": 31,
+        "onlyComment": 303
       }
     ],
     "drawRecords": [
@@ -1057,6 +1072,16 @@
         "drawDate": "",
         "drawMode": "Manual",
         "winnerList": ""
+      },
+      {
+        "id": "draw-1782068906750",
+        "epoch": "17",
+        "editionSize": 42,
+        "eligibleCount": 74,
+        "drawOutput": "42",
+        "drawDate": "2026-06-21T19:00:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@0xwhysoserious @absurdeity @Andy_Ba11 @ansshere @ArhamAb38467843 @Baaronthesecond @Banjoman_eth @BOLEX1449976 @convobrianhere @DankyHashpantz @deltasauce @Dr_Ayesha81 @eitzisart @fairyseibot @glassspy @happylolohappy0 @ihimiaiidiltw @ImHaris24 @iriz0q @Jinnat_bhai @JohnPaulBraden @liapsart @livesawave @Loulanweu @Lpha_7 @MichaelBuda2 @Mike_Adex95 @Nft_Boy82 @ol1y_art @Punk8868 @RaymondConnol15 @riasdear @SecretariYat @suparno67 @t420_g @the_Mess @timmieclassic @VSTRVL_FFF @wagmiforreal @woodificouldart @Zina_Caramelo @ZunairaUsman84"
       }
     ],
     "opsChecklist": {},
@@ -1365,6 +1390,21 @@
           }
         ],
         "mark": "#039"
+      },
+      {
+        "token": 40,
+        "title": "GM 17.0",
+        "epochName": "17",
+        "edition": "42 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/40",
+        "image": "web_assets/epoch17.webm",
+        "partnerArtists": [
+          {
+            "displayName": "Loulan ⟡",
+            "handle": "Loulanweu"
+          }
+        ],
+        "mark": "#040"
       }
     ],
     "tradeListings": [],
@@ -2346,7 +2386,7 @@
         "key": "epoch-17",
         "name": "Epoch 17",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 42,
         "type": "standard"
       },
       {
