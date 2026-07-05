@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-07-05T23:21:19.434Z",
+  "exportedAt": "2026-07-05T23:57:35.443Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -1102,6 +1102,13 @@
         "qrtComment": 69,
         "onlyQrt": 31,
         "onlyComment": 303
+      },
+      {
+        "id": "engagement-1783295583253",
+        "targetKey": "epoch-18",
+        "qrtComment": 56,
+        "onlyQrt": 22,
+        "onlyComment": 303
       }
     ],
     "drawRecords": [
@@ -1194,6 +1201,16 @@
         "drawDate": "2026-06-21T19:00:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@0xwhysoserious @absurdeity @Andy_Ba11 @ansshere @ArhamAb38467843 @Baaronthesecond @Banjoman_eth @BOLEX1449976 @convobrianhere @DankyHashpantz @deltasauce @Dr_Ayesha81 @eitzisart @fairyseibot @glassspy @happylolohappy0 @ihimiaiidiltw @ImHaris24 @iriz0q @Jinnat_bhai @JohnPaulBraden @liapsart @livesawave @Loulanweu @Lpha_7 @MichaelBuda2 @Mike_Adex95 @Nft_Boy82 @ol1y_art @Punk8868 @RaymondConnol15 @riasdear @SecretariYat @suparno67 @t420_g @the_Mess @timmieclassic @VSTRVL_FFF @wagmiforreal @woodificouldart @Zina_Caramelo @ZunairaUsman84"
+      },
+      {
+        "id": "draw-1783295479809",
+        "epoch": "18",
+        "editionSize": 69,
+        "eligibleCount": 73,
+        "drawOutput": "69",
+        "drawDate": "2026-07-05T23:55:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@0002daniell @0xaq_ @0xEmmie @0xwhysoseriouss @abdlhsyl @Abraham_F2011 @absurdeity @Aloungkot @andyvowell @ansshere @BoredJosei @Chumwizards @Clankak @convobrianhere @dan_fraser_ @DankyHashpantz @dondiiieeee @Dr_Ayesha81 @DtheletterD @eitzisart @eniola_ayoo @esraeslen @fairyseibot @Frankie_NFT_ @glassspy @gpebbles @hansefar73 @happylolohappy0 @heysarah81 @HouriNaeimi @HulegoSol @ihimiaiidiltw @IjeomaCy3 @ImHaris24 @ipaperhand @Jaynniefa @jibraatka666 @Jinnat_bhai @JohnPaulBraden @JoydGem @kayani_rekt @liapsart @livesawave @Lpha_7 @m1ntdr1ms @MichaelBuda2 @NadeemSult77488 @nicoboi__ @nogweidotcom @ol1y_art @Punk8868 @Qoheleth3000 @rabiamasood327 @rain41 @RaymondConnol15 @RhythmKing @riasdear @SecretariYat @suparno67 @t420_g @tatsthegoat @thedreyoflagos @tinoch @wagmiforreal @wajihanft @web3girliie @x3n1n @Yamzy234 @ZunairaUsman84"
       }
     ],
     "opsChecklist": {},
@@ -1517,6 +1534,51 @@
           }
         ],
         "mark": "#040"
+      },
+      {
+        "token": 41,
+        "title": "GM 18.1",
+        "epochName": "18",
+        "edition": "12 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/41",
+        "image": "web_assets/epoch18.1.webm",
+        "partnerArtists": [
+          {
+            "displayName": "abdsyl",
+            "handle": "abdlhsyl"
+          }
+        ],
+        "mark": "#041"
+      },
+      {
+        "token": 42,
+        "title": "GM 18.2",
+        "epochName": "18",
+        "edition": "24 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/42",
+        "image": "web_assets/epoch18.2.webm",
+        "partnerArtists": [
+          {
+            "displayName": "abdsyl",
+            "handle": "abdlhsyl"
+          }
+        ],
+        "mark": "#042"
+      },
+      {
+        "token": 43,
+        "title": "GM 18.3",
+        "epochName": "18",
+        "edition": "33 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/43",
+        "image": "web_assets/epoch18.3.webm",
+        "partnerArtists": [
+          {
+            "displayName": "abdsyl",
+            "handle": "abdlhsyl"
+          }
+        ],
+        "mark": "#043"
       }
     ],
     "tradeListings": [],
