@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-07-07T13:52:05.498Z",
+  "exportedAt": "2026-07-07T15:29:19.104Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -1593,7 +1593,7 @@
         "token": 43,
         "title": "GM 18.3",
         "epochName": "18",
-        "edition": "33 EDITIONS",
+        "edition": "32 EDITIONS",
         "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/43",
         "image": "web_assets/epoch18.3.webm",
         "partnerArtists": [
