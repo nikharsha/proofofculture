@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-07-20T21:23:57.500Z",
+  "exportedAt": "2026-07-20T21:29:29.159Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -1143,6 +1143,14 @@
         "dayNumber": 15,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2078838265902469147?s=20"
+      },
+      {
+        "id": "tweet-epoch-19-wallet-0-1",
+        "targetKey": "epoch-19",
+        "kind": "wallet",
+        "dayNumber": 0,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2079317711101030762?s=20"
       }
     ],
     "engagementOverrides": [
@@ -2774,7 +2782,7 @@
         "key": "epoch-19",
         "name": "Epoch 19",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 33,
         "type": "standard"
       },
       {
