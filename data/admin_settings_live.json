@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-07-19T17:22:19.432Z",
+  "exportedAt": "2026-07-20T21:23:57.500Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -1229,6 +1229,13 @@
         "qrtComment": 56,
         "onlyQrt": 22,
         "onlyComment": 303
+      },
+      {
+        "id": "engagement-1784582637455",
+        "targetKey": "epoch-19",
+        "qrtComment": 35,
+        "onlyQrt": 36,
+        "onlyComment": 281
       }
     ],
     "drawRecords": [
@@ -1331,6 +1338,16 @@
         "drawDate": "2026-07-05T23:55:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@0002daniell @0xaq_ @0xEmmie @0xwhysoseriouss @abdlhsyl @Abraham_F2011 @absurdeity @Aloungkot @andyvowell @ansshere @BoredJosei @Chumwizards @Clankak @convobrianhere @dan_fraser_ @DankyHashpantz @dondiiieeee @Dr_Ayesha81 @DtheletterD @eitzisart @eniola_ayoo @esraeslen @fairyseibot @Frankie_NFT_ @glassspy @gpebbles @hansefar73 @happylolohappy0 @heysarah81 @HouriNaeimi @HulegoSol @ihimiaiidiltw @IjeomaCy3 @ImHaris24 @ipaperhand @Jaynniefa @jibraatka666 @Jinnat_bhai @JohnPaulBraden @JoydGem @kayani_rekt @liapsart @livesawave @Lpha_7 @m1ntdr1ms @MichaelBuda2 @NadeemSult77488 @nicoboi__ @nogweidotcom @ol1y_art @Punk8868 @Qoheleth3000 @rabiamasood327 @rain41 @RaymondConnol15 @RhythmKing @riasdear @SecretariYat @suparno67 @t420_g @tatsthegoat @thedreyoflagos @tinoch @wagmiforreal @wajihanft @web3girliie @x3n1n @Yamzy234 @ZunairaUsman84"
+      },
+      {
+        "id": "draw-1784581865239",
+        "epoch": "19",
+        "editionSize": 33,
+        "eligibleCount": 63,
+        "drawOutput": "33",
+        "drawDate": "2026-07-20T21:10:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@0xaq_ @Abraham_F2011 @absurdeity @Aloungkot @andyvowell @anifowose58 @ArhamAb38467843 @bangprut @convobrianhere @DankyHashpantz @Dr_Ayesha81 @eitzisart @glassspy @ham_dan1999 @happylolohappy0 @HulegoSol @iteration_2 @JohnPaulBraden @livesawave @nogweidotcom @ol1y_art @Poodri_2000 @Qoheleth3000 @rabiamasood327 @RaymondConnol15 @SecretariYat @sooAwais1 @t420_g @VSTRVL_FFF @wagmiforreal @web3girliie @x3n1n @zumbah"
       }
     ],
     "opsChecklist": {},
@@ -1699,6 +1716,36 @@
           }
         ],
         "mark": "#043"
+      },
+      {
+        "token": 44,
+        "title": "GM 19.1",
+        "epochName": "19",
+        "edition": "11 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/44",
+        "image": "web_assets/epoch19.1.webm",
+        "partnerArtists": [
+          {
+            "displayName": "muhju",
+            "handle": "MuhjuArt"
+          }
+        ],
+        "mark": "#044"
+      },
+      {
+        "token": 45,
+        "title": "GM 19.2",
+        "epochName": "19",
+        "edition": "22 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/45",
+        "image": "web_assets/epoch19.2.webm",
+        "partnerArtists": [
+          {
+            "displayName": "muhju",
+            "handle": "MuhjuArt"
+          }
+        ],
+        "mark": "#045"
       }
     ],
     "tradeListings": [],
