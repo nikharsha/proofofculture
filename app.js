@@ -1047,34 +1047,43 @@ function buildDraftGalleryOverride(token, image) {
   };
 }
 
+async function scanLocalWebAssetsAndDraftMissingEntries() {
+  const scannedAssets = await fetchWebAssetsFromDirectory();
+  knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
+
+  const state = getProtocolState();
+  const existingItems = getGalleryItems();
+  const assetSet = new Set(getKnownWebAssets());
+  const usedImages = new Set(existingItems.map((item) => item.image).filter(Boolean));
+  let nextToken = Math.max(0, ...existingItems.map((item) => Number(item.token) || 0)) + 1;
+  const draftOverrides = [];
+
+  getKnownWebAssets().forEach((assetPath) => {
+    if (/\.(jpe?g|png|webp|avif)$/i.test(assetPath) && hasAnimatedSiblingAsset(assetPath, assetSet)) return;
+    if (usedImages.has(assetPath)) return;
+    draftOverrides.push(buildDraftGalleryOverride(nextToken, assetPath));
+    usedImages.add(assetPath);
+    nextToken += 1;
+  });
+
+  if (draftOverrides.length) {
+    setProtocolState({
+      ...state,
+      galleryOverrides: [...(state.galleryOverrides || []), ...draftOverrides]
+    });
+  }
+
+  return {
+    scannedAssets,
+    draftOverrides
+  };
+}
+
 async function refreshGalleryAssetList() {
   syncGalleryAssetStatus("Refreshing the local site web_assets list…");
 
   try {
-    const scannedAssets = await fetchWebAssetsFromDirectory();
-    knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
-
-    const state = getProtocolState();
-    const existingItems = getGalleryItems();
-    const assetSet = new Set(getKnownWebAssets());
-    const usedImages = new Set(existingItems.map((item) => item.image).filter(Boolean));
-    let nextToken = Math.max(0, ...existingItems.map((item) => Number(item.token) || 0)) + 1;
-    const draftOverrides = [];
-
-    getKnownWebAssets().forEach((assetPath) => {
-      if (/\.(jpe?g|png|webp|avif)$/i.test(assetPath) && hasAnimatedSiblingAsset(assetPath, assetSet)) return;
-      if (usedImages.has(assetPath)) return;
-      draftOverrides.push(buildDraftGalleryOverride(nextToken, assetPath));
-      usedImages.add(assetPath);
-      nextToken += 1;
-    });
-
-    if (draftOverrides.length) {
-      setProtocolState({
-        ...state,
-        galleryOverrides: [...(state.galleryOverrides || []), ...draftOverrides]
-      });
-    }
+    const { draftOverrides } = await scanLocalWebAssetsAndDraftMissingEntries();
 
     const draftMessage = draftOverrides.length
       ? `Added ${draftOverrides.length} new draft ${draftOverrides.length === 1 ? "entry" : "entries"} for editing.`
@@ -3841,13 +3850,58 @@ function fitQuoteComposerTextToBox(element, layerState) {
 }
 
 function getQuoteComposerItems() {
-  return getGalleryItems()
-    .filter((item) => {
+  const galleryItems = getGalleryItems();
+  const knownAssetSet = new Set(getKnownWebAssets());
+  const mappedImages = new Set();
+
+  const normalizedGalleryItems = galleryItems
+    .map((item) => {
       const assetType = item.assetType || getGalleryAssetTypeFromPath(item.image);
-      if (assetType === "static") return String(item.image || "").trim();
-      return Boolean(String(item.posterImage || getDerivedPosterImageForAsset(item.image)).trim());
+      const imageValue = getQuoteComposerImageValue(item);
+      if (item.image) mappedImages.add(item.image);
+      if (item.posterImage) mappedImages.add(item.posterImage);
+      return {
+        ...item,
+        assetType,
+        imageValue
+      };
     })
-    .sort((a, b) => Number(a.token || 0) - Number(b.token || 0));
+    .filter((item) => {
+      if (item.assetType === "static") return String(item.image || "").trim();
+      return Boolean(String(item.posterImage || getDerivedPosterImageForAsset(item.image)).trim());
+    });
+
+  const draftItems = Array.from(knownAssetSet)
+    .filter((assetPath) => {
+      if (mappedImages.has(assetPath)) return false;
+      if (/\.(jpe?g|png|webp|avif)$/i.test(assetPath) && hasAnimatedSiblingAsset(assetPath, knownAssetSet)) return false;
+      return true;
+    })
+    .map((assetPath, index) => {
+      const derived = getDraftGalleryMetadataFromAsset(assetPath);
+      const pseudoToken = 100000 + index;
+      const assetType = getGalleryAssetTypeFromPath(assetPath);
+      return {
+        token: pseudoToken,
+        title: derived.title || humanizeAssetName(assetPath),
+        epochName: derived.epochName || "",
+        image: assetPath,
+        posterImage: assetType === "animated" ? (getDerivedPosterImageForAsset(assetPath) || "") : "",
+        assetType,
+        imageValue: assetType === "animated"
+          ? (getDerivedPosterImageForAsset(assetPath) || assetPath)
+          : assetPath
+      };
+    })
+    .filter((item) => String(item.imageValue || "").trim());
+
+  return [...normalizedGalleryItems, ...draftItems]
+    .sort((a, b) => {
+      const epochA = asNumber(String(a.epochName || "").replace(/[^\d.]/g, ""));
+      const epochB = asNumber(String(b.epochName || "").replace(/[^\d.]/g, ""));
+      if (epochA !== epochB) return epochA - epochB;
+      return Number(a.token || 0) - Number(b.token || 0);
+    });
 }
 
 function getQuoteComposerImageValue(item) {
@@ -3866,11 +3920,11 @@ function fillQuoteComposer() {
   const imageItems = getQuoteComposerItems();
   const previousImage = imageSelect.value;
   imageSelect.innerHTML = imageItems.map((item) => `
-    <option value="${escapeHtml(getQuoteComposerImageValue(item))}">${escapeHtml(item.title)} · Epoch ${escapeHtml(item.epochName || "")}</option>
+    <option value="${escapeHtml(item.imageValue || getQuoteComposerImageValue(item))}">${escapeHtml(item.title)} · Epoch ${escapeHtml(item.epochName || "")}</option>
   `).join("");
-  imageSelect.value = imageItems.some((item) => getQuoteComposerImageValue(item) === previousImage)
+  imageSelect.value = imageItems.some((item) => (item.imageValue || getQuoteComposerImageValue(item)) === previousImage)
     ? previousImage
-    : getQuoteComposerImageValue(imageItems[0]);
+    : (imageItems[0]?.imageValue || getQuoteComposerImageValue(imageItems[0]));
 
   updateQuoteComposerPreview();
 }
@@ -6746,6 +6800,10 @@ async function init() {
       protocolStateCache = localState;
     }
   }
+
+  try {
+    await scanLocalWebAssetsAndDraftMissingEntries();
+  } catch (_) {}
 
   fillSummaryStrip();
   fillHeroStreak();
