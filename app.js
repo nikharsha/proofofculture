@@ -2147,6 +2147,16 @@ function getSlotBank() {
 }
 
 function getTotalMintedSoFar() {
+  const merged = getMergedEpochs();
+  if (merged.length) {
+    return merged.reduce((sum, item) => {
+      if (item.type === "manual") {
+        return sum + Number(item.minted || 0);
+      }
+      return sum + Number(trackerData?.epochSummary?.[item.epoch]?.minted ?? item.actualMinted ?? item.minted ?? 0);
+    }, 0);
+  }
+
   const manualMinted = getManualEpochs().reduce((sum, item) => sum + Number(item.minted || 0), 0);
   if (trackerData?.currentSupplyTotal != null) {
     return trackerData.currentSupplyTotal + manualMinted;
@@ -4600,13 +4610,13 @@ function renderStackedBarChart(containerId, data, options) {
           `).join("")}
         </svg>
       </div>
+      <div class="chart-legend">
+        ${options.series.map((item) => `<span><i style="background:${item.color}"></i>${escapeHtml(item.label)}</span>`).join("")}
+      </div>
       <div class="chart-scroll-controls ${isFullView ? "is-hidden" : ""}">
         <button class="button chart-scroll-controls__button" type="button" data-chart-scroll="${containerId}" data-direction="left">←</button>
         <span class="chart-scroll-controls__text">Drag the bar or use arrows to scroll</span>
         <button class="button chart-scroll-controls__button" type="button" data-chart-scroll="${containerId}" data-direction="right">→</button>
-      </div>
-      <div class="chart-legend">
-        ${options.series.map((item) => `<span><i style="background:${item.color}"></i>${escapeHtml(item.label)}</span>`).join("")}
       </div>
     </div>
   `;
@@ -4919,7 +4929,7 @@ function buildChronologicalChartRows(dayRows) {
 
 function isSpecialEpochLike(item) {
   const name = String(item?.name || "").trim().toLowerCase();
-  return item?.type === "manual" || name.startsWith("special");
+  return name.startsWith("special");
 }
 
 function getStatsEpochTypeFilter() {
