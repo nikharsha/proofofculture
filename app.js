@@ -10,6 +10,7 @@ const galleryAssetSourceHandleKey = "gallery-assets-source";
 const galleryAssetTargetHandleKey = "gallery-assets-target";
 const scraperEpochsHandleKey = "scraper-epochs-source";
 const hostedAdminSettingsPath = "data/admin_settings_live.json";
+const webAssetsManifestPath = "data/web_assets_manifest.json";
 const trackerCsvPath = "data/proof_of_culture_tracker_master.csv";
 const editionPalette = [69, 42, 33, 25, 11, 5, 1];
 const minimumTotalEpochs = 50;
@@ -611,6 +612,25 @@ function getDraftGalleryMetadataFromAsset(path) {
   };
 }
 
+function normalizeWebAssetList(assets = []) {
+  return [...new Set(
+    assets
+      .map((assetPath) => normalizeWebAssetPath(assetPath))
+      .filter((assetPath) => assetPath.startsWith("web_assets/") && isSupportedGalleryAsset(assetPath))
+  )].sort((a, b) => a.localeCompare(b));
+}
+
+async function fetchWebAssetsFromManifest() {
+  const response = await fetch(webAssetsManifestPath, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Could not read web assets manifest (${response.status})`);
+  }
+
+  const manifest = await response.json();
+  const assets = Array.isArray(manifest) ? manifest : manifest.assets;
+  return normalizeWebAssetList(assets || []);
+}
+
 async function fetchWebAssetsFromDirectory() {
   const response = await fetch("web_assets/", { cache: "no-store" });
   if (!response.ok) {
@@ -622,7 +642,21 @@ async function fetchWebAssetsFromDirectory() {
   const assets = Array.from(doc.querySelectorAll("a"))
     .map((link) => normalizeWebAssetPath(link.getAttribute("href") || link.textContent || ""))
     .filter((path) => path.startsWith("web_assets/") && isSupportedGalleryAsset(path));
-  return [...new Set(assets)].sort((a, b) => a.localeCompare(b));
+  return normalizeWebAssetList(assets);
+}
+
+async function fetchServedWebAssets() {
+  try {
+    const manifestAssets = await fetchWebAssetsFromManifest();
+    if (manifestAssets.length) return manifestAssets;
+  } catch (_) {}
+  return fetchWebAssetsFromDirectory();
+}
+
+async function loadKnownWebAssetsFromServedList() {
+  const scannedAssets = await fetchServedWebAssets();
+  knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
+  return scannedAssets;
 }
 
 function canUseDirectoryPicker() {
@@ -1048,8 +1082,7 @@ function buildDraftGalleryOverride(token, image) {
 }
 
 async function scanLocalWebAssetsAndDraftMissingEntries() {
-  const scannedAssets = await fetchWebAssetsFromDirectory();
-  knownWebAssets = [...new Set([...defaultKnownWebAssets, ...scannedAssets])];
+  const scannedAssets = await loadKnownWebAssetsFromServedList();
 
   const state = getProtocolState();
   const existingItems = getGalleryItems();
@@ -6812,7 +6845,7 @@ async function init() {
   }
 
   try {
-    await scanLocalWebAssetsAndDraftMissingEntries();
+    await loadKnownWebAssetsFromServedList();
   } catch (_) {}
 
   fillSummaryStrip();
