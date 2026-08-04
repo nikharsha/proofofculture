@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-08-04T14:28:37.412Z",
+  "exportedAt": "2026-08-04T22:47:16.239Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1779632371177",
@@ -1380,6 +1380,13 @@
         "qrtComment": 35,
         "onlyQrt": 36,
         "onlyComment": 281
+      },
+      {
+        "id": "engagement-1785883071094",
+        "targetKey": "epoch-20",
+        "qrtComment": 42,
+        "onlyQrt": 35,
+        "onlyComment": 240
       }
     ],
     "drawRecords": [
@@ -1890,6 +1897,21 @@
           }
         ],
         "mark": "#045"
+      },
+      {
+        "token": 46,
+        "title": "GM 20.0",
+        "epochName": "20",
+        "edition": "69 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/46",
+        "image": "web_assets/epoch20.webm",
+        "partnerArtists": [
+          {
+            "displayName": "akc",
+            "handle": "lineofakc"
+          }
+        ],
+        "mark": "#046"
       }
     ],
     "tradeListings": [],
@@ -2933,8 +2955,8 @@
         "cumulativePlanned": 862,
         "key": "epoch-20",
         "name": "Epoch 20",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 69,
+        "eligible": 69,
         "type": "standard"
       },
       {

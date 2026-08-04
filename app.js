@@ -646,11 +646,23 @@ async function fetchWebAssetsFromDirectory() {
 }
 
 async function fetchServedWebAssets() {
+  let manifestAssets = [];
+  let directoryAssets = [];
+
   try {
-    const manifestAssets = await fetchWebAssetsFromManifest();
-    if (manifestAssets.length) return manifestAssets;
+    manifestAssets = await fetchWebAssetsFromManifest();
   } catch (_) {}
-  return fetchWebAssetsFromDirectory();
+
+  try {
+    directoryAssets = await fetchWebAssetsFromDirectory();
+  } catch (_) {}
+
+  const mergedAssets = normalizeWebAssetList([...manifestAssets, ...directoryAssets]);
+  if (mergedAssets.length) return mergedAssets;
+
+  if (manifestAssets.length) return manifestAssets;
+  if (directoryAssets.length) return directoryAssets;
+  return [];
 }
 
 async function loadKnownWebAssetsFromServedList() {
