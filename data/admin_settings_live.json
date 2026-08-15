@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-08-15T17:11:47.592Z",
+  "exportedAt": "2026-08-15T19:02:00.174Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -160,6 +160,32 @@
         "recipients": "Aloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
         "start": "2026-08-14T21:45:00.000Z",
         "end": "2026-08-14T22:00:00.000Z"
+      },
+      {
+        "id": "manual-1786820424216",
+        "name": "Special 8.4",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "x3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1",
+        "start": "2026-08-16T05:00:00.000Z",
+        "end": "2026-08-15T19:00:00.000Z"
+      },
+      {
+        "id": "manual-1786820520117",
+        "name": "Special 8.5",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "RarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1",
+        "start": "2026-08-15T19:05:00.000Z",
+        "end": "2026-08-15T19:06:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -3195,6 +3221,36 @@
         "start": "2026-08-15T16:03:00.000Z",
         "end": "2026-08-15T17:03:00.000Z",
         "key": "manual-1786813397609",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1786820520117",
+        "name": "Special 8.5",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "RarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1",
+        "start": "2026-08-15T19:05:00.000Z",
+        "end": "2026-08-15T19:06:00.000Z",
+        "key": "manual-1786820520117",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1786820424216",
+        "name": "Special 8.4",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "x3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1",
+        "start": "2026-08-16T05:00:00.000Z",
+        "end": "2026-08-15T19:00:00.000Z",
+        "key": "manual-1786820424216",
         "type": "manual"
       },
       {
