@@ -1,8 +1,8 @@
 {
-  "exportedAt": "2026-08-14T14:19:29.422Z",
+  "exportedAt": "2026-08-15T17:11:47.592Z",
   "protocolState": {
     "currentEpochNumber": 8,
-    "liveEntryKey": "manual-1779632371177",
+    "liveEntryKey": "manual-1786747534818",
     "delayDays": 0,
     "extensionDays": 0,
     "paused": false,
@@ -121,6 +121,45 @@
         "recipients": "ImHaris24 | 0x675418460D204cA099AeAD3727E335e853B2009a | 1\nzumbah | 0xDDb9AB1421E6F1d864c01BA63FB05B183d5ea4d4 | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nAdamWeitsman | 0x1cf78c4f402ec925c7b997d8d739e8cff4d93022 | 1\nPow9chai | 0x081bcA4a664Cc3B440F3F6De5fEa209986056856 | 1\nJinnat_bhai | 0x5B37837b4f35EfC387Be3eeEc924a9A283876280 | 1\nandyvowell | 0x40C967Bd8f32DDA34947d3CC0c094B4c1c52fC34 | 1\neniola_ayoo | 0x6f525e111a6aa959ff0a8e3f98b0c62f5814fee0 | 1\nmrc_arte | 0x3A661a18CB0258119636DfDDe098648c6ad5bA62 | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1",
         "start": "2026-06-15T15:45:00.000Z",
         "end": "2026-06-16T15:45:00.000Z"
+      },
+      {
+        "id": "manual-1786813397609",
+        "name": "Special 8.3",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 day celebratory challenge",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "0xjcurve | 0xfC6116F1835228824FF53ea80A0A1842a736a3Ce | 1",
+        "start": "2026-08-15T16:03:00.000Z",
+        "end": "2026-08-15T17:03:00.000Z"
+      },
+      {
+        "id": "manual-1786747477439",
+        "name": "Special 8.1",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Custom contests for 150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "fairyseibot | 0xC297eB234a0D73e729266A39956Eb6bff9f073cA | 1",
+        "start": "2026-08-14T21:30:00.000Z",
+        "end": "2026-08-14T21:45:00.000Z"
+      },
+      {
+        "id": "manual-1786747534818",
+        "name": "Special 8.2",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Custom for 150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "Aloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
+        "start": "2026-08-14T21:45:00.000Z",
+        "end": "2026-08-14T22:00:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -1367,6 +1406,14 @@
         "dayNumber": 12,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2088254814152949766?s=20"
+      },
+      {
+        "id": "tweet-epoch-21-day-13-1",
+        "targetKey": "epoch-21",
+        "kind": "day",
+        "dayNumber": 13,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2088621983512563917?s=20"
       }
     ],
     "engagementOverrides": [
@@ -1992,6 +2039,56 @@
           }
         ],
         "mark": "#046"
+      },
+      {
+        "token": 49,
+        "title": "Special 8.3",
+        "epochName": "Special 8",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/49",
+        "image": "web_assets/special8.3.webm",
+        "partnerArtists": [],
+        "mark": "#049"
+      },
+      {
+        "token": 47,
+        "title": "Special 8.1",
+        "epochName": "Special 8",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/47",
+        "image": "web_assets/special8.1.webm",
+        "partnerArtists": [],
+        "mark": "#047"
+      },
+      {
+        "token": 48,
+        "title": "Special 8.2",
+        "epochName": "Special 8",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/48",
+        "image": "web_assets/special8.2.webm",
+        "partnerArtists": [],
+        "mark": "#048"
+      },
+      {
+        "token": 50,
+        "title": "Special 8.4",
+        "epochName": "Special 8",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/50",
+        "image": "web_assets/special8.4.webm",
+        "partnerArtists": [],
+        "mark": "#050"
+      },
+      {
+        "token": 51,
+        "title": "Special 8.5",
+        "epochName": "Special 8",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/51",
+        "image": "web_assets/special8.5.webm",
+        "partnerArtists": [],
+        "mark": "#051"
       }
     ],
     "tradeListings": [],
@@ -3054,6 +3151,51 @@
         "minted": 0,
         "eligible": 0,
         "type": "standard"
+      },
+      {
+        "id": "manual-1786747477439",
+        "name": "Special 8.1",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Custom contests for 150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "fairyseibot | 0xC297eB234a0D73e729266A39956Eb6bff9f073cA | 1",
+        "start": "2026-08-14T21:30:00.000Z",
+        "end": "2026-08-14T21:45:00.000Z",
+        "key": "manual-1786747477439",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1786747534818",
+        "name": "Special 8.2",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Custom for 150 days of PoC",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "Aloungkot | 0x8ecc6CdD9C8120911f0e126ad7d6a674125A8Aa4 | 1",
+        "start": "2026-08-14T21:45:00.000Z",
+        "end": "2026-08-14T22:00:00.000Z",
+        "key": "manual-1786747534818",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1786813397609",
+        "name": "Special 8.3",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "150 day celebratory challenge",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "0xjcurve | 0xfC6116F1835228824FF53ea80A0A1842a736a3Ce | 1",
+        "start": "2026-08-15T16:03:00.000Z",
+        "end": "2026-08-15T17:03:00.000Z",
+        "key": "manual-1786813397609",
+        "type": "manual"
       },
       {
         "epoch": 22,
