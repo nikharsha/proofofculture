@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-08-25T15:13:48.587Z",
+  "exportedAt": "2026-08-25T22:03:10.452Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -1620,6 +1620,13 @@
         "qrtComment": 42,
         "onlyQrt": 35,
         "onlyComment": 240
+      },
+      {
+        "id": "engagement-1787695112320",
+        "targetKey": "epoch-21",
+        "qrtComment": 43,
+        "onlyQrt": 43,
+        "onlyComment": 209
       }
     ],
     "drawRecords": [
@@ -1732,6 +1739,16 @@
         "drawDate": "2026-07-20T21:10:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@0xaq_ @Abraham_F2011 @absurdeity @Aloungkot @andyvowell @anifowose58 @ArhamAb38467843 @bangprut @convobrianhere @DankyHashpantz @Dr_Ayesha81 @eitzisart @glassspy @ham_dan1999 @happylolohappy0 @HulegoSol @iteration_2 @JohnPaulBraden @livesawave @nogweidotcom @ol1y_art @Poodri_2000 @Qoheleth3000 @rabiamasood327 @RaymondConnol15 @SecretariYat @sooAwais1 @t420_g @VSTRVL_FFF @wagmiforreal @web3girliie @x3n1n @zumbah"
+      },
+      {
+        "id": "draw-1787694725720",
+        "epoch": "21",
+        "editionSize": 25,
+        "eligibleCount": 51,
+        "drawOutput": "25",
+        "drawDate": "2026-08-25T21:33:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@0xjcurve\n@Abraham_F2011\n@absurdeity\n@Aloungkot\n@Andrew_Mike2011\n@ansshere\n@convobrianhere\n@DankyHashpantz\n@dondiiieeee\n@eitzisart\n@fairyseibot\n@glassspy\n@gpebbles\n@happylolohappy0\n@jibraatka666\n@JohnPaulBraden\n@MichaelBuda2\n@moonzoey_zuu\n@rabiamasood327\n@rain41\n@RaymondConnol15\n@SecretariYat\n@suparno67\n@VSTRVL_FFF\n@x3n1n"
       }
     ],
     "opsChecklist": {},
@@ -2195,6 +2212,21 @@
         "image": "web_assets/special8.5.webm",
         "partnerArtists": [],
         "mark": "#051"
+      },
+      {
+        "token": 52,
+        "title": "GM 21.0",
+        "epochName": "21",
+        "edition": "25 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/52",
+        "image": "web_assets/epoch21.webm",
+        "partnerArtists": [
+          {
+            "displayName": "Brynn Alise",
+            "handle": "brynnalise_sc"
+          }
+        ],
+        "mark": "#052"
       }
     ],
     "tradeListings": [],
@@ -3254,8 +3286,8 @@
         "cumulativePlanned": 887,
         "key": "epoch-21",
         "name": "Epoch 21",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 25,
+        "eligible": 25,
         "type": "standard"
       },
       {
