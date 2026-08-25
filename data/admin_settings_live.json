@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-08-24T14:28:09.497Z",
+  "exportedAt": "2026-08-25T15:13:48.587Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -1512,6 +1512,14 @@
         "dayNumber": 22,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2091875924501483955?s=20"
+      },
+      {
+        "id": "tweet-epoch-22-day-1-1",
+        "targetKey": "epoch-22",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2092239822425383078?s=20"
       }
     ],
     "engagementOverrides": [
@@ -2807,7 +2815,7 @@
         "key": "epoch-1",
         "name": "Epoch 1",
         "minted": 34,
-        "eligible": 34,
+        "eligible": 44,
         "type": "standard"
       },
       {
@@ -2823,7 +2831,7 @@
         "key": "epoch-2",
         "name": "Epoch 2",
         "minted": 15,
-        "eligible": 15,
+        "eligible": 16,
         "type": "standard"
       },
       {
@@ -2839,7 +2847,7 @@
         "key": "epoch-3",
         "name": "Epoch 3",
         "minted": 35,
-        "eligible": 35,
+        "eligible": 42,
         "type": "standard"
       },
       {
@@ -2855,7 +2863,7 @@
         "key": "epoch-4",
         "name": "Epoch 4",
         "minted": 45,
-        "eligible": 45,
+        "eligible": 61,
         "type": "standard"
       },
       {
@@ -2871,7 +2879,7 @@
         "key": "epoch-5",
         "name": "Epoch 5",
         "minted": 37,
-        "eligible": 37,
+        "eligible": 40,
         "type": "standard"
       },
       {
@@ -2887,7 +2895,7 @@
         "key": "epoch-6",
         "name": "Epoch 6",
         "minted": 53,
-        "eligible": 53,
+        "eligible": 56,
         "type": "standard"
       },
       {
@@ -2917,8 +2925,8 @@
         "actualMinted": null,
         "key": "epoch-7",
         "name": "Epoch 7",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 1,
+        "eligible": 1,
         "type": "standard"
       },
       {
@@ -2933,8 +2941,8 @@
         "cumulativePlanned": 330,
         "key": "epoch-8",
         "name": "Epoch 8",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 55,
+        "eligible": 58,
         "type": "standard"
       },
       {
@@ -2949,8 +2957,8 @@
         "cumulativePlanned": 355,
         "key": "epoch-9",
         "name": "Epoch 9",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 25,
+        "eligible": 25,
         "type": "standard"
       },
       {
@@ -2965,8 +2973,8 @@
         "cumulativePlanned": 424,
         "key": "epoch-10",
         "name": "Epoch 10",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 69,
+        "eligible": 69,
         "type": "standard"
       },
       {
@@ -2981,8 +2989,8 @@
         "cumulativePlanned": 466,
         "key": "epoch-11",
         "name": "Epoch 11",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 42,
+        "eligible": 42,
         "type": "standard"
       },
       {
@@ -2997,8 +3005,8 @@
         "cumulativePlanned": 481,
         "key": "epoch-12",
         "name": "Epoch 12",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 15,
+        "eligible": 15,
         "type": "standard"
       },
       {
@@ -3028,8 +3036,8 @@
         "cumulativePlanned": 506,
         "key": "epoch-13",
         "name": "Epoch 13",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 25,
+        "eligible": 25,
         "type": "standard"
       },
       {
@@ -3059,8 +3067,8 @@
         "cumulativePlanned": 575,
         "key": "epoch-14",
         "name": "Epoch 14",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 64,
+        "eligible": 64,
         "type": "standard"
       },
       {
@@ -3075,8 +3083,8 @@
         "cumulativePlanned": 580,
         "key": "epoch-15",
         "name": "Epoch 15",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 5,
+        "eligible": 5,
         "type": "standard"
       },
       {
@@ -3151,8 +3159,8 @@
         "cumulativePlanned": 649,
         "key": "epoch-16",
         "name": "Epoch 16",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 62,
+        "eligible": 63,
         "type": "standard"
       },
       {
@@ -3167,8 +3175,8 @@
         "cumulativePlanned": 691,
         "key": "epoch-17",
         "name": "Epoch 17",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 42,
+        "eligible": 42,
         "type": "standard"
       },
       {
@@ -3198,8 +3206,8 @@
         "cumulativePlanned": 760,
         "key": "epoch-18",
         "name": "Epoch 18",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 68,
+        "eligible": 69,
         "type": "standard"
       },
       {
@@ -3214,8 +3222,8 @@
         "cumulativePlanned": 793,
         "key": "epoch-19",
         "name": "Epoch 19",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 32,
+        "eligible": 33,
         "type": "standard"
       },
       {
@@ -3230,8 +3238,8 @@
         "cumulativePlanned": 862,
         "key": "epoch-20",
         "name": "Epoch 20",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 69,
+        "eligible": 69,
         "type": "standard"
       },
       {
