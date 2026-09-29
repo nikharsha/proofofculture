@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-09-29T17:45:02.551Z",
+  "exportedAt": "2026-09-29T20:12:42.875Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -186,6 +186,19 @@
         "recipients": "RarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1",
         "start": "2026-08-15T19:05:00.000Z",
         "end": "2026-08-15T19:06:00.000Z"
+      },
+      {
+        "id": "manual-1790707838500",
+        "name": "Special 9",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "QRT",
+        "daysNeeded": 1,
+        "editionSize": 10,
+        "minted": 10,
+        "recipients": "0xjcurve | 0xfC6116F1835228824FF53ea80A0A1842a736a3Ce | 1\nRarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nliapsart | 0x4EA033BD2B7cAa2EA03cb5b87e98Bc5a339F302a | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nVSTRVL_FFF | 0x8EFceB29863FB0B62C73C6C9c23f10F24243EBFA | 1\nDr_Ayesha81 | 0x405254E261e261422f85579AC645F578B5dc318d | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nZunairaUsman84 | 0x1Db72097e4a2a7E7b7e6128227bC33B97096befb | 1\nAndrew_Mike2011 | 0x06d91ac13bc9cb6451ba1573d7ada37ce1c3b9a7 | 1",
+        "start": "2026-09-18T18:00:00.000Z",
+        "end": "2026-09-27T18:00:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -1514,6 +1527,14 @@
         "link": "https://x.com/1xharsh/status/2091875924501483955?s=20"
       },
       {
+        "id": "tweet-epoch-23-day-1-1",
+        "targetKey": "epoch-23",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2104922642973175831?s=20"
+      },
+      {
         "id": "tweet-epoch-22-day-1-1",
         "targetKey": "epoch-22",
         "kind": "day",
@@ -1794,12 +1815,12 @@
         "link": "https://x.com/1xharsh/status/2104565540068982838?s=20"
       },
       {
-        "id": "tweet-epoch-23-day-1-1",
-        "targetKey": "epoch-23",
-        "kind": "day",
-        "dayNumber": 1,
+        "id": "tweet-epoch-22-wallet-0-1",
+        "targetKey": "epoch-22",
+        "kind": "wallet",
+        "dayNumber": 0,
         "variant": 1,
-        "link": "https://x.com/1xharsh/status/2104922642973175831?s=20"
+        "link": "https://x.com/1xharsh/status/2105011584649302160?s=20"
       }
     ],
     "engagementOverrides": [
@@ -1907,6 +1928,13 @@
         "qrtComment": 43,
         "onlyQrt": 43,
         "onlyComment": 209
+      },
+      {
+        "id": "engagement-1790707974652",
+        "targetKey": "epoch-22",
+        "qrtComment": 45,
+        "onlyQrt": 60,
+        "onlyComment": 283
       }
     ],
     "drawRecords": [
@@ -2507,6 +2535,36 @@
           }
         ],
         "mark": "#052"
+      },
+      {
+        "token": 53,
+        "title": "GM 22.0",
+        "epochName": "22",
+        "edition": "38 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/53",
+        "image": "web_assets/epoch22.webm",
+        "partnerArtists": [
+          {
+            "displayName": "SIGMA-X",
+            "handle": "_sigmaX_"
+          }
+        ],
+        "mark": "#053"
+      },
+      {
+        "token": 54,
+        "title": "Special 9.0",
+        "epochName": "Special 9",
+        "edition": "10 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/54",
+        "image": "web_assets/special9.webm",
+        "partnerArtists": [
+          {
+            "displayName": "Jenya Vyguzov",
+            "handle": "jenyavyguzov"
+          }
+        ],
+        "mark": "#054"
       }
     ],
     "tradeListings": [],
@@ -3658,8 +3716,23 @@
         "key": "epoch-22",
         "name": "Epoch 22",
         "minted": 0,
-        "eligible": 0,
+        "eligible": 38,
         "type": "standard"
+      },
+      {
+        "id": "manual-1790707838500",
+        "name": "Special 9",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "QRT",
+        "daysNeeded": 1,
+        "editionSize": 10,
+        "minted": 10,
+        "recipients": "0xjcurve | 0xfC6116F1835228824FF53ea80A0A1842a736a3Ce | 1\nRarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nliapsart | 0x4EA033BD2B7cAa2EA03cb5b87e98Bc5a339F302a | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nVSTRVL_FFF | 0x8EFceB29863FB0B62C73C6C9c23f10F24243EBFA | 1\nDr_Ayesha81 | 0x405254E261e261422f85579AC645F578B5dc318d | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nZunairaUsman84 | 0x1Db72097e4a2a7E7b7e6128227bC33B97096befb | 1\nAndrew_Mike2011 | 0x06d91ac13bc9cb6451ba1573d7ada37ce1c3b9a7 | 1",
+        "start": "2026-09-18T18:00:00.000Z",
+        "end": "2026-09-27T18:00:00.000Z",
+        "key": "manual-1790707838500",
+        "type": "manual"
       },
       {
         "epoch": 23,

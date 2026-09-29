@@ -54,6 +54,8 @@
     "web_assets/epoch20.webm",
     "web_assets/epoch21.jpg",
     "web_assets/epoch21.webm",
+    "web_assets/epoch22.jpg",
+    "web_assets/epoch22.webm",
     "web_assets/epoch7.jpg",
     "web_assets/epoch8.1.jpg",
     "web_assets/epoch8.2.jpg",
@@ -74,6 +76,8 @@
     "web_assets/special8.4.jpg",
     "web_assets/special8.4.webm",
     "web_assets/special8.5.jpg",
-    "web_assets/special8.5.webm"
+    "web_assets/special8.5.webm",
+    "web_assets/special9.jpg",
+    "web_assets/special9.webm"
   ]
 }
