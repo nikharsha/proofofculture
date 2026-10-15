@@ -5351,6 +5351,30 @@ function clearManualEpochForm() {
   applyButton.textContent = "Add Manual Epoch";
 }
 
+function populateManualEpochForm(record) {
+  if (!record) return;
+  document.getElementById("override-name").value = record.name || "";
+  document.getElementById("override-status").value = record.manualStatus || "future";
+  document.getElementById("override-phase").value = record.phase || "";
+  const eligibilityMode = ["QRT only", "Comment only", "QRT + Comment", "RT + Comment", "RT Only", "Comment or QRT"].includes(record.eligibility)
+    ? record.eligibility
+    : "Custom";
+  document.getElementById("override-eligibility-mode").value = eligibilityMode;
+  document.getElementById("override-eligibility-mode").dataset.manualEdited = "true";
+  document.getElementById("override-eligibility-custom").value = eligibilityMode === "Custom" ? (record.eligibility || "") : "";
+  document.getElementById("override-days-needed").value = String(record.daysNeeded || "");
+  document.getElementById("override-edition-size").value = String(record.editionSize || "");
+  document.getElementById("override-minted").value = String(record.minted || 0);
+  const start = new Date(record.start);
+  const end = new Date(record.end);
+  document.getElementById("override-start").value = new Date(start.getTime() - (start.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  document.getElementById("override-end").value = new Date(end.getTime() - (end.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  document.getElementById("override-recipients").value = serializeManualRecipients(parseManualRecipients(record.recipients));
+  const applyButton = document.getElementById("override-apply");
+  applyButton.dataset.editingId = record.id;
+  applyButton.textContent = "Update Manual Epoch";
+}
+
 function clearEligibilityOverrideForm() {
   document.getElementById("eligibility-override-mode").value = "Comment or QRT";
   document.getElementById("eligibility-override-custom").value = "";
@@ -5543,7 +5567,13 @@ function clearTimelineAdjustmentForm() {
 function renderManualEpochList() {
   const container = document.getElementById("manual-epoch-list");
   if (!container) return;
-  const manualEpochs = getManualEpochs();
+  const getCreatedTime = (item) => {
+    const explicitTime = new Date(item.createdAt || "").getTime();
+    if (Number.isFinite(explicitTime)) return explicitTime;
+    const idTime = Number(String(item.id || "").match(/^manual-(\d+)$/)?.[1] || 0);
+    return idTime || item.start.getTime();
+  };
+  const manualEpochs = [...getManualEpochs()].sort((a, b) => getCreatedTime(b) - getCreatedTime(a));
   if (!manualEpochs.length) {
     container.innerHTML = `<div class="chart-empty">No manual epochs added yet.</div>`;
     return;
@@ -5563,6 +5593,7 @@ function renderManualEpochList() {
       ${(parseManualRecipients(item.recipients).length ? `<div class="admin-manual-item__meta"><span>Recipients: ${escapeHtml(parseManualRecipients(item.recipients).map((recipient) => recipient.user).join(", "))}</span></div>` : "")}
       <div class="hero__actions">
         <button class="button" type="button" data-manual-edit="${escapeHtml(item.id)}">Edit</button>
+        <button class="button" type="button" data-manual-duplicate="${escapeHtml(item.id)}">Duplicate</button>
         <button class="button" type="button" data-manual-delete="${escapeHtml(item.id)}">Delete</button>
       </div>
     </article>
@@ -5571,25 +5602,29 @@ function renderManualEpochList() {
   container.querySelectorAll("[data-manual-edit]").forEach((button) => {
     button.addEventListener("click", () => {
       const record = getManualEpochs().find((item) => item.id === button.dataset.manualEdit);
+      populateManualEpochForm(record);
+    });
+  });
+
+  container.querySelectorAll("[data-manual-duplicate]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const currentCardKey = getMergedEpochs()[heroDeckIndex]?.key;
+      const state = getProtocolState();
+      const record = (state.manualEpochs || []).find((item) => item.id === button.dataset.manualDuplicate);
       if (!record) return;
-      document.getElementById("override-name").value = record.name || "";
-      document.getElementById("override-status").value = record.manualStatus || "future";
-      document.getElementById("override-phase").value = record.phase || "";
-      const eligibilityMode = ["QRT only", "Comment only", "QRT + Comment", "RT + Comment", "RT Only", "Comment or QRT"].includes(record.eligibility)
-        ? record.eligibility
-        : "Custom";
-      document.getElementById("override-eligibility-mode").value = eligibilityMode;
-      document.getElementById("override-eligibility-mode").dataset.manualEdited = "true";
-      document.getElementById("override-eligibility-custom").value = eligibilityMode === "Custom" ? (record.eligibility || "") : "";
-      document.getElementById("override-days-needed").value = String(record.daysNeeded || "");
-      document.getElementById("override-edition-size").value = String(record.editionSize || "");
-      document.getElementById("override-minted").value = String(record.minted || 0);
-      document.getElementById("override-start").value = new Date(record.start.getTime() - (record.start.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-      document.getElementById("override-end").value = new Date(record.end.getTime() - (record.end.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-      document.getElementById("override-recipients").value = serializeManualRecipients(parseManualRecipients(record.recipients));
-      const applyButton = document.getElementById("override-apply");
-      applyButton.dataset.editingId = record.id;
-      applyButton.textContent = "Update Manual Epoch";
+      const duplicate = {
+        ...record,
+        id: `manual-${Date.now()}`,
+        name: `Copy of ${record.name || "Manual Epoch"}`,
+        createdAt: new Date().toISOString()
+      };
+      setProtocolState({
+        ...state,
+        manualEpochs: [...(state.manualEpochs || []), duplicate]
+      });
+      syncHeroDeckIndex(currentCardKey);
+      renderDelayState();
+      populateManualEpochForm(duplicate);
     });
   });
 
@@ -6234,8 +6269,10 @@ function setupDelayControls() {
     const end = document.getElementById("override-end").value;
     if (!start || !end) return;
     const editingId = document.getElementById("override-apply").dataset.editingId || "";
+    const existingRecord = (state.manualEpochs || []).find((item) => item.id === editingId);
     const nextRecord = {
       id: editingId || `manual-${Date.now()}`,
+      createdAt: existingRecord?.createdAt || new Date().toISOString(),
       name: document.getElementById("override-name").value || `Manual Epoch ${Date.now()}`,
       manualStatus: document.getElementById("override-status").value || "future",
       phase: document.getElementById("override-phase").value || "Manual",

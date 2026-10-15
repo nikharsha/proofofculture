@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-14T17:30:31.817Z",
+  "exportedAt": "2026-10-15T04:52:24.674Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -199,6 +199,155 @@
         "recipients": "0xjcurve | 0xfC6116F1835228824FF53ea80A0A1842a736a3Ce | 1\nRarePatterns | 0xf74c235e38fb5b27fb13b1751ca63a6c37ab55d7 | 1\nliapsart | 0x4EA033BD2B7cAa2EA03cb5b87e98Bc5a339F302a | 1\nx3n1n | 0x34433cb54d406d231cd511567f33ce1914fc888e | 1\nVSTRVL_FFF | 0x8EFceB29863FB0B62C73C6C9c23f10F24243EBFA | 1\nDr_Ayesha81 | 0x405254E261e261422f85579AC645F578B5dc318d | 1\nconvobrianhere | 0xE85041b675b616f635798A63db467289E5aA1E4D | 1\nChumwizards | 0x0183645e27c363ED2D1a3E8B036B0877d7882f52 | 1\nZunairaUsman84 | 0x1Db72097e4a2a7E7b7e6128227bC33B97096befb | 1\nAndrew_Mike2011 | 0x06d91ac13bc9cb6451ba1573d7ada37ce1c3b9a7 | 1",
         "start": "2026-09-18T18:00:00.000Z",
         "end": "2026-09-27T18:00:00.000Z"
+      },
+      {
+        "id": "manual-1792038640672",
+        "name": "Special 10.1",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@zumbah | 0xddb9ab1421e6f1d864c01ba63fb05b183d5ea4d4 | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039013381",
+        "name": "Special 10.2",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@rabiamasood327 | 0x2132234ddeacc84fe4ee3d7fd0eb9f7417e01e87 | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039181816",
+        "name": "Special 10.3",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "0xaq_|0xda035d4e5dfa3defa9cd5a57d5c2e41b1546a1d2|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039215320",
+        "name": "Special 10.4",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@HulegoSol|0x23f0eddc3cc470dc848d3f3d6bd97f1421229569|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039242783",
+        "name": "Special 10.5",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@Poodri_2000|0x380a868f4323b3bbf8d387cf4893daa4e550b5c7|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039329788",
+        "createdAt": "2026-10-15T04:42:09.788Z",
+        "name": "Special 10.6",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@ArhamAb38467843|0xb6fa859fd34334a161e9479bde8052127c20a674|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039354105",
+        "createdAt": "2026-10-15T04:42:34.105Z",
+        "name": "Special 10.7",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@andyvowell|0x40C967Bd8f32DDA34947d3CC0c094B4c1c52fC34|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039374751",
+        "createdAt": "2026-10-15T04:42:54.751Z",
+        "name": "Special 10.8",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@wagmiforreal|0x50112899b92d502b1d5bcb1bf7a55be1d010e50f|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039396426",
+        "createdAt": "2026-10-15T04:43:16.426Z",
+        "name": "Special 10.9",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@convobrianhere|0xE85041b675b616f635798A63db467289E5aA1E4D|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039414680",
+        "createdAt": "2026-10-15T04:43:34.680Z",
+        "name": "Special 10.10",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@bangprut|0x165db07eecc01590c2157a2e42fd95412b1ccc08|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
+      },
+      {
+        "id": "manual-1792039434018",
+        "createdAt": "2026-10-15T04:43:54.018Z",
+        "name": "Special 10.11",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@1xharsh | 0x0f94325DCc0e118fb3454Bceff6bcd814aD2b58f | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z"
       }
     ],
     "eligibilityOverrides": [
@@ -2685,6 +2834,171 @@
           }
         ],
         "mark": "#054"
+      },
+      {
+        "token": 66,
+        "title": "Special 10.1",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/66",
+        "image": "web_assets/special10.1.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#066"
+      },
+      {
+        "token": 67,
+        "title": "Special 10.2",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/67",
+        "image": "web_assets/special10.2.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#067"
+      },
+      {
+        "token": 68,
+        "title": "Special 10.3",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/68",
+        "image": "web_assets/special10.3.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#068"
+      },
+      {
+        "token": 58,
+        "title": "Special 10.4",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/58",
+        "image": "web_assets/special10.4.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#058"
+      },
+      {
+        "token": 59,
+        "title": "Special 10.5",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/59",
+        "image": "web_assets/special10.5.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#059"
+      },
+      {
+        "token": 69,
+        "title": "Special 10.6",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/69",
+        "image": "web_assets/special10.6.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#069"
+      },
+      {
+        "token": 70,
+        "title": "Special 10.7",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/70",
+        "image": "web_assets/special10.7.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#070"
+      },
+      {
+        "token": 71,
+        "title": "Special 10.8",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/71",
+        "image": "web_assets/special10.8.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#071"
+      },
+      {
+        "token": 72,
+        "title": "Special 10.9",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/72",
+        "image": "web_assets/special10.9.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#072"
+      },
+      {
+        "token": 73,
+        "title": "Special 10.10",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/73",
+        "image": "web_assets/special10.10.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#073"
+      },
+      {
+        "token": 74,
+        "title": "Special 10.11",
+        "epochName": "Special 10",
+        "edition": "1/1",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/74",
+        "image": "web_assets/special10.11.jpg",
+        "partnerArtists": [
+          {
+            "displayName": "jak",
+            "handle": "JakNFT"
+          }
+        ],
+        "mark": "#074"
       }
     ],
     "tradeListings": [],
@@ -3869,6 +4183,177 @@
         "minted": 0,
         "eligible": 0,
         "type": "standard"
+      },
+      {
+        "id": "manual-1792038640672",
+        "name": "Special 10.1",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@zumbah | 0xddb9ab1421e6f1d864c01ba63fb05b183d5ea4d4 | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792038640672",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039414680",
+        "createdAt": "2026-10-15T04:43:34.680Z",
+        "name": "Special 10.10",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@bangprut|0x165db07eecc01590c2157a2e42fd95412b1ccc08|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039414680",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039434018",
+        "createdAt": "2026-10-15T04:43:54.018Z",
+        "name": "Special 10.11",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@1xharsh | 0x0f94325DCc0e118fb3454Bceff6bcd814aD2b58f | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039434018",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039013381",
+        "name": "Special 10.2",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@rabiamasood327 | 0x2132234ddeacc84fe4ee3d7fd0eb9f7417e01e87 | 1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039013381",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039181816",
+        "name": "Special 10.3",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "0xaq_|0xda035d4e5dfa3defa9cd5a57d5c2e41b1546a1d2|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039181816",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039215320",
+        "name": "Special 10.4",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@HulegoSol|0x23f0eddc3cc470dc848d3f3d6bd97f1421229569|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039215320",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039242783",
+        "name": "Special 10.5",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@Poodri_2000|0x380a868f4323b3bbf8d387cf4893daa4e550b5c7|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039242783",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039329788",
+        "createdAt": "2026-10-15T04:42:09.788Z",
+        "name": "Special 10.6",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@ArhamAb38467843|0xb6fa859fd34334a161e9479bde8052127c20a674|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039329788",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039354105",
+        "createdAt": "2026-10-15T04:42:34.105Z",
+        "name": "Special 10.7",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@andyvowell|0x40C967Bd8f32DDA34947d3CC0c094B4c1c52fC34|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039354105",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039374751",
+        "createdAt": "2026-10-15T04:42:54.751Z",
+        "name": "Special 10.8",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@wagmiforreal|0x50112899b92d502b1d5bcb1bf7a55be1d010e50f|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039374751",
+        "type": "manual"
+      },
+      {
+        "id": "manual-1792039396426",
+        "createdAt": "2026-10-15T04:43:16.426Z",
+        "name": "Special 10.9",
+        "manualStatus": "complete",
+        "phase": "Special",
+        "eligibility": "Comment or QRT",
+        "daysNeeded": 1,
+        "editionSize": 1,
+        "minted": 1,
+        "recipients": "@convobrianhere|0xE85041b675b616f635798A63db467289E5aA1E4D|1",
+        "start": "2026-10-15T04:30:00.000Z",
+        "end": "2026-10-15T05:30:00.000Z",
+        "key": "manual-1792039396426",
+        "type": "manual"
       },
       {
         "epoch": 24,
