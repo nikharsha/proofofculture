@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-16T16:35:18.410Z",
+  "exportedAt": "2026-10-16T17:07:04.445Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -2220,6 +2220,20 @@
         "qrtComment": 45,
         "onlyQrt": 60,
         "onlyComment": 283
+      },
+      {
+        "id": "engagement-1792170422819",
+        "targetKey": "epoch-23",
+        "qrtComment": 25,
+        "onlyQrt": 26,
+        "onlyComment": 206
+      },
+      {
+        "id": "engagement-1792170424419",
+        "targetKey": "epoch-1",
+        "qrtComment": 0,
+        "onlyQrt": 0,
+        "onlyComment": 0
       }
     ],
     "drawRecords": [
@@ -2342,6 +2356,16 @@
         "drawDate": "2026-08-25T21:33:00.000Z",
         "drawMode": "Manual",
         "winnerList": "@0xjcurve\n@Abraham_F2011\n@absurdeity\n@Aloungkot\n@Andrew_Mike2011\n@ansshere\n@convobrianhere\n@DankyHashpantz\n@dondiiieeee\n@eitzisart\n@fairyseibot\n@glassspy\n@gpebbles\n@happylolohappy0\n@jibraatka666\n@JohnPaulBraden\n@MichaelBuda2\n@moonzoey_zuu\n@rabiamasood327\n@rain41\n@RaymondConnol15\n@SecretariYat\n@suparno67\n@VSTRVL_FFF\n@x3n1n"
+      },
+      {
+        "id": "draw-1792170319765",
+        "epoch": "23",
+        "editionSize": 11,
+        "eligibleCount": 45,
+        "drawOutput": "11",
+        "drawDate": "2026-10-16T17:00:00.000Z",
+        "drawMode": "Manual",
+        "winnerList": "@0xjcurve @absurdeity @Chumwizards @DtheletterD @happylolohappy0 @liapsart @moonzoey_zuu @rain41 @SecretariYat @wagmiforreal @x3n1n"
       }
     ],
     "opsChecklist": {},
@@ -3015,6 +3039,21 @@
           }
         ],
         "mark": "#074"
+      },
+      {
+        "token": 75,
+        "title": "GM 23.0",
+        "epochName": "23",
+        "edition": "11 EDITIONS",
+        "os": "https://opensea.io/item/ethereum/0x9bb456e4c65e2d017d755e058b1652b1d225a856/75",
+        "image": "web_assets/epoch23.webm",
+        "partnerArtists": [
+          {
+            "displayName": "skitch",
+            "handle": "skitchism"
+          }
+        ],
+        "mark": "#075"
       }
     ],
     "tradeListings": [],
@@ -4196,8 +4235,8 @@
         "cumulativePlanned": 967,
         "key": "epoch-23",
         "name": "Epoch 23",
-        "minted": 0,
-        "eligible": 0,
+        "minted": 11,
+        "eligible": 11,
         "type": "standard"
       },
       {
