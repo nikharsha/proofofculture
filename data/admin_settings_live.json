@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-16T17:19:41.923Z",
+  "exportedAt": "2026-10-19T15:50:16.422Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -1964,22 +1964,6 @@
         "link": "https://x.com/1xharsh/status/2105011584649302160?s=20"
       },
       {
-        "id": "tweet-epoch-24-day-1-1",
-        "targetKey": "epoch-24",
-        "kind": "day",
-        "dayNumber": 1,
-        "variant": 1,
-        "link": "https://x.com/1xharsh/status/2110720345254895886?s=20"
-      },
-      {
-        "id": "tweet-epoch-24-day-2-1",
-        "targetKey": "epoch-24",
-        "kind": "day",
-        "dayNumber": 2,
-        "variant": 1,
-        "link": "https://x.com/1xharsh/status/2111089276188569937?s=20"
-      },
-      {
         "id": "tweet-epoch-23-day-1-1",
         "targetKey": "epoch-23",
         "kind": "day",
@@ -2114,6 +2098,46 @@
         "dayNumber": 0,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2111144928961352035?s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-1-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 1,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2110720345254895886?s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-2-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 2,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2111089276188569937?s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-3-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 3,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2111443359869133022?s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-4-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 4,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2111811283800428589?s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-5-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 5,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2112177949596377573?s=20"
       }
     ],
     "engagementOverrides": [
