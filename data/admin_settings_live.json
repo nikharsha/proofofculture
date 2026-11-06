@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-29T14:09:17.743Z",
+  "exportedAt": "2026-11-06T15:29:43.020Z",
   "protocolState": {
     "currentEpochNumber": 8,
     "liveEntryKey": "manual-1786747534818",
@@ -2218,6 +2218,70 @@
         "dayNumber": 15,
         "variant": 1,
         "link": "https://x.com/1xharsh/status/2115793272279028060"
+      },
+      {
+        "id": "tweet-epoch-24-day-16-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 16,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2116160441496076693?a=eqxRdEJ8WWDAep-ZYb0&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-17-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 17,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2116525598180802588?a=XWbfq5LUlctHqrJTVrk&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-18-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 18,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2116894528359797068?a=thXRoN3Yw4wipVfh4zk&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-19-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 19,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2117263711429689781?a=NOrtkdJPM9ttMdKpuds&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-20-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 20,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2117623079455113339?a=6IQo7JeBsLKa3FNJrtg&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-21-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 21,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2117983705239339182?a=fibpP6pTbFez-SCQ0Bg&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-22-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 22,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2118353391198048262?a=QYg-o8zhFp67d0rO9eY&s=20"
+      },
+      {
+        "id": "tweet-epoch-24-day-23-1",
+        "targetKey": "epoch-24",
+        "kind": "day",
+        "dayNumber": 23,
+        "variant": 1,
+        "link": "https://x.com/1xharsh/status/2118705461780185221?a=cOor-YLTkmq4SgCSx2Y&s=20"
       }
     ],
     "engagementOverrides": [
